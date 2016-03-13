@@ -4,7 +4,6 @@
   "description": "Sonos Web UI",
   "main": "gulpfile.js",
   "dependencies": {
-<<<<<<< HEAD
     "browserify": "^13.0.0",
     "del": "^2.2.0",
     "babelify": "^7.2.0",
@@ -29,24 +28,12 @@
     "vinyl-source-stream": "^1.1.0",
     "vinyl-buffer": "^1.0.0",
     "watchify": "^3.7.0"
-=======
-    "express": "^4.13.4",
-    "gulp": "^3.9.1",
-    "gulp-less": "^3.0.5",
-    "gulp-uglify": "^1.5.3",
-    "jade": "^1.11.0",
-    "sonos-discovery": "git+https://github.com/jishi/node-sonos-discovery.git"
->>>>>>> 2d116f1c01a3a3f91cc7fb24826e8c81ba59ebc9
   },
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-<<<<<<< HEAD
     "start": "gulp bundle && node server.js",
     "clean": "gulp clean"
-=======
-    "start": "node server.js"
->>>>>>> 2d116f1c01a3a3f91cc7fb24826e8c81ba59ebc9
   },
   "repository": {
     "type": "git",

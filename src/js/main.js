@@ -9,11 +9,6 @@ var playState = 0; // paused
 var muteState = 0; // unmuted
 var lastAlbumArt = '';
 
-var socket = io.connect('http://192.168.1.149:8888');
-var playState = 0; // paused
-var muteState = 0; // unmuted
-var lastAlbumArt = '';
-
 document.getElementById('openMenu').addEventListener('click', () => {
     var body = document.getElementsByTagName('body')[0];
     var menu = document.getElementById('menu');
@@ -73,7 +68,6 @@ Array.prototype.forEach.call(menuEntries, function(el) {
 var volumeBar = document.getElementById('volumeBar');
 var volumeBar_inner = volumeBar.getElementsByClassName('inner')[0];
 var volumeBarIndicator = document.getElementById('volumeBarIndicator');
-<<<<<<< HEAD
 var muteButton = document.getElementById('muteButton');
 var time = document.getElementById('time');
 var seekBar = document.getElementById('seekbar');
@@ -85,16 +79,6 @@ var menuEntries = menuElements.getElementsByClassName('entry');
 
 // Iterator
 var i;
-=======
-
-var muteButton = document.getElementById('muteButton');
-
-var time = document.getElementById('time');
-var seekBar = document.getElementById('seekbar');
-var seekBarInner = seekBar.getElementsByClassName('bar')[0];
-
-var playBar = document.getElementById('playBar');
->>>>>>> 2d116f1c01a3a3f91cc7fb24826e8c81ba59ebc9
 
 /* EVENTS */
 
@@ -129,7 +113,6 @@ muteButton.addEventListener('click', (e) => {
     }
 });
 
-<<<<<<< HEAD
 function menuEntryEvent(mEntry) {
     mEntry.addEventListener('click', () => {
         gotoPage(mEntry.getAttribute('data-page'));
@@ -142,8 +125,6 @@ for (i = 0; i < menuEntries.length; i++) {
     }
 }
 
-=======
->>>>>>> 2d116f1c01a3a3f91cc7fb24826e8c81ba59ebc9
 /* Functions */
 
 function secondsToText(seconds) {
