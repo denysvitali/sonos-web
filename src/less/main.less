@@ -1,0 +1,394 @@
+@tBheight: 60px;
+@sLheight: @tBheight * 0.5;
+@tBmLeft: 20px;
+@tbColor: #009688;
+@playBarColor: @tbColor;
+@menuWidth: 350px;
+@menuTransition: 0.2s margin-left ease;
+@menuTransitionInner: 0.2s left ease;
+
+@import "inc/_prefixer.less";
+@import "inc/_material.less";
+@import "inc/roboto.less";
+
+body{
+	font-family: 'Roboto';
+	color: #333;
+	background-color: #EEE;
+	z-index: 3;
+	margin: 0;
+}
+
+body>div.inner{
+	position: absolute;
+	top: -20px;
+	background-color: #EEE;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding-top: @tBheight + /*@sLheight+*/ 20px;
+	padding-left: @tBmLeft;
+	.z-depth(2);
+	.transition(@menuTransitionInner);
+	z-index: 200;
+}
+
+body.menu-open>div.inner{
+	left: @menuWidth;
+	.transition(@menuTransitionInner);
+}
+
+body.menu-open #playBar{
+	left: @menuWidth;
+	.transition(@menuTransitionInner);
+}
+
+body.menu-open{
+	#topBar{
+		margin-left: @menuWidth;
+		.transition(@menuTransition);
+	}
+
+	margin-left: @menuWidth + @tBmLeft;
+	.transition(@menuTransition);
+}
+
+#topBar{
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: @tBheight;
+	background-color: @tbColor;
+	z-index: 300;
+
+	.left{
+		color: #FFF;
+		float: left;
+		width: 50%;
+		height: @tBheight;
+
+		&:after{
+			display: block;
+			content: "";
+			clear: both;
+		}
+
+		@fsize: 1.4em;
+
+		span.menu-icon{
+			float: left;
+			display: block;
+			font-size: @fsize*.95;
+			height: @tBheight;
+			line-height: @tBheight;
+			margin-left: @tBmLeft;
+			cursor: pointer;
+		}
+
+		label.pname{
+			float: left;
+			display: block;
+			color: #FFF;
+			font-size: @fsize;
+			height: @tBheight;
+			line-height: @tBheight;
+			width: auto;
+			text-align: left;
+			margin-left: @tBmLeft;
+		}
+	}
+}
+
+/*#secondLine{
+	position: absolute;
+	background-color: @tbColor;
+	top: @tBheight + 20px;
+	left: 0;
+	right: 0;
+	height: @sLheight;
+	z-index: 2;
+}*/
+
+body, #topBar/*, #secondLine, #menu*/{
+	.transition(@menuTransition);
+}
+
+#menu{
+	position: fixed;
+	margin-left: -@menuWidth;
+	left: 0px;
+	top: 0;
+	bottom: 0px;
+	width: @menuWidth;
+	z-index: 100;
+	overflow: hidden;
+	.transition(@menuTransition);
+
+	div.hero{
+		position: relative;
+		height: 150px;
+		width: 100%;
+		overflow: hidden;
+
+		div.image{
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			z-index: 1;
+		}
+
+		div.overlay{
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: rgba(0,0,0,0.4);
+			z-index: 2;
+		}
+
+		div.info-box{
+			position: absolute;
+			bottom: 20px;
+			left: 20px;
+			right: 20px;
+			color: #FFF;
+			z-index: 3;
+
+			label{
+				display: block;
+			}
+
+			label.room{
+				font-weight: bold;
+				font-size: 1.3em;
+			}
+		}
+
+		div.image.hero-music{
+			background-image: url('/img/hero/girl-music.jpg');
+			/*background-size: auto 100%;*/
+			background-size: cover;
+			background-position: auto 100%;
+			background-repeat: no-repeat;
+		}
+	}
+
+	div.menu-elements{
+		margin-top: 20px;
+		div.entry{
+			cursor: pointer;
+			color: #666;
+			@height: 45px;
+			height: @height;
+			width: 100%;
+			font-size: 1.25em;
+			@margin: 30px;
+			padding-left: @margin;
+			padding-right: @margin;
+
+			span, label{
+				cursor: inherit;
+				display: block;
+				float: left;
+				height: @height;
+				line-height: @height;
+			}
+			span{
+				font-size: 1.2em;
+				width: 30px;
+			}
+			label{
+				margin-left: @margin;
+			}
+
+			label:after{
+				display: block;
+				content:"";
+				clear: both;
+			}
+		}
+
+		div.entry.active{
+			background-color: #DDD;
+		}
+	}
+}
+
+#menu.menu-open{
+	margin-left: 0;
+	.transition(@menuTransition);
+}
+
+#playBar{
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 120px;
+	background-color: @playBarColor;
+	.transition(@menuTransitionInner);
+	z-index: 300;
+
+	div.songInfo{
+		@songInfoW: 490px;
+		@albumW: 80px;
+		position: absolute;
+		color: #FFF;
+		top: 20px;
+		left: @tBmLeft;
+		width: @songInfoW;
+		height: 80px;
+
+		div.albumImage{
+			position: relative;
+			float: left;
+			width: @albumW;
+			height: @albumW;
+			background-size: 100% 100%;
+
+			img{
+				position: absolute;
+				top: 0px;
+				left: 0px;
+				right: 0px;
+				bottom: 0px;
+				width: 100%;
+				height: 100%;
+			}
+		}
+
+		div.textBox{
+			@tboxMLeft: 20px;
+			float: left;
+			margin-left: 20px;
+			height: 100%;
+
+			div.songTitle{
+				font-size: 1.3em;
+				height: 30px;
+				line-height: 30px;
+				margin-top: 10px;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				width: @songInfoW - @albumW - @tboxMLeft;
+				overflow: hidden;
+			}
+			div.artistName{
+				color: #CCC;
+				margin-top: 5px;
+				font-size: 0.9em;
+				text-overflow: ellipse;
+				white-space: no-wrap;
+			}
+
+			&:after{
+				display: block;
+				content: "";
+				clear: both;
+			}
+		}
+	}
+
+	div.seekbar{
+		position: absolute;
+		top: 0px;
+		left: 0px;
+		right: 0px;
+		height: 5px;
+
+		div.bar{
+			position: absolute;
+			left: 0;
+			width: 40%;
+			height: 100%;
+			background-color: #00796b;
+			transition: width 2s ease;
+		}
+	}
+
+	div#muteButton{
+		cursor: pointer;
+		position: absolute;
+		top: 50%;
+		left: 75%;
+		width: 25px;
+		color: #FFF;
+		font-size: 1.3em;
+		margin-top: -20px;
+		line-height: 40px;
+		text-align: center;
+		margin-left: -150px;
+		height: 40px;
+	}
+
+	div.volumebar{
+		position: absolute;
+		top: 50%;
+		left: 75%;
+		margin-left: -100px;
+		width: 200px;
+		background-color: rgba(255,255,255,0.2);
+		height: 20px;
+		margin-top: -10px;
+
+		div.inner{
+			background-color: rgba(255,255,255,0.6);
+			position: absolute;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			width: 0;
+		}
+	}
+
+	div.vbarIndicator{
+		position: absolute;
+		color: #FFF;
+		top: 50%;
+		left: 75%;
+		margin-top: -10px;
+		margin-left: 120px;
+		width: 40px;
+		text-align: center;
+		height: 20px;
+	}
+
+	div.controls{
+		position: absolute;
+		top: 40px;
+		left: 50%;
+		margin-left: -106px;
+		height: 40px;
+		overflow: hidden;
+		width: 212px;
+		color: #FFF;
+		font-size: 2.5em;
+
+		span{
+			cursor: pointer;
+			display: block;
+			float: left;
+			margin-left: 10px;
+		}
+
+		span.fa.fa-play, span.fa.fa-pause{
+			margin-left: 60px;
+			margin-right: 50px;
+			width: 35px;
+		}
+	}
+
+	div.time{
+		position: absolute;
+		color: #FFF;
+		right: @tBmLeft;
+		top: 50%;
+		height: 40px;
+		line-height: 40px;
+		margin-top: -20px;
+	}
+}
