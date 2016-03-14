@@ -117,7 +117,7 @@ gulp.task('bundle', ['less'], function() {
  * amounts of media.
  */
 gulp.task('watch', ['bundle'], function() {
-    var watcher = gulp.watch('./src/**/*', ['refresh']);
+    var watcher = gulp.watch('./src/**/*', []);
     watcher.on('change', function(event) {
         console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
     });

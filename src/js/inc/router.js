@@ -1,7 +1,11 @@
 'use strict';
 class Router {
     constructor() {
-        console.log('I\'m the router');
+       	
+    }
+
+    getRoute(page){
+    	return page;
     }
 }
 

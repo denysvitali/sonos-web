@@ -33,6 +33,14 @@ app.get('/', (req, res) => {
     res.render('index');
 });
 
+app.get('/pages/home', (req, res) => {
+    res.render('pages/home');
+});
+
+app.get('/pages/party', (req, res) => {
+    res.render('pages/party');
+});
+
 function broadcastState() {
     if (thePlayer !== null && clientsReady > 0) {
         var aa = thePlayer.getState();
