@@ -30,7 +30,7 @@ var customOpts = {
     ignore: ['./src/js/libs/**']
 };
 var opts = assign({}, watchify.args, customOpts);
-var b = watchify(browserify(opts));
+var b = browserify(opts);
 b.on('log', gutil.log);
 
 /**
@@ -83,7 +83,7 @@ gulp.task('css', ['fonts'], function() {
 gulp.task('less', ['css'], function() {
     return gulp.src(['./src/less/*.less'])
         .pipe(less())
-        .pipe(gulp.dest('./public/css'));   
+        .pipe(gulp.dest('./public/css'));
 });
 
 /**
@@ -104,7 +104,7 @@ gulp.task('bundle', ['less'], function() {
         }))
         .pipe(sourcemaps.write('./'))
         .pipe(rename('app.min.js'))
-        .pipe(gulp.dest('./public/js'));
+        .pipe(gulp.dest('./public/js'))
 });
 
 /**

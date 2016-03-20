@@ -40,7 +40,6 @@ class UI {
         this.elements.menu = document.getElementById('menu');
         this.elements.menu._elements = this.elements.menu.getElementsByClassName('menu-elements')[0];
         this.elements.menu._elements._entries = this.elements.menu._elements.getElementsByClassName('entry');
-        this.elements.streamElements = document.getElementsByClassName('streams')[0].getElementsByClassName('stream-el');
         this.elements.roomName = document.getElementById('roomName');
         this.elements.heroMenuImage = document.getElementById('hero-menu-image');
 
@@ -150,9 +149,16 @@ class UI {
 
     streamElements() {
         var t = this;
+        t.elements.streamElements = document.getElementsByClassName('stream-el');
 
         function clickStream() {
-            t._playManager.playMp3(this.getAttribute('data-stream'));
+            var el = this;
+            t._playManager.playMp3(el.getAttribute('data-stream'), {
+                title: el.getAttribute('data-title'),
+                albumArt: el.getAttribute('data-albumart'),
+                album: 'Album',
+                duration: t._utils.secondsToTextUpnp(Math.round(el.getAttribute('data-duration')/1000))
+            });
         }
 
         for (var i in this.elements.streamElements) {
@@ -286,14 +292,13 @@ class UI {
         } else {
             this.labels.time.innerHTML = this._utils.secondsToText(elapsed) + '/' + this._utils.secondsToText(remaining);
         }
-        this.elements.seekBar._inner.style.width = Math.round(elapsed / remaining * 100, 2) + '%';
+        this.elements.seekBar._inner.style.width = (elapsed / remaining) * 100 + '%';
     }
 
     setTrack(track) {
         var tb = this.elements.playBar.getElementsByClassName('songInfo')[0].getElementsByClassName('textBox')[0];
         var artist = tb.getElementsByClassName('artistName')[0];
         var title = tb.getElementsByClassName('songTitle')[0];
-
         artist.innerHTML = track.artist;
         title.innerHTML = track.title;
 
@@ -305,7 +310,12 @@ class UI {
     }
 
     setAlbumArt(track) {
-        var url = '/sonos' + track.albumArtURI + '\'';
+        var url;
+        if (track.albumArtURI.match(/^\/.*/)) {
+            url = '/sonos' + track.albumArtURI + '\'';
+        } else {
+            url = track.albumArtURI;
+        }
         if (this._lastAlbumArt !== url) {
             var albumImage = this.elements.playBar.getElementsByClassName('albumImage')[0].getElementsByTagName('img')[0];
             albumImage.src = url;

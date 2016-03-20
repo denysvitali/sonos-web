@@ -1,0 +1,12 @@
+<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+<item id="%id%" parentID="" restricted="0">
+	<dc:title>%title%</dc:title>
+	<upnp:class>object.item.audioItem.musicTrack</upnp:class>
+	<res protocolInfo="http-get:*:audio/mpeg:*" duration="%duration%" sampleFrequency="44100" nrAudioChannels="2">http://</res>
+	<upnp:albumArtURI xmlns:dlna="urn:schemas-dlna-org:metadata-2-0/" dlna:profileID="JPEG_TN">%albumart%</upnp:albumArtURI>
+	<upnp:artist>%artist%</upnp:artist>
+	<!--<upnp:originalTrackNumber>2</upnp:originalTrackNumber>-->
+	<upnp:album>%album%</upnp:album>
+	<upnp:creator>%artist%</upnp:creator>
+</item>
+</DIDL-Lite>

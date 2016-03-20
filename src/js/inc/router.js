@@ -15,6 +15,14 @@ class Router {
     			var uidebug = new UIDebugEv(this._ui);
     			uidebug.run();
     		break;
+
+            case 'home':
+                this._ui.streamElements();
+            break;
+
+            case 'soundcloud':
+                this._ui.streamElements();
+            break;
     	}
     }
 }

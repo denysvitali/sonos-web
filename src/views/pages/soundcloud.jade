@@ -1,0 +1,19 @@
+h1 Soundcloud
+div.soundcloud
+ div.section
+  input.search(type="text" placeholder="Take a look around")
+ -for(var i in charts){
+ -if(charts.hasOwnProperty(i)){
+ -var topChart = charts[i];
+  div.section
+   div.title Hottest tracks in #{i}
+   div.streams
+    -for(var i2 in topChart){
+    -if(topChart.hasOwnProperty(i2)){
+    div.stream-el(data-stream="#{topChart[i2].track.permalink_url}" data-title="#{topChart[i2].track.title}" data-albumart="#{topChart[i2].track.artwork_url}" data-duration="#{topChart[i2].track.duration}")
+     div.image
+      img(src="#{topChart[i2].track.artwork_url}")
+      div.overlay
+       div.playIcon.fa.fa-play
+     label #{topChart[i2].track.title}
+    -}}}}

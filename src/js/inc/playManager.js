@@ -4,15 +4,18 @@ class PlayManager {
         this._socket = object.socket;
     }
 
-    playMp3(url) {
-        this._socket.emit('playUrl', {
-            trackUrl: url,
-            metadata: {
+    playMp3(url, metadata) {
+        if (metadata === null) {
+            metadata = {
                 title: 'Title',
                 artist: 'Artist',
                 album: 'Album',
-                albumArt: 'https://media.licdn.com/mpr/mpr/shrink_200_200/AAEAAQAAAAAAAASbAAAAJGI2OGM3NjgyLWIwMTYtNDEzMi04YTkzLTFkM2U2NjJiM2NjOA.png'
-            }
+                albumArt: ''
+            };
+        }
+        this._socket.emit('playUrl', {
+            trackUrl: url,
+            metadata: metadata
         });
     }
 }
