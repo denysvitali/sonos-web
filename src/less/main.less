@@ -138,6 +138,9 @@ body, #topBar/*, #secondLine, #menu*/{
 			right: 0;
 			bottom: 0;
 			z-index: 1;
+			background-size: cover;
+			background-position: auto 100%;
+			background-repeat: no-repeat;
 		}
 
 		div.overlay{
@@ -170,10 +173,54 @@ body, #topBar/*, #secondLine, #menu*/{
 
 		div.image.hero-music{
 			background-image: url('/img/hero/girl-music.jpg');
-			/*background-size: auto 100%;*/
-			background-size: cover;
-			background-position: auto 100%;
-			background-repeat: no-repeat;
+		}
+
+		div.image.hero-bedroom{
+			background-image: url('/img/hero/bedroom.jpg');
+		}
+
+		div.image.hero-bathroom{
+			background-image: url('/img/hero/bathroom.jpg');
+		}
+
+		div.image.hero-diningroom{
+			background-image: url('/img/hero/diningroom.jpg');
+		}
+
+		div.image.hero-hall{
+			background-image: url('/img/hero/hall.jpg');
+		}
+
+		div.image.hero-hallway{
+			background-image: url('/img/hero/hallway.jpg');
+		}
+
+		div.image.hero-kitchen{
+			background-image: url('/img/hero/kitchen.jpg');
+		}
+
+		div.image.hero-livingroom{
+			background-image: url('/img/hero/livingroom.jpg');
+		}
+
+		div.image.hero-mediaroom{
+			background-image: url('/img/hero/mediaroom.jpg');
+		}
+
+		div.image.hero-patio{
+			background-image: url('/img/hero/patio.jpg');
+		}
+
+		div.image.hero-playroom{
+			background-image: url('/img/hero/playroom.jpg');
+		}
+
+		div.image.hero-pool{
+			background-image: url('/img/hero/pool.jpg');
+		}
+
+		div.image.hero-tvroom{
+			background-image: url('/img/hero/tvroom.jpg');
 		}
 	}
 
@@ -390,5 +437,87 @@ body, #topBar/*, #secondLine, #menu*/{
 		height: 40px;
 		line-height: 40px;
 		margin-top: -20px;
+	}
+}
+
+div.home{
+	div.streams{
+		&:after{
+			display: block;
+			content: "";
+			clear: both;
+		}
+
+		div.stream-el:first-child{
+			margin-left: 0;
+		}
+		div.stream-el{
+			position: relative;
+			float: left;
+			@width: 150px;
+			overflow: hidden;
+			width: @width;
+			height: 200px;
+			margin-left: 2em;
+
+			div.image{
+				position: relative;
+				display: block;
+				width: @width;
+				height: @width;
+				top: 0;
+				left: 0;
+				margin: 0;
+				overflow: hidden;
+
+				img{
+					position: absolute;
+					width: @width;
+					height: @width;
+					z-index: 1;
+				}
+				div.overlay{
+					cursor: pointer;
+					position: absolute;
+					top: 0;
+					left: 0;
+					right: 0;
+					bottom: 0;
+					z-index: 2;
+					background-color: rgba(0,0,0,0.65);
+					opacity: 0;
+					transition: opacity 0.5s ease;
+					div.playIcon{
+						color: #FFF;
+						position: absolute;
+						top: 50%;
+						left: 50%;
+						margin-left: -12px;
+						margin-top: -20px;
+						height: 40px;
+						width: 24px;
+						line-height: 40px;
+						font-size: 30px;
+						overflow: hidden;
+					}
+				}
+			}
+
+			label{
+				display: block;
+				width: @width;
+				height: 50px;
+				line-height: 50px;
+				text-align: center;
+			}
+		}
+
+		div.stream-el:hover{
+			div.image{
+				div.overlay{
+					opacity: 1;
+				}
+			}
+		}
 	}
 }

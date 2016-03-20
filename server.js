@@ -41,11 +41,16 @@ app.get('/pages/party', (req, res) => {
     res.render('pages/party');
 });
 
+app.get('/pages/uidebug', (req, res) => {
+    res.render('pages/uidebug');
+});
+
 function broadcastState() {
     if (thePlayer !== null && clientsReady > 0) {
         var aa = thePlayer.getState();
         io.emit('data', {
-            state: aa
+            state: aa,
+            roomName: thePlayer.roomName
         });
     }
 }
@@ -115,12 +120,32 @@ function playerControlEvents(client) {
             }
         }
     });
+
+    // playManager
+
+    client.on('playUrl', (obj) => {
+        //var metadata = '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">  <item id="'+obj.trackUrl+'" parentID="100f006cFavoriteArtistTracksContainer%3a651391" restricted="true">    <dc:title>Superwoman (Radio Edit)</dc:title>    <upnp:class>object.item.audioItem.musicTrack</upnp:class>    <desc id="cdudn" nameSpace="urn:schemas-rinconnetworks-com:metadata-1-0/">SA_RINCON12807_k.nielsen81@gmail.com</desc>  </item></DIDL-Lite>';
+        var metadata = '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><item id="%url%" parentID="" restricted="true"><upnp:albumArtURI>%albumArt%</upnp:albumArtURI><dc:title>%title%</dc:title><upnp:class>object.item.audioItem.musicTrack</upnp:class>   <dc:creator>%artist%</dc:creator><upnp:album>%album%</upnp:album><upnp:originalTrackNumber>%trackNo%</upnp:originalTrackNumber><desc id="cdudn" nameSpace="urn:schemas-rinconnetworks-com:metadata-1-0/">SA_RINCON2311_X_#Svc2311-0-Token</desc></item></DIDL-Lite>';
+        metadata = metadata.replace('%url%', encodeURIComponent(obj.trackUrl));
+        metadata = metadata.replace('%albumArt%', encodeURIComponent(obj.metadata.albumArt));
+        metadata = metadata.replace('%title%', encodeURIComponent(obj.metadata.title));
+        metadata = metadata.replace('%artist%', encodeURIComponent(obj.metadata.artist));
+        metadata = metadata.replace('%album%', encodeURIComponent(obj.metadata.album));
+        metadata = metadata.replace('%trackNo%', 1);
+        /*var rand = '00030020';
+        var track_id = 1234;
+        var uri = 'x-sonos-spotify:spotify%3atrack%3a'+track_id;
+        metadata = '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"><item id="' + rand + 'spotify%3atrack%3a' + track_id + '" restricted="true"><dc:title></dc:title><upnp:class>object.item.audioItem.musicTrack</upnp:class><desc id="cdudn" nameSpace="urn:schemas-rinconnetworks-com:metadata-1-0/">SA_RINCON2311_X_#Svc2311-0-Token</desc></item></DIDL-Lite>';*/
+        thePlayer.setAVTransportURI(obj.trackUrl, metadata);
+    });
 }
 
 var discovery = new SonosDiscovery();
 discovery.on('transport-state', function(player) {
     thePlayer = discovery.players[thePlayer.uuid];
+    console.log(thePlayer.roomName);
     io.emit('data', {
+        'roomName': thePlayer.roomName,
         'state': thePlayer.state,
         'elapsedTime': thePlayer.elapsedTime
     });

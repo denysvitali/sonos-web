@@ -1,11 +1,18 @@
 'use strict';
 import Utils from './utils.js';
 import Router from './router.js';
+import PlayManager from './playManager.js';
 class UI {
     constructor(objects) {
         this._socket = objects.socket;
         this._utils = new Utils();
-        this._router = new Router();
+        this._router = new Router(this);
+        this._playManager = new PlayManager({
+            socket: this._socket
+        });
+        this._localStore = {
+            roomName: ''
+        };
     }
 
     prepare() {
@@ -33,12 +40,15 @@ class UI {
         this.elements.menu = document.getElementById('menu');
         this.elements.menu._elements = this.elements.menu.getElementsByClassName('menu-elements')[0];
         this.elements.menu._elements._entries = this.elements.menu._elements.getElementsByClassName('entry');
+        this.elements.streamElements = document.getElementsByClassName('streams')[0].getElementsByClassName('stream-el');
+        this.elements.roomName = document.getElementById('roomName');
+        this.elements.heroMenuImage = document.getElementById('hero-menu-image');
 
         this.menuListener();
         this.playPauseListener();
         this.volumeListener();
         this.muteListener();
-
+        this.streamElements();
     }
 
     getPlayState() {
@@ -48,6 +58,77 @@ class UI {
     setPlayState(pstate) {
         this._playState = pstate;
     }
+
+    getRoomName() {
+        return this._localStore.roomName;
+    }
+
+    setRoomName(roomName) {
+        this._localStore.roomName = roomName;
+        this.elements.roomName.innerHTML = roomName;
+        this.autoHeroMenuImage(roomName);
+    }
+
+    autoHeroMenuImage(roomName) {
+        var ctx = this;
+        var removeClasses = function() {
+            var classes = ctx.elements.heroMenuImage.classList;
+            for (var i in classes) {
+                if (classes.hasOwnProperty(i)) {
+                    if (classes[i].match(/^hero-.*$/i)) {
+                        classes.remove(classes[i]);
+                    }
+                }
+            }
+        };
+
+        var addClass = function(className) {
+            ctx.elements.heroMenuImage.classList.add(className);
+        };
+
+        if (roomName.match(/camera|bedroom/i)) {
+            removeClasses();
+            addClass('hero-bedroom');
+        } else if (roomName.match(/bagno|bathroom/i)) {
+            removeClasses();
+            addClass('hero-bathroom');
+        } else if (roomName.match(/sala da pranzo|dining room/i)) {
+            removeClasses();
+            addClass('hero-diningroom');
+        } else if (roomName.match(/entrata|atrio|foyer|hall(?!way)/i)) {
+            removeClasses();
+            addClass('hero-hall');
+        } else if (roomName.match(/corridoio|hallway/i)) {
+            removeClasses();
+            addClass('hero-hallway');
+        } else if (roomName.match(/cucina|kitchen/i)) {
+            removeClasses();
+            addClass('hero-kitchen');
+        } else if (roomName.match(/salotto|lounge|living room/i)) {
+            removeClasses();
+            addClass('hero-livingroom');
+        } else if (roomName.match(/media room/i)) {
+            removeClasses();
+            addClass('hero-mediaroom');
+        } else if (roomName.match(/cortile|patio/i)) {
+            removeClasses();
+            addClass('hero-patio');
+        } else if (roomName.match(/stanza dei giochi|playroom/i)) {
+            removeClasses();
+            addClass('hero-playroom');
+        } else if (roomName.match(/piscina|pool/i)) {
+            removeClasses();
+            addClass('hero-pool');
+        } else if (roomName.match(/tv room|stanza della tv/i)) {
+            removeClasses();
+            addClass('hero-tvroom');
+        } else {
+            removeClasses();
+            addClass('hero-music');
+        }
+    }
+
+
 
     getMuteState() {
         return this._muteState;
@@ -65,6 +146,20 @@ class UI {
     setButtonPaused() {
         this.buttons.playPause.classList.remove('fa-pause');
         this.buttons.playPause.classList.add('fa-play');
+    }
+
+    streamElements() {
+        var t = this;
+
+        function clickStream() {
+            t._playManager.playMp3(this.getAttribute('data-stream'));
+        }
+
+        for (var i in this.elements.streamElements) {
+            if (this.elements.streamElements.hasOwnProperty(i)) {
+                this.elements.streamElements[i].addEventListener('click', clickStream);
+            }
+        }
     }
 
     menuListener() {
@@ -125,15 +220,15 @@ class UI {
     }
 
     gotoPage(page) {
-        this._router.getRoute(page);
+        var routedPage = this._router.getRoute(page);
         var oReq = new XMLHttpRequest();
         oReq.addEventListener('load', () => {
-            if(oReq.status === 200)
-            {
-            	this.mE.content.innerHTML = oReq.responseText;
+            if (oReq.status === 200) {
+                this.mE.content.innerHTML = oReq.responseText;
+                this._router.events(routedPage);
             }
         });
-        oReq.open('GET', '/pages/' + page);
+        oReq.open('GET', '/pages/' + routedPage);
         oReq.send();
     }
 

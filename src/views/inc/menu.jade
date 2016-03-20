@@ -1,10 +1,10 @@
 div#menu
  div.hero
   div.overlay
-  div.image.hero-music
+  div#hero-menu-image.image.hero-music
   div.info-box
    label Selected room:
-   label.room Camera da letto
+   label#roomName.room 
  div.menu-elements
   div.entry(data-page="home")
    span.icon.fa.fa-home
@@ -15,6 +15,9 @@ div#menu
   div.entry(data-page="party")
    span.icon.fa.fa-music
    label Party
+  div.entry(data-page="uidebug")
+   span.icon.fa.fa-bug
+   label UI Debug
   div.entry(data-page="settings")
    span.icon.fa.fa-gear
    label Settings

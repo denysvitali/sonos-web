@@ -1,1 +1,12 @@
-h1 Home
+div.home
+ h1 Home
+ h2 Your streams
+ div.streams
+  -for(i = 0; i<6; i++){
+  div.stream-el(data-stream="http://sampleswap.org/mp3/artist/5101/Peppy--The-Firing-Squad_YMXB-320.mp3")
+   div.image
+    img(src="/img/dummy/stream.jpg")
+    div.overlay
+     div.playIcon.fa.fa-play
+   label BBC R1
+  -}

@@ -1,7 +1,7 @@
 'use strict';
 import UI from './inc/uievents.js';
 
-var socket = io.connect('http://192.168.1.149:8888');
+var socket = io.connect('http://' + window.location.hostname + ':8888');
 var ui = new UI({
     socket: socket
 });
@@ -19,6 +19,12 @@ socket.on('connect', function() {
             } else if (ui.getPlayState() === 1 && (data.state.playerState === 'STOPPED' || data.state.playerState === 'PAUSED_PLAYBACK')) {
                 ui.setPlayState(0);
                 ui.setButtonPaused();
+            }
+
+            if (data.roomName !== undefined) {
+                if (ui.getRoomName() !== data.roomName) {
+                    ui.setRoomName(data.roomName);
+                }
             }
 
             if (data.state.mute === true && ui.getMuteState() === 0) {
