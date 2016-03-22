@@ -21,9 +21,11 @@ To use sonos-web you need:
 `cd sonos-web/`
 3. Install the dependencies  
 `npm install`
-4. Start the server  
+4. Install gulp systemwide  
+`npm install -g gulp`
+5. Start the server  
 `npm start`
-5. See if it works, visit [http://localhost:8888/](http://localhost:8888/) or visit http://your-server-ip:8888/ from another location
+6. See if it works, visit [http://localhost:8888/](http://localhost:8888/) or visit http://your-server-ip:8888/ from another location
 
 ##Plugins
 This is a list of planned plugins

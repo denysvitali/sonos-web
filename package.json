@@ -13,6 +13,7 @@
     "socket.io": "^1.4.5",
     "request": "^2.69.0",
     "sonos-discovery": "git+https://github.com/denysvitali/node-sonos-discovery",
+    "color": "^0.11.1", 
     "gulp": "^3.9.1",
     "gulp-less": "^3.0.5",
     "gulp-rename": "^1.2.2",
