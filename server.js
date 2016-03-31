@@ -155,7 +155,7 @@ app.get('/pages/party', (req, res) => {
 app.get('/pages/soundcloud', (req, res) => {
     var scplugin = plugins['sonos-web-soundcloud'];
     if (scplugin !== undefined) {
-        var charts = ['ambient', 'deephouse'];
+        var charts = ['all-music','ambient', 'deephouse'];
         var chartsObj = {};
         var promiseArr = [];
         for (var i in charts) {
