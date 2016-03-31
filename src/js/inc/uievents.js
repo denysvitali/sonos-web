@@ -155,6 +155,7 @@ class UI {
             var el = this;
             t._playManager.playMp3(el.getAttribute('data-stream'), {
                 title: el.getAttribute('data-title'),
+                artist: el.getAttribute('data-artist'),
                 albumArt: el.getAttribute('data-albumart'),
                 album: 'Album',
                 duration: t._utils.secondsToTextUpnp(Math.round(el.getAttribute('data-duration')/1000))

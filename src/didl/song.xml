@@ -1,12 +1,11 @@
-<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
-<item id="%id%" parentID="" restricted="0">
-	<dc:title>%title%</dc:title>
+<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+<item id="-1" parentID="-1">
+	<res protocolInfo="http-get:*:audio/mpeg:*" duration="%duration%">%url</res>
+	<upnp:albumArtURI>%albumart%</upnp:albumArtURI>
 	<upnp:class>object.item.audioItem.musicTrack</upnp:class>
-	<res protocolInfo="http-get:*:audio/mpeg:*" duration="%duration%" sampleFrequency="44100" nrAudioChannels="2">http://</res>
-	<upnp:albumArtURI xmlns:dlna="urn:schemas-dlna-org:metadata-2-0/" dlna:profileID="JPEG_TN">%albumart%</upnp:albumArtURI>
-	<upnp:artist>%artist%</upnp:artist>
-	<!--<upnp:originalTrackNumber>2</upnp:originalTrackNumber>-->
+	<dc:title>%title%</dc:title>
+	<dc:creator>%artist%</dc:creator>
 	<upnp:album>%album%</upnp:album>
-	<upnp:creator>%artist%</upnp:creator>
+	<!--<upnp:originalTrackNumber>2</upnp:originalTrackNumber>-->
 </item>
 </DIDL-Lite>

@@ -7,7 +7,6 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const SonosDiscovery = require('sonos-discovery');
 const request = require('request');
-const crypto = require('crypto');
 
 // Console functions
 const warn = (msg) => {
@@ -158,11 +157,14 @@ app.get('/pages/soundcloud', (req, res) => {
         var charts = ['all-music','ambient', 'deephouse'];
         var chartsObj = {};
         var promiseArr = [];
+        var promPush = (el)=>{
+          promiseArr.push(scplugin.getTopChart(el).then((result) => {
+              chartsObj[result.cat] = result.coll;
+          }));
+        };
         for (var i in charts) {
             if (charts.hasOwnProperty(i)) {
-                promiseArr.push(scplugin.getTopChart(charts[i]).then((result) => {
-                    chartsObj[result.cat] = result.coll;
-                }));
+                promPush(charts[i]);
             }
         }
         Promise.all(promiseArr).then(() => {
@@ -278,9 +280,9 @@ function playerControlEvents(client) {
         try {
             metadata = fs.readFileSync(__dirname + '/src/didl/'+type+'.xml').toString();
             //metadata = metadata.replace(/%id%/g, crypto.createHash('md5').update(obj.trackUrl).digest('hex'));
-            metadata = metadata.replace(/%id%/g, Math.round(Math.random() * 100000));
             metadata = metadata.replace(/%title%/g, escapeHTML(obj.metadata.title));
-            metadata = metadata.replace(/%artist%/g, 'Various');
+            metadata = metadata.replace(/%artist%/g, obj.metadata.artist);
+            metadata = metadata.replace(/%url%/g, obj.trackUrl);
             metadata = metadata.replace(/%album%/g, obj.metadata.album);
             metadata = metadata.replace(/%albumart%/g, obj.metadata.albumArt);
             metadata = metadata.replace(/%duration%/g, obj.metadata.duration);

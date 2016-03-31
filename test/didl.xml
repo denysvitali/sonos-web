@@ -1,0 +1,11 @@
+<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
+  <item id="-1" parentID="-1">
+    <res protocolInfo="http-get:*:audio/mpeg:*" duration="0:06:19">https://mclients.googleapis.com/music/mplay?mjck=Tpcpqm4o3i43jqicevsrxvpuosa&amp;pt=a&amp;dv=1&amp;slt=1459451364711&amp;sig=FfXyTZZVIhGZgpq0zgVj2JyiH0s</res>
+    <upnp:albumArtURI>http://lh5.ggpht.com/0C-YN0T4YgCEow-NpAickXE-325jK_xejp8ByzTumrGEdcY4lIBKILOPiHY7qYcYWT5HPi7p4HU</upnp:albumArtURI>
+    <upnp:class>object.item.audioItem.musicTrack</upnp:class>
+    <dc:title>We Are Mirage</dc:title>
+    <dc:creator>Eric Prydz</dc:creator>
+    <upnp:album>Liberate (Remixes)</upnp:album>
+    <r:tiid>158b3d36-a925-4730-8615-97769d7189e3</r:tiid>
+  </item>
+</DIDL-Lite>
