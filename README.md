@@ -1,11 +1,11 @@
-#sonos-web
+# sonos-web
 This project is still under development, therefore the features may be buggy and / or limitated
 ![sonos-web-ui](https://denv.it/public/sonos-web-ui-20160320.jpg)
-##Description
+## Description
 sonos-web is a web interface for the Sonos Audio System,
 created with the goal of having a nice looking interface to manage the queue, add streaming services like Spotify (even for non-premium users!) and allow other developers to customized the UX as they want by making the project expandible through plugins.
 
-##Setup
+## Setup
 
 ### First thing firsts
 To use sonos-web you need:
@@ -25,10 +25,10 @@ To use sonos-web you need:
 `npm start`
 5. See if it works, visit [http://localhost:8888/](http://localhost:8888/) or visit http://your-server-ip:8888/ from another location
 
-##Plugins
+## Plugins
 This is a list of planned plugins
 
-Status: 
+Status:
 ✅ Available, ❎ Not available
 - Spotify ❎
 - Google Play Music ❎
