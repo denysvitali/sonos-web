@@ -1,12 +1,49 @@
 'use strict';
 (() => {
+    var sprintf = require('sprintf-js').sprintf;
+    var express = require('express');
     class SoundCloud {
-        constructor() {
+        constructor(SonosWeb) {
             // Called when plugin is loaded
             var request = require('request');
             this._request = request;
-            this._ua = 'Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0';
+            this._ua = 'Sonos-Web (https://github.com/denysvitali/sonos-web)';
             this._getWidgetJs();
+            SonosWeb.app.use('/plugins/soundcloud/', express.static(__dirname + '/client'));
+            SonosWeb.app.get('/pages/soundcloud', (req, res) => {
+                var charts = ['all-music', 'ambient', 'deephouse'];
+                var chartsObj = {};
+                var promiseArr = [];
+                var promPush = (el) => {
+                    promiseArr.push(this.getTopChart(el).then((result) => {
+                        chartsObj[result.cat] = result.coll;
+                    }));
+                };
+                for (var i in charts) {
+                    if (charts.hasOwnProperty(i)) {
+                        promPush(charts[i]);
+                    }
+                }
+                Promise.all(promiseArr).then(() => {
+                    res.render('../../plugins/soundcloud/server/pages/soundcloud', {
+                        charts: chartsObj
+                    });
+                }).catch((e) => {
+                    console.log('SC page promise error! ' + e);
+                });
+            });
+            SonosWeb.app.get('/plugins/soundcloud/suggest/:text', (req, res) => {
+                console.log(req.params.text);
+                this.suggestSong(req.params.text).then((val) => {
+                    res.end(JSON.stringify({
+                        'results': val
+                    }));
+                }).catch((e) => {
+                    console.log('[SC] Got error ' + e);
+                    res.end('{results:[]}');
+                });
+            });
+            SonosWeb.addMenuEntry('fa-soundcloud', 'Soundcloud', 'soundcloud', 4000);
         }
 
         _getWidgetJs() {
@@ -16,15 +53,21 @@
                     'User-Agent': this._ua
                 }
             }, (err, res, body) => {
-                var widgetsrc = body.match(/<script src\=\"((?:.*?)widget-(?:.*?).js)\"\>/i);
+                var widgetsrc = body.match(/<script src\=\"(widget-(?:.*?).js)\"\>/i);
                 if (!widgetsrc) {
                     console.log('[Soundcloud] Unable to get widget src!');
                     return;
                 }
                 widgetsrc = widgetsrc[1];
-                if (widgetsrc.indexOf('/') === 0) {
+                console.log(widgetsrc);
+                if (widgetsrc.indexOf('/') === -1) {
                     // absolute url
-                    this._request('https://w.soundcloud.com' + widgetsrc, (err, res, body) => {
+                    console.log('absolute url');
+                    this._request('https://w.soundcloud.com/player/' + widgetsrc, {
+                        headers: {
+                            'User-Agent': this._ua
+                        }
+                    }, (err, res, body) => {
                         this._parseWidgetJs(body);
                     });
                 } else {
@@ -36,7 +79,7 @@
         }
 
         _parseWidgetJs(body) {
-            var clientId = body.match(/config\/client-ids.*?production:"(.*?)"/i);
+            var clientId = body.match(/production:"([A-z0-9]{32})"/i);
             if (!clientId) {
                 console.log('[SoundCloud] Client ID not found!');
                 return;
@@ -56,19 +99,15 @@
                     try {
                         var json = JSON.parse(body);
                         if (json.collection.length !== 0) {
-                        	for(var i in json.collection)
-                        	{
-                        		if(json.collection.hasOwnProperty(i))
-                        		{
-                        			if(json.collection[i].track.artwork_url !== undefined && json.collection[i].track.artwork_url !== null)
-                        			{
-                        				json.collection[i].track.artwork_url = json.collection[i].track.artwork_url.replace(/^(.*?)-large.jpg$/,'$1-t500x500.jpg');
-                        			}
-                        			else{
-                        				json.collection[i].track.artwork_url = json.collection[i].track.user.avatar_url.replace(/^(.*?)-large.jpg$/,'$1-t500x500.jpg');
-                        			}
-                        		}
-                        	}
+                            for (var i in json.collection) {
+                                if (json.collection.hasOwnProperty(i)) {
+                                    if (json.collection[i].track.artwork_url !== undefined && json.collection[i].track.artwork_url !== null) {
+                                        json.collection[i].track.artwork_url = json.collection[i].track.artwork_url.replace(/^(.*?)-large.jpg$/, '$1-t500x500.jpg');
+                                    } else {
+                                        json.collection[i].track.artwork_url = json.collection[i].track.user.avatar_url.replace(/^(.*?)-large.jpg$/, '$1-t500x500.jpg');
+                                    }
+                                }
+                            }
                             resolve({
                                 cat: category,
                                 coll: json.collection
@@ -114,7 +153,6 @@
             var t = this;
             return new Promise((resolve, reject) => {
                 var apiResolve = 'https://api.soundcloud.com/resolve?url=' + encodeURIComponent(url) + '&client_id=' + t._clientId;
-                console.log(apiResolve);
                 t._request(apiResolve, {
                     headers: {
                         'User-Agent': t._ua
@@ -136,7 +174,76 @@
                 });
             });
         }
-    }
 
+        suggest(text) {
+            var t = this;
+            return new Promise((resolve, reject) => {
+                var apiSuggest = 'https://api-v2.soundcloud.com/search/autocomplete?q=%s&queries_limit=%d&results_limit=%d&limit=%d&offset=%d&linked_partitioning=1&client_id=%s';
+                var url = sprintf(apiSuggest, text, 10, 10, 10, 0, this._clientId);
+                t._request(url, {
+                    headers: {
+                        'User-Agent': t._ua
+                    }
+                }, (err, res, body) => {
+                    if (err) {
+                        reject('Unable to get results');
+                        return;
+                    }
+                    var json = JSON.parse(body);
+                    console.log(json);
+                    var results = [];
+                    for (var i in json.results) {
+                        if (json.results.hasOwnProperty(i)) {
+                            if (json.results[i].kind !== 'track') {
+                                continue;
+                            }
+                            var ritem = {};
+                            ritem.text = json.results[i].output;
+                            ritem.artwork = json.results[i].entity.artwork_url;
+                            ritem.url = json.results[i].entity.permalink_url;
+                            ritem.duration = json.results[i].entity.duration;
+                            results.push(ritem);
+                        }
+                    }
+                    resolve(results);
+                });
+            });
+        }
+
+        suggestSong(text) {
+            var t = this;
+            return new Promise((resolve, reject) => {
+                var apiSuggest = 'https://api-v2.soundcloud.com/search/tracks?q=%s&results_limit=%d&limit=%d&offset=%d&linked_partitioning=1&client_id=%s';
+                var url = sprintf(apiSuggest, text, 10, 10, 0, this._clientId);
+                t._request(url, {
+                    headers: {
+                        'User-Agent': t._ua
+                    }
+                }, (err, res, body) => {
+                    if (err) {
+                        reject('Unable to get results');
+                        return;
+                    }
+                    var json = JSON.parse(body);
+                    var results = [];
+                    for (var i in json.collection) {
+                        if (json.collection.hasOwnProperty(i)) {
+                            if (json.collection[i].kind !== 'track') {
+                                continue;
+                            }
+                            var ritem = {};
+                            ritem.text = json.collection[i].title;
+                            ritem.artwork = (json.collection[i].artwork_url !== null ? json.collection[i].artwork_url.toString().replace('large', 't500x500') : null);
+                            ritem.url = json.collection[i].permalink_url;
+                            ritem.duration = json.collection[i].duration;
+                            ritem.artist = json.collection[i].user.username;
+                            results.push(ritem);
+                        }
+                    }
+                    resolve(results);
+                });
+            });
+        }
+    }
     module.exports = SoundCloud;
 })();

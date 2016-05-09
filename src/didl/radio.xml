@@ -1,6 +1,9 @@
 <DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
-	<item id="%id%" restricted="0">
+	<item id="-1" parentID="-1" restricted="true">
+		<res protocolInfo="sonos.com-hls-radio:*:application/octet-stream:*">%url%</res>
+		<r:streamContent></r:streamContent>
 		<dc:title>%title%</dc:title>
+		<upnp:albumArtURI>http://192.168.1.135:8888/img/dummy/stream.jpg</upnp:albumArtURI>
 		<upnp:class>object.item.audioItem.audioBroadcast</upnp:class>
 	</item>
 </DIDL-Lite>

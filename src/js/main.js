@@ -2,10 +2,12 @@
 /* globals io */
 import UI from './inc/uievents.js';
 var socket = io.connect('http://' + window.location.hostname + ':8888');
-var ui = new UI({
+window.ui = new UI({
     socket: socket
 });
-ui.prepare();
+window.ui.prepare();
+
+var ui = window.ui; // linter is now happy
 
 
 socket.on('connect', function() {
@@ -13,10 +15,10 @@ socket.on('connect', function() {
     socket.on('data', function(data) {
         if (data.state !== undefined) {
             ui.setVolumeBarSize(data.state.volume);
-            if (ui.getPlayState() === 0 && data.state.playerState === 'PLAYING') {
+            if (ui.getPlayState() === 0 && data.state === 'PLAYING') {
                 ui.setPlayState(1);
                 ui.setButtonPlaying();
-            } else if (ui.getPlayState() === 1 && (data.state.playerState === 'STOPPED' || data.state.playerState === 'PAUSED_PLAYBACK')) {
+            } else if (ui.getPlayState() === 1 && (data.state === 'STOPPED' || data.state === 'PAUSED')) {
                 ui.setPlayState(0);
                 ui.setButtonPaused();
             }
@@ -35,14 +37,13 @@ socket.on('connect', function() {
                 ui.buttons.mute.doUnmute();
             }
 
-            if (data.state.elapsedTime !== undefined) {
-                ui.setTrackTime(data.state.elapsedTime, data.state.currentTrack.duration);
+            if (data.track.position !== undefined) {
+                ui.setTrackTime(data.track.position, data.track.duration);
             }
-            ui.setTrack(data.state.currentTrack);
-            ui.setAlbumArt(data.state.currentTrack);
+            ui.setTrack(data.track);
+            ui.setAlbumArt(data.track);
+            ui.setVolumeBarSize(data.volume);
         }
     });
-    socket.on('volume', function(data) {
-        ui.setVolumeBarSize(data.volume);
-    });
 });
+console.log('ui loaded');

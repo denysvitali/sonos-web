@@ -13,6 +13,7 @@ class UI {
         this._localStore = {
             roomName: ''
         };
+        this._loadedJS = [];
     }
 
     prepare() {
@@ -26,6 +27,8 @@ class UI {
         this.buttons = {};
         this.buttons.mute = document.getElementById('muteButton');
         this.buttons.playPause = document.getElementById('playPause');
+        this.buttons.nextTrack = document.getElementById('nextButton');
+        this.buttons.prevTrack = document.getElementById('prevButton');
 
         this.labels = {};
         this.labels.time = document.getElementById('time');
@@ -45,6 +48,8 @@ class UI {
 
         this.menuListener();
         this.playPauseListener();
+        this.nextTrackListener();
+        this.prevTrackListener();
         this.volumeListener();
         this.muteListener();
         this.streamElements();
@@ -63,9 +68,11 @@ class UI {
     }
 
     setRoomName(roomName) {
-        this._localStore.roomName = roomName;
-        this.elements.roomName.innerHTML = roomName;
-        this.autoHeroMenuImage(roomName);
+        if (this._localStore.roomName !== roomName) {
+            this._localStore.roomName = roomName;
+            this.elements.roomName.innerHTML = roomName;
+            this.autoHeroMenuImage(roomName);
+        }
     }
 
     autoHeroMenuImage(roomName) {
@@ -134,17 +141,23 @@ class UI {
     }
 
     setMuteState(mstate) {
-        this._muteState = mstate;
+        if (this._muteState !== mstate) {
+            this._muteState = mstate;
+        }
     }
 
     setButtonPlaying() {
-        this.buttons.playPause.classList.remove('fa-play');
-        this.buttons.playPause.classList.add('fa-pause');
+        if (!this.buttons.playPause.classList.contains('fa-pause')) {
+            this.buttons.playPause.classList.remove('fa-play');
+            this.buttons.playPause.classList.add('fa-pause');
+        }
     }
 
     setButtonPaused() {
-        this.buttons.playPause.classList.remove('fa-pause');
-        this.buttons.playPause.classList.add('fa-play');
+        if (!this.buttons.playPause.classList.contains('fa-play')) {
+            this.buttons.playPause.classList.remove('fa-pause');
+            this.buttons.playPause.classList.add('fa-play');
+        }
     }
 
     streamElements() {
@@ -158,7 +171,7 @@ class UI {
                 artist: el.getAttribute('data-artist'),
                 albumArt: el.getAttribute('data-albumart'),
                 album: 'Album',
-                duration: t._utils.secondsToTextUpnp(Math.round(el.getAttribute('data-duration')/1000))
+                duration: t._utils.secondsToTextUpnp(Math.round(el.getAttribute('data-duration') / 1000))
             });
         }
 
@@ -232,6 +245,30 @@ class UI {
         oReq.addEventListener('load', () => {
             if (oReq.status === 200) {
                 this.mE.content.innerHTML = oReq.responseText;
+
+                // XSS ALERT
+                var scripts = this.mE.content.getElementsByTagName('script');
+                var head = document.getElementsByTagName('head')[0];
+                for(var i in scripts)
+                {
+                  if(scripts.hasOwnProperty(i))
+                  {
+                    if(scripts[i].innerHTML !== '')
+                    {
+                      eval(scripts[i].innerHTML);
+                    }
+                    else{
+                      if(this._loadedJS.indexOf(scripts[i].getAttribute('src')) == -1){
+                        console.log('Found a JS file');
+                        var jsScript = document.createElement('script');
+                        jsScript.setAttribute('type', 'text/javascript');
+                        jsScript.setAttribute('src', scripts[i].getAttribute('src'));
+                        head.appendChild(jsScript);
+                      }
+                    }
+                  }
+                }
+
                 this._router.events(routedPage);
             }
         });
@@ -250,6 +287,18 @@ class UI {
             this.setPlayState(0);
             this.setButtonPaused();
             this._socket.emit('do_pause');
+        });
+    }
+
+    nextTrackListener() {
+        this.buttons.nextTrack.addEventListener('click', () => {
+            this._socket.emit('do_next_track');
+        });
+    }
+
+    prevTrackListener() {
+        this.buttons.prevTrack.addEventListener('click', () => {
+            this._socket.emit('do_prev_track');
         });
     }
 
@@ -300,8 +349,11 @@ class UI {
         var tb = this.elements.playBar.getElementsByClassName('songInfo')[0].getElementsByClassName('textBox')[0];
         var artist = tb.getElementsByClassName('artistName')[0];
         var title = tb.getElementsByClassName('songTitle')[0];
-        artist.innerHTML = track.artist;
-        title.innerHTML = track.title;
+
+        if (artist.innerHTML !== track.artist | title.innerHTML !== track.title) {
+            artist.innerHTML = track.artist;
+            title.innerHTML = track.title;
+        }
 
     }
 
@@ -312,10 +364,14 @@ class UI {
 
     setAlbumArt(track) {
         var url;
-        if (track.albumArtURI.match(/^\/.*/)) {
-            url = '/sonos' + track.albumArtURI + '\'';
+        if (track.albumArtURI === null) {
+            url = '/img/dummy/album-cover.jpg';
         } else {
-            url = track.albumArtURI;
+            if (track.albumArtURI.match(/^\/.*/)) {
+                url = '/sonos' + track.albumArtURI + '\'';
+            } else {
+                url = track.albumArtURI;
+            }
         }
         if (this._lastAlbumArt !== url) {
             var albumImage = this.elements.playBar.getElementsByClassName('albumImage')[0].getElementsByTagName('img')[0];

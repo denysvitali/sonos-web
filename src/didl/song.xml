@@ -1,6 +1,6 @@
 <DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:r="urn:schemas-rinconnetworks-com:metadata-1-0/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">
 <item id="-1" parentID="-1">
-	<res protocolInfo="http-get:*:audio/mpeg:*" duration="%duration%">%url</res>
+	<res protocolInfo="http-get:*:audio/mpeg:*" duration="%duration%">%uri%</res>
 	<upnp:albumArtURI>%albumart%</upnp:albumArtURI>
 	<upnp:class>object.item.audioItem.musicTrack</upnp:class>
 	<dc:title>%title%</dc:title>

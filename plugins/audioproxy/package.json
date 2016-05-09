@@ -1,0 +1,7 @@
+{
+	"name": "sonos-web-audioproxy",
+	"description": "Audio Proxy for sonos-web",
+	"version": "1.0.0",
+	"author": "Denys Vitali",
+	"main": "main.js"
+}

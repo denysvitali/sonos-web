@@ -81,6 +81,9 @@ gulp.task('css', ['fonts'], function() {
 });
 
 gulp.task('less', ['css'], function() {
+    gulp.src(['./plugins/*/**/*.less'])
+      .pipe(less())
+      .pipe(gulp.dest('./plugins/'));
     return gulp.src(['./src/less/*.less'])
         .pipe(less())
         .pipe(gulp.dest('./public/css'));
@@ -98,7 +101,7 @@ gulp.task('bundle', ['less'], function() {
         })
         .pipe(source('./src/js/main.js'))
         .pipe(buffer())
-        .pipe(uglify())
+        //.pipe(uglify())
         .pipe(sourcemaps.init({
             loadMaps: true
         }))
@@ -117,7 +120,7 @@ gulp.task('bundle', ['less'], function() {
  * amounts of media.
  */
 gulp.task('watch', ['bundle'], function() {
-    var watcher = gulp.watch('./src/**/*', []);
+    var watcher = gulp.watch(['./src/**/*','./plugins/**/*.less'], []);
     watcher.on('change', function(event) {
         console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
     });

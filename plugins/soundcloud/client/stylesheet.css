@@ -1,0 +1,35 @@
+div.content div.soundcloud div#sc_reswindow {
+  position: absolute;
+  z-index: 100;
+  background-color: #EAEAEA;
+  width: 500px;
+  max-height: 350px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+}
+div.content div.soundcloud div#sc_reswindow div.sc-reswindow-result {
+  cursor: pointer;
+  width: 100%;
+  height: 50px;
+  margin-top: 10px;
+}
+div.content div.soundcloud div#sc_reswindow div.sc-reswindow-result img {
+  width: 50px;
+  height: 50px;
+  float: left;
+}
+div.content div.soundcloud div#sc_reswindow div.sc-reswindow-result div.sc-reswindow-result-text {
+  float: left;
+  height: 50px;
+  line-height: 50px;
+  margin-left: 10px;
+  width: auto;
+}
+div.content div.soundcloud div#sc_reswindow div.sc-reswindow-result:after {
+  content: "";
+  display: block;
+  clear: both;
+}
+div.content div.soundcloud div#sc_reswindow div.sc-reswindow-result:first-child {
+  margin-top: 0px;
+}

@@ -1,12 +1,26 @@
 'use strict';
 const fs = require('fs');
 const color = require('color');
+const util = require('util');
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
-const SonosDiscovery = require('sonos-discovery');
+const sonos = require('sonos');
 const request = require('request');
+const sprintf = require('sprintf-js').sprintf;
+
+var SonosWeb = {
+    port: 8888,
+    app: app
+};
+
+require('dns').lookup(require('os').hostname(), function(err, addr) {
+    SonosWeb._ipaddress = addr;
+    init();
+});
+
+const nullf = () => {};
 
 // Console functions
 const warn = (msg) => {
@@ -21,17 +35,36 @@ const err = (msg) => {
     console.log(('[E] ' + msg).red);
 };
 
-// Server init
+SonosWeb.addMenuEntry = (icon, title, page, order) => {
+    SonosWeb.menu.push([icon, title, page, order]);
+    SonosWeb.menu.sort((a, b) => {
+        if (a[3] < b[3]) {
+            return -1;
+        } else if (a[3] > b[3]) {
+            return 1;
+        } else {
+            return 0;
+        }
+    });
+};
 
-var port = 8888;
-server.listen(port);
-info('App listening at 0.0.0.0:' + port);
+var menu_default = [
+    ['fa-home', 'Home', 'home', 0],
+    ['fa-list', 'Queue', 'queue', 1000],
+    ['fa-music', 'Party', 'party', 2000],
+    ['fa-bug', 'UI Debug', 'uidebug', 8000],
+    ['fa-gear', 'Settings', 'settings', 9000]
+];
+
+SonosWeb.menu = menu_default;
+
+server.listen(SonosWeb.port);
+info('App listening at 0.0.0.0:' + SonosWeb.port);
 
 // Setup views
 app.set('views', __dirname + '/src/views/');
 app.set('view engine', 'jade');
 app.use(express.static(__dirname + '/public'));
-
 // Globals
 var clientsReady = 0;
 var thePlayer = null;
@@ -66,7 +99,7 @@ var addPlugin = (plugindir, json) => {
     pluginList.push(json);
     var thePath = './plugins/' + plugindir + '/' + json.main;
     var Plugin = require(thePath);
-    plugins[minimalJson.name] = new Plugin();
+    plugins[minimalJson.name] = new Plugin(SonosWeb);
     console.log(plugins[minimalJson.name]);
     info('Plugin ' + minimalJson.name + ' was loaded');
 };
@@ -115,84 +148,84 @@ for (var i in plugindir_content) {
 }
 
 
-var escapeHTML = (string) => {
-    return string.replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&apos;');
-};
-
-
 
 // Routing
 app.get('/sonos/getaa', (req, res) => {
+    var url = '';
     if (thePlayer !== null) {
-        var url = 'http://' + thePlayer.address + ':1400/getaa?' + req._parsedOriginalUrl.query;
-        request(url).pipe(res);
+        try {
+            url = 'http://' + thePlayer.host + ':' + thePlayer.port + '/getaa?' + req._parsedOriginalUrl.query;
+            request(url).pipe(res);
+        } catch (e) {
+            url = '/img/dummy/album-cover.jpg';
+        }
     } else {
         res.end('{error: 1}');
     }
 });
 
 app.get('/', (req, res) => {
-    res.render('index');
+    res.render('index', {
+        menu: SonosWeb.menu
+    });
+});
+
+app.get('/sonosTest', (req, res) => {
+    console.log('========= SONOS - CUT HERE ========');
+    console.log(util.inspect(req.headers, {
+        colors: true,
+        depth: null
+    }));
+    console.log('===================================');
+    res.end();
 });
 
 app.get('/pages/home', (req, res) => {
-    res.render('pages/home');
+    res.render('pages/home', {
+        menu: SonosWeb.menu
+    });
 });
 
 app.get('/pages/queue', (req, res) => {
-    res.render('pages/queue');
+    res.render('pages/queue', {
+        menu: SonosWeb.menu
+    });
 });
 
 app.get('/pages/party', (req, res) => {
-    res.render('pages/party');
-});
-
-app.get('/pages/soundcloud', (req, res) => {
-    var scplugin = plugins['sonos-web-soundcloud'];
-    if (scplugin !== undefined) {
-        var charts = ['all-music','ambient', 'deephouse'];
-        var chartsObj = {};
-        var promiseArr = [];
-        var promPush = (el)=>{
-          promiseArr.push(scplugin.getTopChart(el).then((result) => {
-              chartsObj[result.cat] = result.coll;
-          }));
-        };
-        for (var i in charts) {
-            if (charts.hasOwnProperty(i)) {
-                promPush(charts[i]);
-            }
-        }
-        Promise.all(promiseArr).then(() => {
-            res.render('pages/soundcloud', {
-                charts: chartsObj
-            });
-        }).catch((e) => {
-            console.log('SC page promise error! ' + e);
-        });
-    } else {
-        res.render('pages/home');
-    }
+    res.render('pages/party', {
+        menu: SonosWeb.menu
+    });
 });
 
 app.get('/pages/uidebug', (req, res) => {
-    res.render('pages/uidebug');
+    res.render('pages/uidebug', {
+        menu: SonosWeb.menu
+    });
 });
 
 app.get('/pages/settings', (req, res) => {
-    res.render('pages/settings');
+    res.render('pages/settings', {
+        menu: SonosWeb.menu
+    });
 });
 
 function broadcastState() {
     if (thePlayer !== null && clientsReady > 0) {
-        var aa = thePlayer.getState();
-        io.emit('data', {
-            state: aa,
-            roomName: thePlayer.roomName
+        thePlayer.getState().then((result) => {
+            var status = result[0];
+            var track = result[1];
+            var volume = result[2];
+            var isMuted = result[3];
+            var zone = result[4];
+
+            io.emit('data', {
+                'roomName': zone.CurrentZoneName,
+                'state': status.toUpperCase(),
+                'track': track,
+                'volume': volume,
+                'isMuted': isMuted
+            });
         });
     }
 }
@@ -228,28 +261,42 @@ function enableio() {
 function playerControlEvents(client) {
     client.on('do_play', () => {
         if (thePlayer !== null) {
-            thePlayer.play();
+            thePlayer.play(nullf);
             broadcastState();
         }
     });
 
     client.on('do_pause', () => {
         if (thePlayer !== null) {
-            thePlayer.pause();
+            thePlayer.pause(nullf);
+            broadcastState();
+        }
+    });
+
+    client.on('do_next_track', () => {
+        if (thePlayer !== null) {
+            thePlayer.next(nullf);
+            broadcastState();
+        }
+    });
+
+    client.on('do_prev_track', () => {
+        if (thePlayer !== null) {
+            thePlayer.previous(nullf);
             broadcastState();
         }
     });
 
     client.on('do_mute', () => {
         if (thePlayer !== null) {
-            thePlayer.mute(1);
+            thePlayer.setMuted(true, nullf);
             broadcastState();
         }
     });
 
     client.on('do_unmute', () => {
         if (thePlayer !== null) {
-            thePlayer.mute(0);
+            thePlayer.setMuted(false, nullf);
             broadcastState();
         }
     });
@@ -257,56 +304,174 @@ function playerControlEvents(client) {
     client.on('do_setVolume', (data) => {
         if (thePlayer !== null) {
             if (data.volume >= 0 && data.volume <= 100) {
-                thePlayer.setVolume(data.volume);
+                thePlayer.setVolume(data.volume, nullf);
                 broadcastState();
             }
         }
     });
 
     // playManager
+    function htmlEntities(unsafe) {
+        if (unsafe === null) {
+            return null;
+        }
+        return unsafe.replace(/[<>&'"]/g, function(c) {
+            switch (c) {
+                case '<':
+                    return '&lt;';
+                case '>':
+                    return '&gt;';
+                case '&':
+                    return '&amp;';
+                case '\'':
+                    return '&apos;';
+                case '"':
+                    return '&quot;';
+            }
+        });
+    }
 
     client.on('playUrl', (obj) => {
         var scplugin = plugins['sonos-web-soundcloud'];
-        var metadata;
+        var metadata = '';
         var type = '';
-        if(obj.trackUrl.indexOf('x-rincon-mp3radio://') !== -1)
-        {
-            console.log('radio');
+        if (obj.trackUrl.indexOf('x-rincon-mp3radio://') !== -1) {
             type = 'radio';
-        }
-        else{
+        } else {
             type = 'song';
         }
+        console.log(obj);
         try {
-            metadata = fs.readFileSync(__dirname + '/src/didl/'+type+'.xml').toString();
+            metadata = fs.readFileSync(__dirname + '/src/didl/' + type + '.xml').toString();
             //metadata = metadata.replace(/%id%/g, crypto.createHash('md5').update(obj.trackUrl).digest('hex'));
-            metadata = metadata.replace(/%title%/g, escapeHTML(obj.metadata.title));
-            metadata = metadata.replace(/%artist%/g, obj.metadata.artist);
-            metadata = metadata.replace(/%url%/g, obj.trackUrl);
-            metadata = metadata.replace(/%album%/g, obj.metadata.album);
-            metadata = metadata.replace(/%albumart%/g, obj.metadata.albumArt);
-            metadata = metadata.replace(/%duration%/g, obj.metadata.duration);
+            metadata = metadata.replace(/%title%/g, htmlEntities(obj.metadata.title));
+            metadata = metadata.replace(/%artist%/g, htmlEntities(obj.metadata.artist));
+            metadata = metadata.replace(/%url%/g, htmlEntities(obj.trackUrl));
+            metadata = metadata.replace(/%album%/g, htmlEntities(obj.metadata.album));
+            metadata = metadata.replace(/%albumart%/g, htmlEntities(obj.metadata.albumArt));
+            metadata = metadata.replace(/%duration%/g, htmlEntities(obj.metadata.duration));
         } catch (e) {
-            console.log('[ERROR] Metadata file not found!' + e);
+            console.log('[METADATA ERROR] ' + e.stack);
             metadata = '';
         }
 
+        console.log(metadata);
+
 
         if (obj.trackUrl.match(/http(?:|s):\/\/(?:www\.|)soundcloud\.com\//i) && scplugin !== undefined) {
-            console.log('okay, hello sc!');
             scplugin.getMp3(obj.trackUrl).then((res) => {
-                metadata = metadata.replace(/%uri%/g, res);
-                thePlayer.setAVTransportURI(res, metadata);
-                thePlayer.play();
+                var trackUrl = '';
+                if (res.length > 255) {
+                    var audioProxy = plugins['sonos-web-audioproxy'];
+                    if (audioProxy === undefined) {
+                        warn('Unable to play track: trackUrl is too big and audioproxy isn\'t available');
+                        return;
+                    }
+                    var theId = audioProxy.addAudioUrl(res);
+                    trackUrl = 'http://' + SonosWeb._ipaddress + ':' + SonosWeb.port + audioProxy.ENDPOINT + '/' + theId;
+                } else {
+                    trackUrl = res;
+                }
+                metadata = metadata.replace(/%uri%/g, trackUrl);
+                //thePlayer.addURIToQueue(res, metadata, true);
+                thePlayer.play({
+                    'uri': trackUrl,
+                    'metadata': metadata
+                }, nullf);
             });
         } else {
-            thePlayer.setAVTransportURI(obj.trackUrl, metadata);
-            thePlayer.play();
+            thePlayer.play({
+                'uri': obj.trackUrl,
+                'metadata': metadata
+            }, nullf);
         }
     });
 }
 
-var discovery = new SonosDiscovery();
+function init() {
+
+    sonos.search(function(device) {
+        console.log(device);
+        thePlayer = device;
+
+        thePlayer.getState = () => {
+            var PromArr = [];
+            PromArr.push(new Promise((resolve, reject) => {
+                device.getCurrentState((err, state) => {
+                    if (!err) {
+                        resolve(state);
+                        return;
+                    }
+                    reject(err);
+                });
+            }));
+
+            PromArr.push(new Promise((resolve, reject) => {
+                device.currentTrack((err, track) => {
+                    if (!err) {
+                        resolve(track);
+                        return;
+                    }
+                    reject(err);
+                });
+            }));
+
+            PromArr.push(new Promise((resolve, reject) => {
+                device.getVolume((err, volume) => {
+                    if (!err) {
+                        resolve(volume);
+                        return;
+                    }
+                    reject(err);
+                });
+            }));
+
+            PromArr.push(new Promise((resolve, reject) => {
+                device.getMuted((err, muted) => {
+                    if (!err) {
+                        resolve(muted);
+                        return;
+                    }
+                    reject(err);
+                });
+            }));
+
+            PromArr.push(new Promise((resolve, reject) => {
+                device.getZoneAttrs((err, data) => {
+                    if (!err) {
+                        resolve(data);
+                        return;
+                    }
+                    reject(err);
+                });
+            }));
+
+            PromArr.push(new Promise((resolve, reject) => {
+                device.getTopology((err, data) => {
+                    if (!err) {
+                        resolve(data);
+                        return;
+                    }
+                    reject(err);
+                });
+            }));
+
+            PromArr.push(new Promise((resolve, reject) => {
+                device.deviceDescription((err, data) => {
+                    if (!err) {
+                        resolve(data);
+                        return;
+                    }
+                    reject(err);
+                });
+            }));
+
+            return Promise.all(PromArr);
+        };
+        enableio();
+    });
+}
+/*var discovery = new SonosDiscovery();
 discovery.on('transport-state', function() {
     thePlayer = discovery.players[thePlayer.uuid];
     io.emit('data', {
@@ -334,3 +499,4 @@ discovery.on('volume', function() {
         }
     }
 });
+*/

@@ -1,11 +1,9 @@
-include inc/head.jade
-include inc/menu.jade
-div.inner
- div#topBar
+extends layout
+append body
+ div.inner
+  div#topBar
    div.left
     span#openMenu.menu-icon.fa.fa-bars
-    label.pname Sonos Web
-  //-div#secondLine
- div#content.content
-  include pages/home
-include inc/footer.jade
+     label.pname Sonos Web
+  div#content.content
+   include pages/home

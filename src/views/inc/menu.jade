@@ -6,21 +6,10 @@ div#menu
    label Selected room:
    label#roomName.room 
  div.menu-elements
-  div.entry(data-page="home")
-   span.icon.fa.fa-home
-   label Home
-  div.entry(data-page="queue")
-   span.icon.fa.fa-list
-   label Queue
-  div.entry(data-page="party")
-   span.icon.fa.fa-music
-   label Party
-  div.entry(data-page="soundcloud")
-   span.icon.fa.fa-soundcloud
-   label Soundcloud
-  div.entry(data-page="uidebug")
-   span.icon.fa.fa-bug
-   label UI Debug
-  div.entry(data-page="settings")
-   span.icon.fa.fa-gear
-   label Settings
+  -for(var i in menu){
+  -if(menu.hasOwnProperty(i)){
+  div.entry(data-page="#{menu[i][2]}")
+   span(class="icon fa #{menu[i][0]}")
+   label #{menu[i][1]}
+  -}
+  -}
