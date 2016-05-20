@@ -1,0 +1,107 @@
+div.party {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  overflow: hidden;
+}
+div.party div.background {
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+}
+div.party div.background div.image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/img/dummy/album-cover.jpg');
+  background-position: center center;
+  background-size: cover;
+  filter: blur(14px);
+}
+div.party div.background div.color-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+div.party div.bigDiscView {
+  position: absolute;
+  top: 50%;
+  width: 600px;
+  height: 580px;
+  margin-top: -290px;
+  left: 50%;
+  margin-left: -300px;
+}
+div.party div.bigDiscView img#partyAlbumArt {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 500px;
+  height: 500px;
+  box-shadow: 0px 3px 6px #262525;
+}
+div.party div.bigDiscView div.title {
+  color: #FFF;
+  font-size: 2em;
+  margin-top: 10px;
+  text-align: center;
+  height: 40px;
+  width: 100%;
+  overflow: hidden;
+  word-wrap: nowrap;
+  text-overflow: ellipsis;
+}
+div.party div.bigDiscView div.artist {
+  color: #CCC;
+  text-align: center;
+  font-size: 1.5em;
+  margin-top: 5px;
+  height: 30px;
+  width: 100%;
+  overflow: hidden;
+  word-wrap: nowrap;
+  text-overflow: ellipsis;
+}
+#content {
+  margin: 0 !important;
+  padding: 0 !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+div#topBar {
+  opacity: 0.2;
+  top: -50px;
+  transition: 0.5s top ease, 0.5s opacity ease, 0.2s margin-left ease !important;
+}
+div#topBar:hover {
+  opacity: 1;
+  top: 0;
+  transition: 0.5s top ease, 0.5s opacity ease, 0.2s margin-left ease !important;
+}
+#playBar {
+  opacity: 0.2;
+  bottom: -110px;
+  transition: 0.5s bottom ease, 0.5s opacity ease;
+}
+#playBar:hover {
+  opacity: 1;
+  bottom: 0px;
+  transition: 0.5s bottom ease, 0.5s opacity ease;
+}
+body > div.inner {
+  top: 0;
+  padding-top: 0;
+  /*box-shadow: none;*/
+}

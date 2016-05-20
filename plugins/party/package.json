@@ -1,0 +1,7 @@
+{
+	"name": "sonos-web-party",
+	"description": "Party plugin for sonos-web",
+	"version": "1.0.0",
+	"author": "Denys Vitali",
+	"main": "main.js"
+}

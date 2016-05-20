@@ -42,6 +42,7 @@ socket.on('connect', function() {
             }
             ui.setTrack(data.track);
             ui.setAlbumArt(data.track);
+            ui.emit('track', data.track);
             ui.setVolumeBarSize(data.volume);
         }
     });

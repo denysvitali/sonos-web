@@ -1,6 +1,6 @@
 'use strict';
 const fs = require('fs');
-const color = require('color');
+const colors = require('colors');
 const util = require('util');
 const express = require('express');
 const app = express();
@@ -51,7 +51,6 @@ SonosWeb.addMenuEntry = (icon, title, page, order) => {
 var menu_default = [
     ['fa-home', 'Home', 'home', 0],
     ['fa-list', 'Queue', 'queue', 1000],
-    ['fa-music', 'Party', 'party', 2000],
     ['fa-bug', 'UI Debug', 'uidebug', 8000],
     ['fa-gear', 'Settings', 'settings', 9000]
 ];
@@ -188,12 +187,6 @@ app.get('/pages/home', (req, res) => {
 
 app.get('/pages/queue', (req, res) => {
     res.render('pages/queue', {
-        menu: SonosWeb.menu
-    });
-});
-
-app.get('/pages/party', (req, res) => {
-    res.render('pages/party', {
         menu: SonosWeb.menu
     });
 });

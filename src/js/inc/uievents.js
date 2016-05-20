@@ -2,8 +2,11 @@
 import Utils from './utils.js';
 import Router from './router.js';
 import PlayManager from './playManager.js';
-class UI {
+import EventEmitter from './EventEmitter.js';
+
+class UI extends EventEmitter {
     constructor(objects) {
+        super();
         this._socket = objects.socket;
         this._utils = new Utils();
         this._router = new Router(this);
@@ -378,6 +381,8 @@ class UI {
             albumImage.src = url;
             this._lastAlbumArt = url;
         }
+
+        this.emit('albumArt', track.albumArtURI);
     }
 }
 

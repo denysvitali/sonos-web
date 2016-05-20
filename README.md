@@ -37,6 +37,10 @@ Status:
 - Soundcloud ✅
 - YouTube ❎
 
+### Party
+Show your currently playing track with the "Party" plugin, already included in Sonos Web
+![party-plugin](https://denv.it/public/sonos-web-party-20160521.jpg)
+
 ## TODO
 1. Complete the UI | Partially done
 2. Interact with Sonos system | Partially done
