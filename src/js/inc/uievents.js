@@ -364,7 +364,7 @@ class UI {
 
     setAlbumArt(track) {
         var url;
-        if (track.albumArtURI === null) {
+        if (track.albumArtURI === null || track.albumArtURI === undefined) {
             url = '/img/dummy/album-cover.jpg';
         } else {
             if (track.albumArtURI.match(/^\/.*/)) {

@@ -43,6 +43,22 @@
                     res.end('{results:[]}');
                 });
             });
+
+            SonosWeb.app.get('/plugins/soundcloud/resolve/:url', (req, res) => {
+                if (req.params.url.match(/^http(?:s|):\/\/(?:www\.|)soundcloud\.com\/(.*?)\/(.*?)$/i)) {
+                    this.getMp3Info(req.params.url)
+                        .then((songInfo) => {
+                            res.json(songInfo);
+                        });
+                } else {
+                    res.json({
+                        success: false,
+                        error: {
+                            text: 'Bad url'
+                        }
+                    });
+                }
+            });
             SonosWeb.addMenuEntry('fa-soundcloud', 'Soundcloud', 'soundcloud', 4000);
         }
 

@@ -19,6 +19,7 @@
         {
             var newIndex = this.pmap.length;
             this.pmap.push(url);
+            console.log('[AudioProxy] ID ' + newIndex + ' added');
             return newIndex;
         }
     }
