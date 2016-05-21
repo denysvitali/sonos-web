@@ -14,11 +14,17 @@ if (soundcloud_div !== null) {
             item.addEventListener('click', () => {
                 console.log('clicked item!');
                 console.log(result);
+
+                var artwork = result.artwork;
+                if (artwork !== null && artwork.match(/sndcdn\.com/i)) {
+                    artwork = artwork.toString().replace('large', 't500x500');
+                }
+
                 window.ui._playManager.playMp3(result.url, {
                     title: result.title,
                     artist: result.artist,
                     album: '',
-                    albumArt: result.artwork,
+                    albumArt: artwork,
                     duration: Math.round(result.duration / 1000)
                 });
             });
