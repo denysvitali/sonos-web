@@ -69,7 +69,7 @@
                     'User-Agent': this._ua
                 }
             }, (err, res, body) => {
-                var widgetsrc = body.match(/<script src\=\"(widget-(?:.*?).js)\"\>/i);
+                var widgetsrc = body.match(/<script src\=\"(.*widget-(?:.*?).js)\"\>/i);
                 if (!widgetsrc) {
                     console.log('[Soundcloud] Unable to get widget src!');
                     return;
