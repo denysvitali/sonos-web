@@ -1,6 +1,6 @@
 # sonos-web
-This project is still under development, therefore the features may be buggy and / or limitated
-![sonos-web-ui](https://denv.it/public/sonos-web-ui-20160510.jpg)
+This project is still in development, therefore the features may be buggy and / or limitated
+![sonos-web-ui](https://denv.it/public/sonos-web-ui-20160604.jpg)
 ## Description
 sonos-web is a web interface for the Sonos Audio System,
 created with the goal of having a nice looking interface to manage the queue, add streaming services like Spotify (even for non-premium users!) and allow other developers to customized the UX as they want by making the project expandible through plugins.
@@ -27,6 +27,9 @@ To use sonos-web you need:
 `npm start`
 6. See if it works, visit [http://localhost:8888/](http://localhost:8888/) or visit http://your-server-ip:8888/ from another location
 
+Note: It may be required to `cd` into each plugins/ folder and do an `npm install` to make sure everything works.
+YouTube requires ffmpeg to be installed on your system.
+
 ## Plugins
 This is a list of planned plugins
 
@@ -35,7 +38,7 @@ Status:
 - Spotify ❎
 - Google Play Music ❎
 - Soundcloud ✅
-- YouTube ❎
+- YouTube ✅
 
 ### Party
 Show your currently playing track with the "Party" plugin, already included in Sonos Web
@@ -50,6 +53,8 @@ Show your currently playing track with the "Party" plugin, already included in S
 
 
 ## Older screenshots
+### 2016-05-10
+![sonos-web-ui](https://denv.it/public/sonos-web-ui-20160510.jpg)
 ### 2016-03-20
 ![sonos-web-ui](https://denv.it/public/sonos-web-ui-20160320.jpg)
 ### 2016-03-14
