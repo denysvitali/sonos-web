@@ -103,11 +103,17 @@
                     var protocol = 'http://';
                     if (result.hasOwnProperty('items') && result.items.length !== 0) {
                         var video = result.items[0];
+                        var bestQ = null;
+                        for (var i in video.snippet.thumbnails) {
+                            if (video.snippet.thumbnails.hasOwnProperty(i)) {
+                                bestQ = video.snippet.thumbnails[i].url;
+                            }
+                        }
                         res.json({
                             success: true,
                             result: {
                                 title: video.snippet.title,
-                                thumbnail: (video.snippet.thumbnails.hasOwnProperty('maxres') ? video.snippet.thumbnails.maxres.url : video.snippet.thumbnails.default.url),
+                                thumbnail: bestQ,
                                 duration: moment.duration(video.contentDetails.duration).asSeconds(),
                                 url: protocol + SonosWeb._ipaddress + ':' + SonosWeb.port + '/plugins/youtube/play/' + videoid
                             }
