@@ -1,4 +1,4 @@
-h1 Soundcloud 
+h1 Soundcloud
 div.soundcloud
  div.section
   input#sc-search.search(type="text" placeholder="Take a look around")
@@ -11,10 +11,10 @@ div.soundcloud
     -for(var i2 in topChart){
     -if(topChart.hasOwnProperty(i2)){
     -var artistName = (topChart[i2].track.user.full_name !== ""? topChart[i2].track.user.full_name : topChart[i2].track.user.username)
-    div.stream-el(data-stream="#{topChart[i2].track.permalink_url}" data-artist="#{topChart[i2].track.user.full_name}" data-title="#{topChart[i2].track.title}" data-albumart="#{topChart[i2].track.artwork_url}" data-duration="#{topChart[i2].track.duration}")
+    div.stream-el(data-stream=`${topChart[i2].track.permalink_url}` data-artist=`${topChart[i2].track.user.full_name}` data-title=`${topChart[i2].track.title}` data-albumart=`${topChart[i2].track.artwork_url}` data-duration=`${topChart[i2].track.duration}`)
      div.image
       -var smallerArtwork = topChart[i2].track.artwork_url.toString().replace('t500x500', 't200x200');
-      img(src="#{smallerArtwork}")
+      img(src=`${smallerArtwork}`)
       div.overlay
        div.playIcon.fa.fa-play
      label #{topChart[i2].track.title}
