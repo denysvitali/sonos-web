@@ -62,7 +62,7 @@ info('App listening at 0.0.0.0:' + SonosWeb.port);
 
 // Setup views
 app.set('views', __dirname + '/src/views/');
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 app.use(express.static(__dirname + '/public'));
 // Globals
 var clientsReady = 0;
