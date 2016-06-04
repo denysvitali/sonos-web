@@ -7,10 +7,9 @@
 }
 #playBar {
   transition: 0.2s left ease, background-color 1s !important;
-  background-color: #b31217;
 }
 #playBar div.seekbar div.bar {
-  transition: background-color 1s;
+  transition: width 1.25s linear, background-color 1s;
   background-color: #96110c;
 }
 div.youtube div.yt-searchbar input.searchbar {

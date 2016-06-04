@@ -103,52 +103,15 @@
                     var protocol = 'http://';
                     if (result.hasOwnProperty('items') && result.items.length !== 0) {
                         var video = result.items[0];
-                        console.log(video.snippet);
-
-                        if(!this.isVideoCached(videoid))
-                        {
-                          var videoD = youtubedl('https://youtube.com/watch?v=' + videoid);
-                          videoD.on('info', (info) => {
-                              console.log(info);
-                          });
-                          videoD.on('error', () => {
-                              console.log('Video download failed!');
-                              res.json({
-                                  success: true,
-                                  result: {
-                                      title: video.snippet.title,
-                                      thumbnail: (video.snippet.thumbnails.hasOwnProperty('maxres') ? video.snippet.thumbnails.maxres.url : video.snippet.thumbnails.default.url),
-                                      duration: moment.duration(video.contentDetails.duration).asSeconds(),
-                                      url: null
-                                  }
-                              });
-                          });
-                          videoD.on('end', () => {
-                              console.log('Video download finished');
-                              res.json({
-                                  success: true,
-                                  result: {
-                                      title: video.snippet.title,
-                                      thumbnail: (video.snippet.thumbnails.hasOwnProperty('maxres') ? video.snippet.thumbnails.maxres.url : video.snippet.thumbnails.default.url),
-                                      duration: moment.duration(video.contentDetails.duration).asSeconds(),
-                                      url: protocol + SonosWeb._ipaddress + ':' + SonosWeb.port + '/plugins/youtube/play/' + videoid
-                                  }
-                              });
-                          });
-                          videoD.pipe(fs.createWriteStream(__dirname + '/cached/' + videoid + '.mp4'));
-                        }
-                        else{
-                          res.json({
-                              success: true,
-                              result: {
-                                  title: video.snippet.title,
-                                  thumbnail: (video.snippet.thumbnails.hasOwnProperty('maxres') ? video.snippet.thumbnails.maxres.url : video.snippet.thumbnails.default.url),
-                                  duration: moment.duration(video.contentDetails.duration).asSeconds(),
-                                  url: protocol + SonosWeb._ipaddress + ':' + SonosWeb.port + '/plugins/youtube/play/' + videoid
-                              }
-                          });
-                          return;
-                        }
+                        res.json({
+                            success: true,
+                            result: {
+                                title: video.snippet.title,
+                                thumbnail: (video.snippet.thumbnails.hasOwnProperty('maxres') ? video.snippet.thumbnails.maxres.url : video.snippet.thumbnails.default.url),
+                                duration: moment.duration(video.contentDetails.duration).asSeconds(),
+                                url: protocol + SonosWeb._ipaddress + ':' + SonosWeb.port + '/plugins/youtube/play/' + videoid
+                            }
+                        });
                     } else {
                         res.json({
                             success: false,
@@ -165,6 +128,7 @@
 
             SonosWeb.app.get('/plugins/youtube/play/:videoid', (req, res) => {
                 var videoid = req.params.videoid.toString();
+                console.log('Requested to play ' + videoid);
                 var matches = videoid.match(/^[0-9A-z\_\-]{11}$/i);
                 console.log(matches, videoid);
                 if (!matches) {
@@ -177,23 +141,43 @@
                     });
                     return;
                 }
-                if (this.isVideoCached(videoid)) {
-                    this.serveMp3(videoid, res);
-                } else {
-                    var video = youtubedl('https://youtube.com/watch?v=' + videoid);
-                    video.on('info', (info) => {
-                        console.log(info);
+
+                var video = youtubedl('https://youtube.com/watch?v=' + videoid);
+                video.on('info', (info) => {
+                    console.log(info);
+                });
+                video.on('error', () => {
+                    console.log('error!');
+                });
+                video.on('end', () => {
+                    console.log('Video download finished');
+                    //this.serveMp3(videoid, res);
+                });
+                //video.pipe(fs.createWriteStream(__dirname + '/cached/' + videoid + '.mp4'));
+                var logger = {
+                    debug: console.log,
+                    info: console.log,
+                    error: console.log,
+                    warn: console.log
+                };
+
+                res.setHeader('Content-Length', 8573492); // What a bad workaround!
+                res.setHeader('Content-Type', 'audio/mpeg');
+
+                ffmpeg(video, {
+                        logger: logger
+                    })
+                    .videoCodec('libx264')
+                    .outputFormat('mp3')
+                    .on('end', function() {
+                        console.log('[ffmpeg] File converted successfully]');
+                    })
+                    .on('error', function(err) {
+                        console.log('[ffmpeg] Error while converting video: ' + err.message);
+                    })
+                    .pipe(res, {
+                        end: true
                     });
-                    video.on('error', () => {
-                        console.log('error!');
-                    });
-                    video.on('end', () => {
-                        console.log('Video download finished');
-                        this.serveMp3(videoid, res);
-                    });
-                    video.pipe(fs.createWriteStream(__dirname + '/cached/' + videoid + '.mp4'));
-                    return;
-                }
 
 
 
@@ -216,32 +200,6 @@
             } catch (e) {
                 return false;
             }
-        }
-
-        serveMp3(videoid, res) {
-            var logger = {
-                debug: console.log,
-                info: console.log,
-                error: console.log,
-                warn: console.log
-            };
-            res.setHeader('Content-Length', 8573492); // What a bad workaround!
-            res.setHeader('Content-Type', 'audio/mpeg');
-            ffmpeg({
-                    logger: logger
-                })
-                .input(fs.createReadStream(__dirname + '/cached/' + videoid + '.mp4'))
-                .videoCodec('libx264')
-                .outputFormat('mp3')
-                .on('end', function() {
-                    console.log('[ffmpeg] File converted successfully]');
-                })
-                .on('error', function(err) {
-                    console.log('[ffmpeg] Error while converting video: ' + err.message);
-                })
-                .pipe(res, {
-                    end: true
-                });
         }
 
     }
