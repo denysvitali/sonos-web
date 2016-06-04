@@ -1,0 +1,89 @@
+#topBar, #playBar{
+  background-color: #b31217;
+}
+
+#topBar{
+  transition: 0.2s margin-left ease, background-color 1s !important;
+}
+
+#playBar {
+  transition: 0.2s left ease, background-color 1s !important;
+  background-color: #b31217;
+
+  div.seekbar{
+    div.bar{
+      transition: background-color 1s;
+      background-color: #96110c;
+    }
+  }
+}
+
+div.youtube{
+
+  div.yt-searchbar{
+    input.searchbar{
+      border: 1px solid #b31217;
+      border-radius: 4px 4px 4px 4px;
+      padding-left: 8px;
+      padding-right: 8px;
+      width: 100%;
+      height: 3em;
+      box-sizing: border-box;
+    }
+  }
+
+  div.playlist{
+    padding-bottom: 2em;
+    &:not(:first-child)
+    {
+      margin-top: 25px;
+    }
+
+    img.thumb{
+      float: left;
+      width: 300px;
+    }
+
+    div.content{
+      float: left;
+      width: 600px;
+      margin-left: 40px;
+
+      div.title{
+        font-size: 2em;
+      }
+
+      div.pl-items{
+        div.pl-item{
+          margin-top: 15px;
+          img.pl-item-img{
+            float: left;
+            width: 120px;
+          }
+
+          div.pl-item-content{
+            float: left;
+            margin-left: 10px;
+            width: 470px;
+
+            div.pl-item-title{
+              font-weight: 600;
+            }
+          }
+
+          &:after{
+            display: block;
+            content: "";
+            clear: both;
+          }
+        }
+      }
+    }
+
+    &:after{
+      display: block;
+      content: "";
+      clear: both;
+    }
+  }
+}

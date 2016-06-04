@@ -328,11 +328,12 @@ function playerControlEvents(client) {
         var scplugin = plugins['sonos-web-soundcloud'];
         var metadata = '';
         var type = '';
-        if (obj.trackUrl.indexOf('x-rincon-mp3radio://') !== -1) {
+        /*if (obj.trackUrl.indexOf('x-rincon-mp3radio://') !== -1) {
             type = 'radio';
         } else {
             type = 'song';
-        }
+        }*/
+        type = 'song';
         console.log(obj);
         try {
             metadata = fs.readFileSync(__dirname + '/src/didl/' + type + '.xml').toString();

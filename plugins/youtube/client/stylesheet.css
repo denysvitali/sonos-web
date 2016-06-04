@@ -1,0 +1,67 @@
+#topBar,
+#playBar {
+  background-color: #b31217;
+}
+#topBar {
+  transition: 0.2s margin-left ease, background-color 1s !important;
+}
+#playBar {
+  transition: 0.2s left ease, background-color 1s !important;
+  background-color: #b31217;
+}
+#playBar div.seekbar div.bar {
+  transition: background-color 1s;
+  background-color: #96110c;
+}
+div.youtube div.yt-searchbar input.searchbar {
+  border: 1px solid #b31217;
+  border-radius: 4px 4px 4px 4px;
+  padding-left: 8px;
+  padding-right: 8px;
+  width: 100%;
+  height: 3em;
+  box-sizing: border-box;
+}
+div.youtube div.playlist {
+  padding-bottom: 2em;
+}
+div.youtube div.playlist:not(:first-child) {
+  margin-top: 25px;
+}
+div.youtube div.playlist img.thumb {
+  float: left;
+  width: 300px;
+}
+div.youtube div.playlist div.content {
+  float: left;
+  width: 600px;
+  margin-left: 40px;
+}
+div.youtube div.playlist div.content div.title {
+  font-size: 2em;
+}
+div.youtube div.playlist div.content div.pl-items div.pl-item {
+  margin-top: 15px;
+}
+div.youtube div.playlist div.content div.pl-items div.pl-item img.pl-item-img {
+  float: left;
+  width: 120px;
+}
+div.youtube div.playlist div.content div.pl-items div.pl-item div.pl-item-content {
+  float: left;
+  margin-left: 10px;
+  width: 470px;
+}
+div.youtube div.playlist div.content div.pl-items div.pl-item div.pl-item-content div.pl-item-title {
+  font-weight: 600;
+}
+div.youtube div.playlist div.content div.pl-items div.pl-item:after {
+  display: block;
+  content: "";
+  clear: both;
+}
+div.youtube div.playlist:after {
+  display: block;
+  content: "";
+  clear: both;
+}
