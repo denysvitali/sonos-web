@@ -4,12 +4,12 @@ div#menu
   div#hero-menu-image.image.hero-music
   div.info-box
    label Selected room:
-   label#roomName.room 
+   label#roomName.room
  div.menu-elements
   -for(var i in menu){
   -if(menu.hasOwnProperty(i)){
-  div.entry(data-page="#{menu[i][2]}")
-   span(class="icon fa #{menu[i][0]}")
+  div.entry(data-page=`${menu[i][2]}`)
+   span(class=`icon fa ${menu[i][0]}`)
    label #{menu[i][1]}
   -}
   -}
