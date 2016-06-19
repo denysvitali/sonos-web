@@ -95,7 +95,7 @@
         }
 
         _parseWidgetJs(body) {
-            var clientId = body.match(/production:"([A-z0-9]{32})"/i);
+            var clientId = body.match(/"([A-z0-9]{32})"/i);
             if (!clientId) {
                 console.log('[SoundCloud] Client ID not found!');
                 return;
