@@ -1,6 +1,6 @@
 #topBar,
 #playBar {
-  background-color: #f50;
+  background-color: rgba(255, 85, 0, 0.97);
 }
 #topBar {
   transition: 0.2s margin-left ease, background-color 1s !important;
