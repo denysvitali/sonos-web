@@ -1,6 +1,5 @@
 'use strict';
 (() => {
-    var util = require('util');
     var fs = require('fs');
     var express = require('express');
     var youtube = new(require('youtube-node'))();
@@ -8,12 +7,6 @@
     var ffmpeg = require('fluent-ffmpeg');
     var moment = require('moment');
     youtube.setKey('AIzaSyCEyw0VMAQBNTWZNZmEfb0DJDi0IA2Ew00');
-    /*youtube.search('Denys Vitali', 5, (error, result) => {
-        if (!error) {
-            console.log(result);
-        }
-    });*/
-
     class YouTube {
         constructor(SonosWeb) {
             SonosWeb.app.use('/plugins/youtube/', express.static(__dirname + '/client'));
