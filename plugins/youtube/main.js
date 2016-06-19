@@ -167,7 +167,7 @@
                     warn: console.log
                 };
 
-                res.setHeader('Content-Length', 8573492); // What a bad workaround!
+                res.setHeader('Content-Length', 1024 * 1024 * 1024 * 4); // What a bad workaround! We can stream up to 4GB
                 res.setHeader('Content-Type', 'audio/mpeg');
 
                 ffmpeg(video, {
