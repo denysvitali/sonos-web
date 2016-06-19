@@ -1,9 +1,9 @@
 # sonos-web
-This project is still in development, therefore the features may be buggy and / or limitated
+This project is still in development, therefore the features may be buggy and / or limited
 ![sonos-web-ui](https://denv.it/public/sonos-web-ui-20160604.jpg)
 ## Description
 sonos-web is a web interface for the Sonos Audio System,
-created with the goal of having a nice looking interface to manage the queue, add streaming services like Spotify (even for non-premium users!) and allow other developers to customized the UX as they want by making the project expandible through plugins.
+created with the goal of having a nice looking interface to manage the queue, add streaming services like Spotify (even for non-premium users!) and allow other developers to customized the UX as they want by making the project expandable through plugins.
 
 ## Setup
 
