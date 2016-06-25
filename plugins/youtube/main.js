@@ -1,7 +1,6 @@
 'use strict';
 (() => {
     var fs = require('fs');
-    var express = require('express');
     var youtube = new(require('youtube-node'))();
     var youtubedl = require('youtube-dl');
     var ffmpeg = require('fluent-ffmpeg');
@@ -9,7 +8,7 @@
     youtube.setKey('AIzaSyCEyw0VMAQBNTWZNZmEfb0DJDi0IA2Ew00');
     class YouTube {
         constructor(SonosWeb) {
-            SonosWeb.app.use('/plugins/youtube/', express.static(__dirname + '/client'));
+            SonosWeb.app.use('/plugins/youtube/', SonosWeb.express.static(__dirname + '/client'));
             SonosWeb.app.get('/plugins/youtube/category/music', (req, res) => {
                 youtube.searchByChannel('UC-9-kyTW8ZkZNDHQJ6FgpwQ', 50, (error, result) => {
                     // Music

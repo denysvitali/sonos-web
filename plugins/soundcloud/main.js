@@ -1,7 +1,6 @@
 'use strict';
 (() => {
     var sprintf = require('sprintf-js').sprintf;
-    var express = require('express');
     class SoundCloud {
         constructor(SonosWeb) {
             // Called when plugin is loaded
@@ -9,7 +8,7 @@
             this._request = request;
             this._ua = 'Sonos-Web (https://github.com/denysvitali/sonos-web)';
             this._getWidgetJs();
-            SonosWeb.app.use('/plugins/soundcloud/', express.static(__dirname + '/client'));
+            SonosWeb.app.use('/plugins/soundcloud/', SonosWeb.express.static(__dirname + '/client'));
             SonosWeb.app.get('/pages/soundcloud', (req, res) => {
                 var charts = ['all-music', 'ambient', 'deephouse'];
                 var chartsObj = {};

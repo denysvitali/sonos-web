@@ -48,6 +48,8 @@ SonosWeb.addMenuEntry = (icon, title, page, order) => {
     });
 };
 
+SonosWeb.express = express;
+
 var menu_default = [
     ['fa-home', 'Home', 'home', 0],
     ['fa-list', 'Queue', 'queue', 1000],
