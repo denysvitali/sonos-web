@@ -7,12 +7,12 @@ created with the goal of having a nice looking interface to manage the queue, ad
 
 ## Setup
 
-### First thing firsts
+### First things first
 To use sonos-web you need:
 - [Node.js](https://nodejs.org/)
 - Git
 - A [Sonos Audio System](https://www.sonos.com/)
-- An internet browser (Firefox is reccommended)
+- An internet browser (Firefox is recommended)
 
 ### Instructions
 1. Clone the repo  
