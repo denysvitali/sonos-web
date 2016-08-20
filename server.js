@@ -370,13 +370,13 @@ function playerControlEvents(client) {
                 }
                 metadata = metadata.replace(/%uri%/g, trackUrl);
                 //thePlayer.addURIToQueue(res, metadata, true);
-                thePlayer.play({
+                thePlayer.queue({
                     'uri': trackUrl,
                     'metadata': metadata
                 }, nullf);
             });
         } else {
-            thePlayer.play({
+            thePlayer.queue({
                 'uri': obj.trackUrl,
                 'metadata': metadata
             }, nullf);
@@ -404,6 +404,7 @@ function init() {
 
             PromArr.push(new Promise((resolve, reject) => {
                 device.currentTrack((err, track) => {
+                    info('Getting current track');
                     if (!err) {
                         resolve(track);
                         return;
