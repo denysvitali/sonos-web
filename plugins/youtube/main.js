@@ -9,6 +9,17 @@
     class YouTube {
         constructor(SonosWeb) {
             SonosWeb.app.use('/plugins/youtube/', SonosWeb.express.static(__dirname + '/client'));
+            SonosWeb.app.use('/plugins/youtube/search/:q', (req, res)=>{
+              if(req.params.q !== '')
+              {
+                console.log(req.params.q);
+                youtube.search(req.params.q, 10, (err,result)=>{
+                  res.json(result);
+                });
+                return;
+              }
+              res.end('fail');
+            });
             SonosWeb.app.get('/plugins/youtube/category/music', (req, res) => {
                 youtube.searchByChannel('UC-9-kyTW8ZkZNDHQJ6FgpwQ', 50, (error, result) => {
                     // Music
@@ -105,6 +116,7 @@
                             success: true,
                             result: {
                                 title: video.snippet.title,
+                                author: video.snippet.channelTitle,
                                 thumbnail: bestQ,
                                 duration: moment.duration(video.contentDetails.duration).asSeconds(),
                                 url: protocol + SonosWeb._ipaddress + ':' + SonosWeb.port + '/plugins/youtube/play/' + videoid

@@ -30,6 +30,55 @@ div.youtube{
     }
   }
 
+  div#yt_reswindow{
+    position: absolute;
+    z-index: 100;
+    background-color: #EAEAEA;
+    width: 500px;
+    max-height: 350px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+
+    div.yt-reswindow-result{
+      cursor: pointer;
+      width: 100%;
+      height: 50px;
+      margin-top: 10px;
+
+      img{
+        width: 50px;
+        height: 50px;
+        float: left;
+      }
+
+      div.yt-reswindow-result-textcontainer{
+        height: 40px;
+        float: left;
+        margin-left: 10px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+
+        div.yt-reswindow-result-author{
+          font-size: 12px;
+          color: #444;
+          margin-top: 2px;
+        }
+
+
+      }
+
+      &:after{
+        content: "";
+        display: block;
+        clear: both;
+      }
+
+      &:first-child{
+        margin-top: 0px;
+      }
+    }
+  }
+
   div.playlist{
     padding-bottom: 2em;
     &:not(:first-child)

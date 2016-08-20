@@ -2,8 +2,105 @@
 var content = document.getElementById('content');
 var youtube = content.getElementsByClassName('youtube')[0];
 
+
+var resWindow = null;
+var resWindowShown = false;
+
+function loadSearchbar() {
+    var searchBar = youtube.getElementsByClassName('searchbar')[0];
+
+    var createResWindow = () => {
+        if (resWindow === null) {
+            resWindow = document.createElement('div');
+            resWindow.setAttribute('id', 'yt_reswindow');
+            resWindow.classList.add('youtube');
+            resWindow.classList.add('yt-reswindow');
+            youtube.appendChild(resWindow);
+            console.log(searchBar.offsetTop, searchBar.offsetLeft, searchBar.offsetWidth, resWindow.style.top);
+            resWindow.style.top = (searchBar.offsetTop + searchBar.offsetHeight) + 'px';
+            resWindow.style.left = searchBar.offsetLeft + 'px';
+            resWindow.style.width = searchBar.offsetWidth + 'px';
+            resWindowShown = true;
+        }
+        resWindow.innerHTML = '';
+    };
+
+    var addToResultList = (videoid, artwork, title, author) => {
+        var resultEntry = document.createElement('div');
+        resultEntry.classList.add('yt-reswindow-result');
+        resultEntry.setAttribute('data-videoid', videoid);
+
+        var resultEntry_img = document.createElement('img');
+        resultEntry_img.classList.add('yt-reswindow-result-img');
+        resultEntry_img.src = artwork;
+
+        var resultEntry_text = document.createElement('div');
+        resultEntry_text.classList.add('yt-reswindow-result-textcontainer');
+
+        var resultEntry_text_title = document.createElement('div');
+        resultEntry_text_title.classList.add('yt-reswindow-result-title');
+        resultEntry_text_title.textContent = title;
+
+        var resultEntry_text_author = document.createElement('div');
+        resultEntry_text_author.classList.add('yt-reswindow-result-author');
+        resultEntry_text_author.textContent = author;
+
+        resultEntry_text.appendChild(resultEntry_text_title);
+        resultEntry_text.appendChild(resultEntry_text_author);
+
+        resultEntry.appendChild(resultEntry_img);
+        resultEntry.appendChild(resultEntry_text);
+
+        addVideoClickEvent(resultEntry);
+
+        resWindow.appendChild(resultEntry);
+
+    };
+
+    searchBar.addEventListener('keyup', () => {
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener('load', () => {
+            if (oReq.status === 200) {
+                var json = {
+                    results: []
+                };
+                try {
+                    json = JSON.parse(oReq.responseText);
+                } catch (e) {
+                    console.log('Unable to parse JSON', e);
+                }
+                if (json.items.length !== 0) {
+                    createResWindow();
+                    for (var i in json.items) {
+                        if (json.items.hasOwnProperty(i)) {
+                            if (json.items[i].id.kind === 'youtube#video') {
+                                addToResultList(
+                                    json.items[i].id.videoId,
+                                    json.items[i].snippet.thumbnails.default.url,
+                                    json.items[i].snippet.title,
+                                    json.items[i].snippet.channelTitle
+                                );
+                            }
+                        }
+                    }
+                } else {
+                    if (resWindow !== null) {
+                        resWindow.parentElement.removeChild(resWindow);
+                        resWindow = null;
+                    }
+                }
+            }
+        });
+        oReq.open('GET', '/plugins/youtube/search/' + encodeURIComponent(searchBar.value), true);
+        oReq.send();
+    });
+
+
+}
+
 function addVideoClickEvent(item) {
     item.addEventListener('click', () => {
+        console.log('Video clicked!');
         var videoid = item.getAttribute('data-videoid');
         var oReq = new XMLHttpRequest();
         oReq.addEventListener('load', () => {
@@ -21,7 +118,7 @@ function addVideoClickEvent(item) {
                 if (json.success === true) {
                     window.ui._playManager.playMp3(json.result.url, {
                         title: json.result.title,
-                        artist: 'YouTube',
+                        artist: json.result.author + ' - YouTube',
                         album: '',
                         albumArt: json.result.thumbnail,
                         duration: json.result.duration
@@ -120,5 +217,5 @@ function loadAllVideos() {
     oReq.open('GET', '/plugins/youtube/category/music');
     oReq.send();
 }
-
+loadSearchbar();
 loadAllVideos();
