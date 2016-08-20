@@ -1,6 +1,6 @@
 # sonos-web
 This project is still in development, therefore the features may be buggy and / or limited
-![sonos-web-ui](https://denv.it/public/sonos-web-ui-20160604.jpg)
+![sonos-web-ui](https://denv.it/public/sonos-web-ui-20160820.jpg)
 ## Description
 sonos-web is a web interface for the Sonos Audio System,
 created with the goal of having a nice looking interface to manage the queue, add streaming services like Spotify (even for non-premium users!) and allow other developers to customized the UX as they want by making the project expandable through plugins.
@@ -53,6 +53,8 @@ Show your currently playing track with the "Party" plugin, already included in S
 
 
 ## Older screenshots
+### 2016-06-04
+![sonos-web-ui](https://denv.it/public/sonos-web-ui-20160604.jpg)
 ### 2016-05-10
 ![sonos-web-ui](https://denv.it/public/sonos-web-ui-20160510.jpg)
 ### 2016-03-20
