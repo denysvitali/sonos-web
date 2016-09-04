@@ -1,6 +1,6 @@
 {
   "name": "sonos-web",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Sonos Web UI",
   "main": "gulpfile.js",
   "dependencies": {
@@ -29,7 +29,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "gulp bundle && node server.js",
-    "clean": "gulp clean"
+    "clean": "gulp clean",
+    "postinstall": "npm install plugins/{youtube,soundcloud,audioproxy,party}/"
   },
   "repository": {
     "type": "git",
