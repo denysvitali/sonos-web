@@ -1,15 +1,12 @@
-div#menu
- div.hero
-  div.overlay
-  div#hero-menu-image.image.hero-music
-  div.info-box
+#menu
+ .hero
+  .overlay
+  #hero-menu-image.image.hero-music
+  .info-box
    label Selected room:
    label#roomName.room
- div.menu-elements
-  -for(var i in menu){
-  -if(menu.hasOwnProperty(i)){
-  div.entry(data-page=`${menu[i][2]}`)
-   span(class=`icon fa ${menu[i][0]}`)
-   label #{menu[i][1]}
-  -}
-  -}
+ .menu-elements
+   each item in menu
+    .entry(data-page=#{item[2]})
+     span(class="icon fa #{item[0]}")
+     label #{item[1]}
