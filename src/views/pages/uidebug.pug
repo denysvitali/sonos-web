@@ -2,9 +2,6 @@ h1 UI Debug
 div.ui-debug
  div.select-room
   select
-   -var rooms = ['music', 'bedroom', 'bathroom', 'dining room', 'hall', 'hallway', 'kitchen', 'living room', 'media room', 'patio', 'playroom', 'pool', 'tv room'];
-   -for(var i in rooms){
-   -if(rooms.hasOwnProperty(i)){
-    option(value=`${rooms[i]}`) #{rooms[i]}
-    -}}
+   each room in ['music', 'bedroom', 'bathroom', 'dining room', 'hall', 'hallway', 'kitchen', 'living room', 'media room', 'patio', 'playroom', 'pool', 'tv room']
+    option(value=room) #{room}
 div.button 
