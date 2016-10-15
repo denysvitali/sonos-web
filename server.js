@@ -1,6 +1,6 @@
 'use strict';
 const fs = require('fs');
-const colors = require('colors');
+require('colors');
 const util = require('util');
 const express = require('express');
 const app = express();
@@ -8,14 +8,13 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const sonos = require('sonos');
 const request = require('request');
-const sprintf = require('sprintf-js').sprintf;
 
 var SonosWeb = {
     port: 8888,
     app: app
 };
 
-require('dns').lookup(require('os').hostname(), function(err, addr) {
+require('dns').lookup(require('os').hostname(), (err, addr) => {
     SonosWeb._ipaddress = addr;
     init();
 });
@@ -24,15 +23,15 @@ const nullf = () => {};
 
 // Console functions
 const warn = (msg) => {
-    console.log(('[W] ' + msg).yellow);
+    console.log(`[W] ${msg}`.yellow);
 };
 
 const info = (msg) => {
-    console.log(('[I] ' + msg).blue);
+    console.log(`[I] ${msg}`.blue);
 };
 
 const err = (msg) => {
-    console.log(('[E] ' + msg).red);
+    console.log(`[E] ${msg}`.red);
 };
 
 SonosWeb.addMenuEntry = (icon, title, page, order) => {
@@ -40,17 +39,17 @@ SonosWeb.addMenuEntry = (icon, title, page, order) => {
     SonosWeb.menu.sort((a, b) => {
         if (a[3] < b[3]) {
             return -1;
-        } else if (a[3] > b[3]) {
-            return 1;
-        } else {
-            return 0;
         }
+        if (a[3] > b[3]) {
+            return 1;
+        }
+        return 0;
     });
 };
 
 SonosWeb.express = express;
 
-var menu_default = [
+const menu_default = [
     ['fa-home', 'Home', 'home', 0],
     ['fa-list', 'Queue', 'queue', 1000],
     ['fa-bug', 'UI Debug', 'uidebug', 8000],
@@ -74,14 +73,13 @@ var pluginList = [];
 var plugins = [];
 
 var pluginExists = (name) => {
-    var found = false;
-    for (var i in pluginList) {
-        if (pluginList.hasOwnProperty(i)) {
-            if (pluginList[i].name === name) {
-                found = true;
-                break;
-            }
+    let found = false;
+    for (const plugin of pluginList) {
+        if (plugin.name !== name) {
+            continue;
         }
+        found = true;
+        break;
     }
     return found;
 };
@@ -91,24 +89,25 @@ var addPlugin = (plugindir, json) => {
         warn('Trying to add an already existing plugin!');
         return;
     }
-    var minimalJson = {};
-    minimalJson.name = json.name;
-    minimalJson.description = json.description;
-    minimalJson.version = json.version;
-    minimalJson.author = json.author;
-    minimalJson.main = json.main;
+    const minimalJson = {
+        name: json.name,
+        description: json.description,
+        version: json.version,
+        author: json.author,
+        main: json.main
+    };
     pluginList.push(json);
-    var thePath = './plugins/' + plugindir + '/' + json.main;
-    var Plugin = require(thePath);
+    const thePath = `./plugins/${plugindir}/${json.main}`;
+    const Plugin = require(thePath);
     plugins[minimalJson.name] = new Plugin(SonosWeb);
     console.log(plugins[minimalJson.name]);
-    info('Plugin ' + minimalJson.name + ' was loaded');
+    info(`Plugin ${minimalJson.name} was loaded`);
 };
 
 var parsePluginDir = (plugindir) => {
     try {
-        var file = fs.readFileSync(__dirname + '/plugins/' + plugindir + '/package.json');
-        var json = JSON.parse(file);
+        let file = fs.readFileSync(`${__dirname}/plugins/${plugindir}/package.json`);
+        const json = JSON.parse(file);
         file = null; //cleanup
         if (!json.hasOwnProperty('name')) {
             throw 'Property "name" is missing';
@@ -126,42 +125,41 @@ var parsePluginDir = (plugindir) => {
             throw 'Property "main" is missing';
         }
         try {
-            file = fs.readFileSync(__dirname + '/plugins/' + plugindir + '/' + json.main);
+            file = fs.readFileSync(`${__dirname}/plugins/${plugindir}/${json.main}`);
         } catch (e) {
             throw 'Main has not a valid value - the file specified is missing!';
         }
         addPlugin(plugindir, json);
 
     } catch (e) {
-        warn('Plugin ' + plugindir + ' is not a valid plugin\nError: ' + e.toString());
+        warn(`Plugin ${plugindir} is not a valid plugin\nError: ${e.toString()}`);
     }
 };
 
 // Scan plugins directory for new plugins
-var plugindir_content = fs.readdirSync(__dirname + '/plugins/');
-for (var i in plugindir_content) {
-    if (plugindir_content.hasOwnProperty(i)) {
-        var stat = fs.statSync(__dirname + '/plugins/' + plugindir_content[i]);
-        if (stat.isDirectory()) {
-            parsePluginDir(plugindir_content[i]);
-        }
+var plugindir_content = fs.readdirSync(`${__dirname}/plugins/`);
+for (const file of plugindir_content) {
+    const stat = fs.statSync(`${__dirname}/plugins/${file}`);
+    if (!stat.isDirectory()) {
+        continue;
     }
+    parsePluginDir(file);
 }
 
 
 
 // Routing
 app.get('/sonos/getaa', (req, res) => {
-    var url = '';
-    if (thePlayer !== null) {
-        try {
-            url = 'http://' + thePlayer.host + ':' + thePlayer.port + '/getaa?' + req._parsedOriginalUrl.query;
-            request(url).pipe(res);
-        } catch (e) {
-            url = '/img/dummy/album-cover.jpg';
-        }
-    } else {
+    let url = '';
+    if (thePlayer === null) {
         res.end('{error: 1}');
+        return;
+    }
+    try {
+        url = `http://${thePlayer.host}:${thePlayer.port}/getaa?${req._parsedOriginalUrl.query}`;
+        request(url).pipe(res);
+    } catch (e) {
+        url = '/img/dummy/album-cover.jpg';
     }
 });
 
@@ -206,48 +204,44 @@ app.get('/pages/settings', (req, res) => {
 });
 
 function broadcastState() {
-    if (thePlayer !== null && clientsReady > 0) {
-        thePlayer.getState().then((result) => {
-            var status = result[0];
-            var track = result[1];
-            var volume = result[2];
-            var isMuted = result[3];
-            var zone = result[4];
-
-            io.emit('data', {
-                'roomName': zone.CurrentZoneName,
-                'state': status.toUpperCase(),
-                'track': track,
-                'volume': volume,
-                'isMuted': isMuted
-            });
-        });
+    if (thePlayer === null) {
+        return;
     }
+    if (clientsReady <= 0) {
+        return;
+    }
+    thePlayer.getState().then(([status, track, volume, isMuted, zone]) => {
+        io.emit('data', {
+            'roomName': zone.CurrentZoneName,
+            'state': status.toUpperCase(),
+            track,
+            volume,
+            isMuted
+        });
+    });
 }
 
 function enableio() {
 
     function timingUpdate() {
         broadcastState();
-        setTimeout(() => {
-            timingUpdate();
-        }, 500);
+        setTimeout(timingUpdate, 500);
     }
 
     timingUpdate();
 
-    io.on('connection', function(client) {
+    io.on('connection', (client) => {
         info('Got connection');
         clientsReady++;
         client.on('disconnect', function() {
             clientsReady--;
         });
         broadcastState();
-        info('New client, now we have ' + clientsReady + ' ' + (clientsReady === 1 ? 'client' : 'clients'));
+        info(`New client, now we have ${clientsReady} client${clientsReady === 1 ? '' : 's'}`);
         playerControlEvents(client);
     });
 
-    io.on('disconnection', function() {
+    io.on('disconnection', () => {
         info('Disconnect');
         clientsReady--;
     });
@@ -255,54 +249,65 @@ function enableio() {
 
 function playerControlEvents(client) {
     client.on('do_play', () => {
-        if (thePlayer !== null) {
-            thePlayer.play(nullf);
-            broadcastState();
+        if (thePlayer === null) {
+            return;
         }
+        thePlayer.play(nullf);
+        broadcastState();
     });
 
     client.on('do_pause', () => {
-        if (thePlayer !== null) {
-            thePlayer.pause(nullf);
-            broadcastState();
+        if (thePlayer === null) {
+            return;
         }
+        thePlayer.pause(nullf);
+        broadcastState();
     });
 
     client.on('do_next_track', () => {
-        if (thePlayer !== null) {
-            thePlayer.next(nullf);
-            broadcastState();
+        if (thePlayer === null) {
+            return;
         }
+        thePlayer.next(nullf);
+        broadcastState();
     });
 
     client.on('do_prev_track', () => {
-        if (thePlayer !== null) {
-            thePlayer.previous(nullf);
-            broadcastState();
+        if (thePlayer === null) {
+            return;
         }
+        thePlayer.previous(nullf);
+        broadcastState();
     });
 
     client.on('do_mute', () => {
-        if (thePlayer !== null) {
-            thePlayer.setMuted(true, nullf);
-            broadcastState();
+        if (thePlayer === null) {
+            return;
         }
+        thePlayer.setMuted(true, nullf);
+        broadcastState();
     });
 
     client.on('do_unmute', () => {
-        if (thePlayer !== null) {
-            thePlayer.setMuted(false, nullf);
-            broadcastState();
+        if (thePlayer === null) {
+            return;
         }
+        thePlayer.setMuted(false, nullf);
+        broadcastState();
     });
 
     client.on('do_setVolume', (data) => {
-        if (thePlayer !== null) {
-            if (data.volume >= 0 && data.volume <= 100) {
-                thePlayer.setVolume(data.volume, nullf);
-                broadcastState();
-            }
+        if (thePlayer === null) {
+            return;
         }
+        if (data.volume < 0) {
+            return;
+        }
+        if (data.volume > 100) {
+            return;
+        }
+        thePlayer.setVolume(data.volume, nullf);
+        broadcastState();
     });
 
     // playManager
@@ -310,7 +315,7 @@ function playerControlEvents(client) {
         if (unsafe === null) {
             return null;
         }
-        return unsafe.replace(/[<>&'"]/g, function(c) {
+        return unsafe.replace(/[<>&'"]/g, (c) => {
             switch (c) {
                 case '<':
                     return '&lt;';
@@ -322,14 +327,16 @@ function playerControlEvents(client) {
                     return '&apos;';
                 case '"':
                     return '&quot;';
+                default:
+                    throw new Error('Unexpected character');
             }
         });
     }
 
     client.on('playUrl', (obj) => {
-        var scplugin = plugins['sonos-web-soundcloud'];
-        var metadata = '';
-        var type = '';
+        const scplugin = plugins['sonos-web-soundcloud'];
+        let metadata = '';
+        let type = '';
         /*if (obj.trackUrl.indexOf('x-rincon-mp3radio://') !== -1) {
             type = 'radio';
         } else {
@@ -356,15 +363,15 @@ function playerControlEvents(client) {
 
         if (obj.trackUrl.match(/http(?:|s):\/\/(?:www\.|)soundcloud\.com\//i) && scplugin !== undefined) {
             scplugin.getMp3(obj.trackUrl).then((res) => {
-                var trackUrl = '';
+                let trackUrl = '';
                 if (res.length > 255) {
-                    var audioProxy = plugins['sonos-web-audioproxy'];
+                    const audioProxy = plugins['sonos-web-audioproxy'];
                     if (audioProxy === undefined) {
                         warn('Unable to play track: trackUrl is too big and audioproxy isn\'t available');
                         return;
                     }
-                    var theId = audioProxy.addAudioUrl(res);
-                    trackUrl = 'http://' + SonosWeb._ipaddress + ':' + SonosWeb.port + audioProxy.ENDPOINT + '/' + theId;
+                    let theId = audioProxy.addAudioUrl(res);
+                    trackUrl = `http://${SonosWeb._ipaddress}:${SonosWeb.port}${audioProxy.ENDPOINT}/${theId}`;
                 } else {
                     trackUrl = res;
                 }
@@ -386,85 +393,82 @@ function playerControlEvents(client) {
 
 function init() {
 
-    sonos.search(function(device) {
+    sonos.search((device) => {
         console.log(device);
         thePlayer = device;
 
-        thePlayer.getState = () => {
-            var PromArr = [];
-            PromArr.push(new Promise((resolve, reject) => {
+        thePlayer.getState = () => Promise.all([
+            new Promise((resolve, reject) => {
                 device.getCurrentState((err, state) => {
-                    if (!err) {
-                        resolve(state);
+                    if (err) {
+                        reject(err);
                         return;
                     }
-                    reject(err);
+                    resolve(state);
                 });
-            }));
+            }),
 
-            PromArr.push(new Promise((resolve, reject) => {
+            new Promise((resolve, reject) => {
                 device.currentTrack((err, track) => {
                     info('Getting current track');
-                    if (!err) {
-                        resolve(track);
+                    if (err) {
+                        reject(err);
                         return;
                     }
-                    reject(err);
+                    resolve(track);
                 });
-            }));
+            }),
 
-            PromArr.push(new Promise((resolve, reject) => {
+            new Promise((resolve, reject) => {
                 device.getVolume((err, volume) => {
-                    if (!err) {
-                        resolve(volume);
+                    if (err) {
+                        reject(err);
                         return;
                     }
-                    reject(err);
+                    resolve(volume);
                 });
-            }));
+            }),
 
-            PromArr.push(new Promise((resolve, reject) => {
+            new Promise((resolve, reject) => {
                 device.getMuted((err, muted) => {
-                    if (!err) {
-                        resolve(muted);
+                    if (err) {
+                        reject(err);
                         return;
                     }
-                    reject(err);
+                    resolve(muted);
                 });
-            }));
+            }),
 
-            PromArr.push(new Promise((resolve, reject) => {
+            new Promise((resolve, reject) => {
                 device.getZoneAttrs((err, data) => {
-                    if (!err) {
-                        resolve(data);
+                    if (err) {
+                        reject(err);
                         return;
                     }
-                    reject(err);
+                    resolve(data);
                 });
-            }));
+            }),
 
-            PromArr.push(new Promise((resolve, reject) => {
+            new Promise((resolve, reject) => {
                 device.getTopology((err, data) => {
-                    if (!err) {
-                        resolve(data);
+                    if (err) {
+                        reject(err);
                         return;
                     }
-                    reject(err);
+                    resolve(data);
                 });
-            }));
+            }),
 
-            PromArr.push(new Promise((resolve, reject) => {
+            new Promise((resolve, reject) => {
                 device.deviceDescription((err, data) => {
-                    if (!err) {
-                        resolve(data);
+                    if (err) {
+                        reject(err);
                         return;
                     }
-                    reject(err);
+                    resolve(data);
                 });
-            }));
-
-            return Promise.all(PromArr);
-        };
+            })
+        ]);
         enableio();
     });
 }
