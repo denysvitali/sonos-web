@@ -7,12 +7,11 @@ var watchify = require('watchify');
 var browserify = require('browserify');
 var gulp = require('gulp');
 var plumber = require('gulp-plumber');
-var uglify = require('gulp-uglify');
+// var uglify = require('gulp-uglify');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var gutil = require('gulp-util');
 var sourcemaps = require('gulp-sourcemaps');
-var babelify = require('babelify');
 var assign = require('lodash.assign');
 var del = require('del');
 var less = require('gulp-less');
@@ -23,8 +22,8 @@ var customOpts = {
     debug: true,
     transform: [
         ['babelify', {
-            presets: ["es2015"],
-            ignore: ["./src/js/libs/**"]
+            presets: ['es2015'],
+            ignore: ['./src/js/libs/**']
         }]
     ],
     ignore: ['./src/js/libs/**']
@@ -37,6 +36,7 @@ b.on('log', gutil.log);
  * This task removes all files inside the 'public' directory.
  */
 gulp.task('clean', function() {
+    'use strict';
     del.sync('./public/**/*');
 });
 
@@ -45,9 +45,10 @@ gulp.task('clean', function() {
  * If you want to process them, just add your code to this task.
  */
 gulp.task('libs', ['clean'], function() {
+    'use strict';
     return gulp.src(['./src/js/libs/**'])
         .pipe(plumber())
-        .pipe(gulp.dest('./public/js/libs'))
+        .pipe(gulp.dest('./public/js/libs'));
 });
 
 /**
@@ -55,6 +56,7 @@ gulp.task('libs', ['clean'], function() {
  * If you want to process them, just add your code to this task.
  */
 gulp.task('media', ['libs'], function() {
+    'use strict';
     return gulp.src(['./src/img/**'])
         .pipe(plumber())
         .pipe(gulp.dest('./public/img'));
@@ -65,6 +67,7 @@ gulp.task('media', ['libs'], function() {
  * If you want to process them, just add your code to this task.
  */
 gulp.task('fonts', ['media'], function() {
+    'use strict';
     return gulp.src(['./src/fonts/**'])
         .pipe(plumber())
         .pipe(gulp.dest('./public/fonts'));
@@ -75,12 +78,14 @@ gulp.task('fonts', ['media'], function() {
  * If you want to process it, just add your code to this task.
  */
 gulp.task('css', ['fonts'], function() {
+    'use strict';
     return gulp.src(['./src/css/**'])
         .pipe(plumber())
         .pipe(gulp.dest('./public/css'));
 });
 
 gulp.task('less', ['css'], function() {
+    'use strict';
     gulp.src(['./plugins/*/**/*.less'])
       .pipe(less())
       .pipe(gulp.dest('./plugins/'));
@@ -94,6 +99,7 @@ gulp.task('less', ['css'], function() {
  * If you want to add other processing to the main js files, add your code here.
  */
 gulp.task('bundle', ['less'], function() {
+    'use strict';
     return b.bundle()
         .on('error', function(err) {
             console.log(err.message);
@@ -107,7 +113,7 @@ gulp.task('bundle', ['less'], function() {
         }))
         .pipe(sourcemaps.write('./'))
         .pipe(rename('app.min.js'))
-        .pipe(gulp.dest('./public/js'))
+        .pipe(gulp.dest('./public/js'));
 });
 
 /**
@@ -120,6 +126,7 @@ gulp.task('bundle', ['less'], function() {
  * amounts of media.
  */
 gulp.task('watch', ['bundle'], function() {
+    'use strict';
     var watcher = gulp.watch(['./src/**/*','./plugins/**/*.less'], []);
     watcher.on('change', function(event) {
         console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
