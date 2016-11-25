@@ -9,7 +9,7 @@ created with the goal of having a nice looking interface to manage the queue, ad
 
 ### First things first
 To use sonos-web you need:
-- [Node.js](https://nodejs.org/)
+- [Node.js](https://nodejs.org/) (v6.x+)
 - Git
 - A [Sonos Audio System](https://www.sonos.com/)
 - An internet browser (Firefox is recommended)
