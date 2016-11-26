@@ -301,8 +301,8 @@ function enableio() {
         clientsReady++;
         sendCurrentTrack();
         client.emit('config', {
-          ip: SonosWeb._ipaddress,
-          port: SonosWeb.port
+            ip: SonosWeb._ipaddress,
+            port: SonosWeb.port
         });
         client.emit('status', SonosStatus);
         client.emit('currentSong', SonosStatus.playing);
@@ -431,43 +431,18 @@ function playerControlEvents(client) {
         }
 
         console.log(metadata);
-
-
-        if (obj.trackUrl.match(/http(?:|s):\/\/(?:www\.|)soundcloud\.com\//i) && scplugin !== undefined) {
-            scplugin.getMp3(obj.trackUrl).then((res) => {
-                var trackUrl = '';
-                if (res.length > 255) {
-                    var audioProxy = plugins['sonos-web-audioproxy'];
-                    if (audioProxy === undefined) {
-                        warn('Unable to play track: trackUrl is too big and audioproxy isn\'t available');
-                        return;
-                    }
-                    var theId = audioProxy.addAudioUrl(res);
-                    trackUrl = 'http://' + SonosWeb._ipaddress + ':' + SonosWeb.port + audioProxy.ENDPOINT + '/' + theId;
-                } else {
-                    trackUrl = res;
-                }
-                metadata = metadata.replace(/%uri%/g, trackUrl);
-                //thePlayer.addURIToQueue(res, metadata, true);
-                thePlayer.queue({
-                    'uri': trackUrl,
-                    'metadata': metadata
-                }, nullf);
-            });
+        console.log('Adding to queue?');
+        if (obj.trackUrl.match(/x-sonosapi-stream/i)) {
+            thePlayer.play({
+                'uri': obj.trackUrl,
+                'metadata': metadata
+            }, nullf);
+            console.log('sonos stream');
         } else {
-            console.log('Adding to queue?');
-            if (obj.trackUrl.match(/x-sonosapi-stream/i)) {
-                thePlayer.play({
-                    'uri': obj.trackUrl,
-                    'metadata': metadata
-                }, nullf);
-                console.log('sonos stream');
-            } else {
-                thePlayer.queue({
-                    'uri': obj.trackUrl,
-                    'metadata': metadata
-                }, nullf);
-            }
+            thePlayer.queue({
+                'uri': obj.trackUrl,
+                'metadata': metadata
+            }, nullf);
         }
     });
 
@@ -703,9 +678,9 @@ function init() {
 
                     });
                     console.inspect(data);
-                } else if(endpoint === '/MusicServices/Event') {
-                  console.log('=========== MUSIC SERVICES EVENT ============');
-                  console.inspect(data);
+                } else if (endpoint === '/MusicServices/Event') {
+                    console.log('=========== MUSIC SERVICES EVENT ============');
+                    console.inspect(data);
                 } else {
                     console.log('Got a new event with enpoint: ' + endpoint);
                 }
