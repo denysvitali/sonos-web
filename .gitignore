@@ -3,7 +3,7 @@ logs
 *.log
 npm-debug.log*
 test
-node_modules2
+notes
 
 # Runtime data
 pids
@@ -39,5 +39,5 @@ bower_components
 #public
 public
 
-#rendered REAMDE
+#rendered README
 README.html
