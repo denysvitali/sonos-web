@@ -13,6 +13,7 @@ To use sonos-web you need:
 - Git
 - A [Sonos Audio System](https://www.sonos.com/)
 - An internet browser (Firefox is recommended)
+- ffmpeg (in order to use the YouTube plugin)
 
 ### Instructions
 1. Clone the repo  
