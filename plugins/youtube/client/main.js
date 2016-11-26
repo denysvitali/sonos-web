@@ -99,7 +99,8 @@ function loadSearchbar() {
 }
 
 function addVideoClickEvent(item) {
-    item.addEventListener('click', () => {
+
+    var videoClick = () => {
         console.log('Video clicked!');
         var videoid = item.getAttribute('data-videoid');
         var oReq = new XMLHttpRequest();
@@ -128,7 +129,10 @@ function addVideoClickEvent(item) {
         });
         oReq.open('GET', '/plugins/youtube/resolve/' + encodeURIComponent(videoid));
         oReq.send();
-    });
+    };
+
+    item.addEventListener('click', videoClick);
+    item.addEventListener('touchend', videoClick);
 }
 
 function loadAllVideos() {

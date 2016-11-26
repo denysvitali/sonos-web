@@ -1,5 +1,5 @@
-#topBar,
-#playBar {
+#playBar,
+#topBar {
   background-color: rgba(255, 85, 0, 0.97);
 }
 #topBar {
@@ -11,6 +11,56 @@
 #playBar div.seekbar div.bar {
   transition: width 1.25s linear, background-color 1s;
   background-color: #b44600;
+}
+div.content div.soundcloud div.sc-el {
+  width: 220px;
+  overflow: hidden;
+  display: inline-block;
+  height: 250px;
+  margin-right: 20px;
+}
+div.content div.soundcloud div.sc-el label {
+  height: 30px;
+  overflow: hidden;
+  width: 100%;
+  display: block;
+  line-height: 30px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+div.content div.soundcloud div.sc-el div.image {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  margin-left: 10px;
+}
+div.content div.soundcloud div.sc-el div.image div.overlay {
+  position: absolute;
+  font-size: 50px;
+  width: 200px;
+  height: 200px;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.5);
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity .2s;
+  cursor: pointer;
+}
+div.content div.soundcloud div.sc-el div.image div.overlay:hover {
+  opacity: 1;
+  transition: opacity .2s;
+}
+div.content div.soundcloud div.sc-el div.image div.overlay div.playIcon {
+  position: absolute;
+  top: 50%;
+  height: 50px;
+  line-height: 50px;
+  margin-top: -25px;
+  width: 100%;
+  text-align: center;
+  color: #FFF;
 }
 div.content div.soundcloud div#sc_reswindow {
   position: absolute;
@@ -45,5 +95,5 @@ div.content div.soundcloud div#sc_reswindow div.sc-reswindow-result:after {
   clear: both;
 }
 div.content div.soundcloud div#sc_reswindow div.sc-reswindow-result:first-child {
-  margin-top: 0px;
+  margin-top: 0;
 }

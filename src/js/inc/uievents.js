@@ -49,6 +49,9 @@ class UI extends EventEmitter {
         this.elements.roomName = document.getElementById('roomName');
         this.elements.heroMenuImage = document.getElementById('hero-menu-image');
 
+        window.SonosStatus = {};
+        window.SonosStatus.playing = {};
+
         this.menuListener();
         this.playPauseListener();
         this.nextTrackListener();
@@ -252,24 +255,20 @@ class UI extends EventEmitter {
                 // XSS ALERT
                 var scripts = this.mE.content.getElementsByTagName('script');
                 var head = document.getElementsByTagName('head')[0];
-                for(var i in scripts)
-                {
-                  if(scripts.hasOwnProperty(i))
-                  {
-                    if(scripts[i].innerHTML !== '')
-                    {
-                      eval(scripts[i].innerHTML);
+                for (var i in scripts) {
+                    if (scripts.hasOwnProperty(i)) {
+                        if (scripts[i].innerHTML !== '') {
+                            eval(scripts[i].innerHTML);
+                        } else {
+                            if (this._loadedJS.indexOf(scripts[i].getAttribute('src')) == -1) {
+                                console.log('Found a JS file');
+                                var jsScript = document.createElement('script');
+                                jsScript.setAttribute('type', 'text/javascript');
+                                jsScript.setAttribute('src', scripts[i].getAttribute('src'));
+                                head.appendChild(jsScript);
+                            }
+                        }
                     }
-                    else{
-                      if(this._loadedJS.indexOf(scripts[i].getAttribute('src')) == -1){
-                        console.log('Found a JS file');
-                        var jsScript = document.createElement('script');
-                        jsScript.setAttribute('type', 'text/javascript');
-                        jsScript.setAttribute('src', scripts[i].getAttribute('src'));
-                        head.appendChild(jsScript);
-                      }
-                    }
-                  }
                 }
 
                 this._router.events(routedPage);
@@ -346,6 +345,11 @@ class UI extends EventEmitter {
             this.labels.time.innerHTML = this._utils.secondsToText(elapsed) + '/' + this._utils.secondsToText(remaining);
         }
         this.elements.seekBar._inner.style.width = (elapsed / remaining) * 100 + '%';
+
+        if (window.SonosStatus.playing !== null) {
+            window.SonosStatus.playing.elapsed = elapsed;
+            window.SonosStatus.playing.remaining = remaining;
+        }
     }
 
     setTrack(track) {
@@ -358,6 +362,10 @@ class UI extends EventEmitter {
             title.innerHTML = track.title;
         }
 
+        if (window.SonosStatus.playing !== null) {
+            window.SonosStatus.playing.artist = track.artist;
+            window.SonosStatus.playing.title = track.title;
+        }
     }
 
     setVolumeBarSize(volume) {
@@ -380,6 +388,10 @@ class UI extends EventEmitter {
             var albumImage = this.elements.playBar.getElementsByClassName('albumImage')[0].getElementsByTagName('img')[0];
             albumImage.src = url;
             this._lastAlbumArt = url;
+        }
+
+        if (window.SonosStatus.playing !== null) {
+            window.SonosStatus.playing.albumArt = track.albumArtURI;
         }
 
         this.emit('albumArt', track.albumArtURI);

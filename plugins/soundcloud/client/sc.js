@@ -8,6 +8,40 @@ if (soundcloud_div !== null) {
     var resWindowShown = false;
     var resWindow = null;
 
+    function sclink_proxy(url) {
+        return 'http://' + window.SonosWeb._ipaddress + ":" + SonosWeb._port +
+            '/plugins/soundcloud/play/' +
+            encodeURIComponent(
+                url.toString().replace('https://soundcloud.com/', '')
+            );
+    }
+
+    let replaceBind = (el) => {
+        let playUrl = el.getAttribute('data-stream');
+        playUrl = sclink_proxy(playUrl);
+        let clickAction = () => {
+            window.ui._playManager.playMp3(playUrl, {
+                title: el.getAttribute('data-title'),
+                artist: el.getAttribute('data-artist'),
+                album: '',
+                albumArt: el.getAttribute('data-albumart'),
+                duration: Math.round(el.getAttribute('data-duration') * 1 / 1000)
+            });
+        };
+
+        /*el.removeEventListener('click');
+        el.removeEventListener('touchend');*/
+        el.addEventListener('click', clickAction);
+        el.addEventListener('touchend', clickAction);
+    };
+
+    var stream_elements = soundcloud_div.getElementsByClassName('sc-el');
+    for (var i in stream_elements) {
+        if (stream_elements.hasOwnProperty(i)) {
+            replaceBind(stream_elements[i]);
+        }
+    }
+
     var addToResultList = (url, artwork, title, artist, duration) => {
 
         var bindClickToResult = (item, result) => {
@@ -20,7 +54,9 @@ if (soundcloud_div !== null) {
                     artwork = artwork.toString().replace('large', 't500x500');
                 }
 
-                window.ui._playManager.playMp3(result.url, {
+                var playUrl = sclink_proxy(result.url);
+
+                window.ui._playManager.playMp3(playUrl, {
                     title: result.title,
                     artist: result.artist,
                     album: '',

@@ -140,7 +140,6 @@
                 var videoid = req.params.videoid.toString();
                 console.log('Requested to play ' + videoid);
                 var matches = videoid.match(/^[0-9A-z\_\-]{11}$/i);
-                console.log(matches, videoid);
                 if (!matches) {
                     res.json({
                         success: false,
@@ -152,9 +151,36 @@
                     return;
                 }
 
-                var video = youtubedl('https://youtube.com/watch?v=' + videoid);
+                var video = youtubedl('https://youtube.com/watch?v=' + videoid, ['--format=22']);
+                var filesize = 0;
                 video.on('info', (info) => {
-                    console.log(info);
+                    filesize = info.size;
+
+                    var logger = {
+                        debug: console.log,
+                        info: console.log,
+                        error: console.log,
+                        warn: console.log
+                    };
+
+
+                    res.setHeader('Content-Length', 1024 * 1024 * 1024 * 4); // What a bad workaround! We can stream up to 4GB
+                    res.setHeader('Content-Type', 'audio/mpeg');
+                    ffmpeg(video, {
+                            logger: logger
+                        })
+                        .videoCodec('libx264')
+                        .outputFormat('mp3')
+                        .withAudioBitrate('320k')
+                        .on('end', function() {
+                            console.log('[ffmpeg] File converted successfully]');
+                        })
+                        .on('error', function(err) {
+                            console.log('[ffmpeg] Error while converting video: ' + err.message);
+                        })
+                        .pipe(res, {
+                            end: true
+                        });
                 });
                 video.on('error', () => {
                     console.log('error!');
@@ -164,30 +190,7 @@
                     //this.serveMp3(videoid, res);
                 });
                 //video.pipe(fs.createWriteStream(__dirname + '/cached/' + videoid + '.mp4'));
-                var logger = {
-                    debug: console.log,
-                    info: console.log,
-                    error: console.log,
-                    warn: console.log
-                };
 
-                res.setHeader('Content-Length', 1024 * 1024 * 1024 * 4); // What a bad workaround! We can stream up to 4GB
-                res.setHeader('Content-Type', 'audio/mpeg');
-
-                ffmpeg(video, {
-                        logger: logger
-                    })
-                    .videoCodec('libx264')
-                    .outputFormat('mp3')
-                    .on('end', function() {
-                        console.log('[ffmpeg] File converted successfully]');
-                    })
-                    .on('error', function(err) {
-                        console.log('[ffmpeg] Error while converting video: ' + err.message);
-                    })
-                    .pipe(res, {
-                        end: true
-                    });
 
 
 
