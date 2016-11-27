@@ -132,7 +132,6 @@ function addVideoClickEvent(item) {
     };
 
     item.addEventListener('click', videoClick);
-    item.addEventListener('touchend', videoClick);
 }
 
 function loadAllVideos() {

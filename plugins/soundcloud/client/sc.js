@@ -28,11 +28,7 @@ if (soundcloud_div !== null) {
                 duration: Math.round(el.getAttribute('data-duration') * 1 / 1000)
             });
         };
-
-        /*el.removeEventListener('click');
-        el.removeEventListener('touchend');*/
         el.addEventListener('click', clickAction);
-        el.addEventListener('touchend', clickAction);
     };
 
     var stream_elements = soundcloud_div.getElementsByClassName('sc-el');
