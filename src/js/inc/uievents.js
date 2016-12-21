@@ -378,7 +378,7 @@ class UI extends EventEmitter {
         if (track.albumArtURI === null || track.albumArtURI === undefined) {
             url = '/img/dummy/album-cover.jpg';
         } else {
-            if (track.albumArtURI.match(/^\/.*/)) {
+            if (track.albumArtURI.match(/^\/getaa.*/)) {
                 url = '/sonos' + track.albumArtURI + '\'';
             } else {
                 url = track.albumArtURI;

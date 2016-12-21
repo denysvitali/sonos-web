@@ -35,7 +35,7 @@ function setTrackArtist(artist) {
 
 ui.on('track', (track) => {
     if (track.albumArtURI !== caa) {
-        var albumArt = (track.albumArtURI !== null ? (track.albumArtURI.indexOf('/getaa') === 0 ? '/sonos' + track.albumArtURI : track.albumArtURI) : '/img/dummy/album-cover.jpg');
+        var albumArt = (track.albumArtURI !== null ? (track.albumArtURI.match(/^\/getaa.*/i) ? '/sonos' + track.albumArtURI : track.albumArtURI) : '/img/dummy/album-cover.jpg');
         setAlbumArt(albumArt);
     }
     if (track.title !== cst) {

@@ -22,10 +22,9 @@ var SonosWeb = {
     app: app
 };
 
-require('dns').lookup(require('os').hostname(), function(err, addr) {
-    SonosWeb._ipaddress = addr;
-    init();
-});
+
+SonosWeb._ipaddress = require('ip').address();
+init();
 
 const nullf = () => {};
 
@@ -183,6 +182,9 @@ app.get('/sonos/getaa', (req, res) => {
         try {
             url = 'http://' + thePlayer.host + ':' + thePlayer.port + '/getaa?' + req._parsedOriginalUrl.query;
             var x = request(url);
+            if (!fs.existsSync(__dirname + '/cache/')) {
+                fs.mkdirSync(__dirname + '/cache/');
+            }
             x.pipe(fs.createWriteStream(__dirname + '/cache/' + sum));
             x.pipe(res);
             albumArtCache.push(sum);
@@ -539,9 +541,13 @@ function init() {
 
                         var metadata;
                         var type;
-                        if (result.Event.InstanceID[0].hasOwnProperty('r:EnqueuedTransportURIMetaData') && result.Event.InstanceID[0]['r:EnqueuedTransportURIMetaData'][0].$.val !== '') {
+                        if (result.Event.InstanceID[0].hasOwnProperty('CurrentTrackMetaData')) {
+                            type = 'song';
+                            metadata = result.Event.InstanceID[0].CurrentTrackMetaData[0].$.val;
+                        } else if (result.Event.InstanceID[0].hasOwnProperty('r:EnqueuedTransportURIMetaData') && result.Event.InstanceID[0]['r:EnqueuedTransportURIMetaData'][0].$.val !== '') {
                             metadata = result.Event.InstanceID[0]['r:EnqueuedTransportURIMetaData'][0].$.val;
                             type = 'radio';
+                            console.log('EnqueuedTransportURIMetaData');
                         } else if (result.Event.InstanceID[0].hasOwnProperty('AVTransportURIMetaData') && result.Event.InstanceID[0].AVTransportURIMetaData[0].$.val !== '') {
                             metadata = result.Event.InstanceID[0].AVTransportURIMetaData[0].$.val;
                             type = 'radio';
@@ -620,6 +626,9 @@ function init() {
 
                                 console.log(result['DIDL-Lite'].item[0]['dc:title'][0]);
                                 var aaURI = albumArtURI || (result['DIDL-Lite'].item[0]['upnp:albumArtURI'] !== undefined ? result['DIDL-Lite'].item[0]['upnp:albumArtURI'][0] : null);
+                                if (aaURI.match(/^\/getaa.*/i)) {
+                                    aaURI = "/sonos" + aaURI;
+                                }
                                 var songInfo = {
                                     title: result['DIDL-Lite'].item[0]['dc:title'][0],
                                     artist: (result['DIDL-Lite'].item[0]['dc:creator'] !== undefined ? result['DIDL-Lite'].item[0]['dc:creator'][0] : null),
