@@ -4,6 +4,7 @@ logs
 npm-debug.log*
 test
 notes
+cache
 
 # Runtime data
 pids
