@@ -10,11 +10,10 @@ var cst = null;
 var csa = null;
 
 function setAlbumArt(albumArt) {
-    if(albumArt === null)
-    {
-      albumArt = '/img/dummy/album-cover.jpg';
+    if (albumArt === null) {
+        albumArt = '/img/dummy/album-cover.jpg';
     }
-    currentAlbumArt.setAttribute('src', albumArt);
+    currentAlbumArt.style.backgroundImage = 'url(\'' + albumArt + '\')';
     backgroundImage.style.backgroundImage = 'url(\'' + albumArt + '\')';
     caa = albumArt;
 }
@@ -25,8 +24,8 @@ function setTrackTitle(title) {
 }
 
 function setTrackArtist(artist) {
-    if(artist === null){
-      artist = '';
+    if (artist === null) {
+        artist = '';
     }
     currentSongArtist.innerHTML = window.ui._utils.encodeHTML(artist);
     csa = artist;
@@ -46,6 +45,8 @@ ui.on('track', (track) => {
     }
 });
 
-setAlbumArt(SonosStatus.playing.albumArt);
-setTrackTitle(SonosStatus.playing.title);
-setTrackArtist(SonosStatus.playing.artist);
+if (SonosStatus.playing !== null) {
+    setAlbumArt(SonosStatus.playing.albumArt);
+    setTrackTitle(SonosStatus.playing.title);
+    setTrackArtist(SonosStatus.playing.artist);
+}
