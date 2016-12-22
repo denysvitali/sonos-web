@@ -151,7 +151,7 @@
                     return;
                 }
 
-                var video = youtubedl('https://youtube.com/watch?v=' + videoid, ['--format=22']);
+                var video = youtubedl('https://youtube.com/watch?v=' + videoid, ['-f bestaudio']);
                 var filesize = 0;
                 video.on('info', (info) => {
                     filesize = info.size;
