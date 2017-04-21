@@ -22,6 +22,8 @@ var SonosWeb = {
     app: app
 };
 
+process.setMaxListeners(50);
+
 
 SonosWeb._ipaddress = require('ip').address();
 init();
@@ -432,8 +434,6 @@ function playerControlEvents(client) {
             metadata = '';
         }
 
-        console.log(metadata);
-        console.log('Adding to queue?');
         if (obj.trackUrl.match(/x-sonosapi-stream/i)) {
             thePlayer.play({
                 'uri': obj.trackUrl,
@@ -466,11 +466,8 @@ function playerControlEvents(client) {
 }
 
 function init() {
-
     sonos.search(function(device) {
-        console.log(device);
         thePlayer = device;
-
         thePlayer.selectQueue();
 
         var listener = new Listener(device);
@@ -478,6 +475,8 @@ function init() {
             if (err) {
                 throw err;
             }
+
+            info("Listening...");
 
             listener.addService('/MusicServices/Event', (error, sid) => {
                 if (error) {
@@ -515,7 +514,7 @@ function init() {
             });
 
             listener.on('serviceEvent', (endpoint, sid, data) => {
-                //console.log(endpoint,sid,data);
+                info("Service Event");
                 if (endpoint === '/MediaRenderer/AVTransport/Event') {
                     parseXML(data.LastChange, (err, result) => {
                         if (err) {
