@@ -1,61 +1,119 @@
-#topBar, #playBar{
-  background-color: rgba(255, 85, 0, 0.97);
+#playBar,
+#topBar {
+    background-color: rgba(255, 85, 0, 0.97);
 }
 
-#topBar{
-  transition: 0.2s margin-left ease, background-color 1s !important;
+#topBar {
+    transition: 0.2s margin-left ease, background-color 1s !important;
 }
 
 #playBar {
-  transition: 0.2s left ease, background-color 1s !important;
+    transition: 0.2s left ease, background-color 1s !important;
 
-  div.seekbar{
-    div.bar{
-      transition: width 1.25s linear, background-color 1s;
-      background-color: #b44600;
+    div.seekbar {
+        div.bar {
+            transition: width 1.25s linear, background-color 1s;
+            background-color: #b44600;
+        }
     }
-  }
 }
 
-div.content div.soundcloud{
-  div#sc_reswindow{
-    position: absolute;
-    z-index: 100;
-    background-color: #EAEAEA;
-    width: 500px;
-    max-height: 350px;
-    overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+div.content div.soundcloud {
+    div.sc-el {
+        width: 220px;
+        overflow: hidden;
+        display: inline-block;
+        height: 250px;
+        margin-right: 20px;
 
-    div.sc-reswindow-result{
-      cursor: pointer;
-      width: 100%;
-      height: 50px;
-      margin-top: 10px;
+        label {
+            height: 30px;
+            overflow: hidden;
+            width: 100%;
+            display: block;
+            line-height: 30px;
+            text-align: center;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
 
-      img{
-        width: 50px;
-        height: 50px;
-        float: left;
-      }
+        div.image {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            margin-left: 10px;
 
-      div.sc-reswindow-result-text{
-        float: left;
-        height: 50px;
-        line-height: 50px;
-        margin-left: 10px;
-        width: auto;
-      }
+            div.overlay {
+                position: absolute;
+                font-size: 50px;
+                width: 200px;
+                height: 200px;
+                overflow: hidden;
+                background-color: rgba(0,0,0,0.5);
+                top: 0;
+                left: 0;
+                opacity: 0;
+                transition: opacity .2s;
+                cursor: pointer;
 
-      &:after{
-        content: "";
-        display: block;
-        clear: both;
-      }
 
-      &:first-child{
-        margin-top: 0px;
-      }
+                &:hover{
+                  opacity: 1;
+                  transition: opacity .2s;
+                }
+
+                div.playIcon {
+                    position: absolute;
+                    top: 50%;
+                    height: 50px;
+                    line-height: 50px;
+                    margin-top: -25px;
+                    width: 100%;
+                    text-align: center;
+                    color: #FFF;
+                }
+            }
+        }
     }
-  }
+
+    div#sc_reswindow {
+        position: absolute;
+        z-index: 100;
+        background-color: #EAEAEA;
+        width: 500px;
+        max-height: 350px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19);
+
+        div.sc-reswindow-result {
+            cursor: pointer;
+            width: 100%;
+            height: 50px;
+            margin-top: 10px;
+
+            img {
+                width: 50px;
+                height: 50px;
+                float: left;
+            }
+
+            div.sc-reswindow-result-text {
+                float: left;
+                height: 50px;
+                line-height: 50px;
+                margin-left: 10px;
+                width: auto;
+            }
+
+            &:after {
+                content: "";
+                display: block;
+                clear: both;
+            }
+
+            &:first-child {
+                margin-top: 0;
+            }
+        }
+    }
 }

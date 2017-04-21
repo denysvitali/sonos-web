@@ -1,0 +1,7 @@
+{
+  "name": "sonos-web-cast",
+  "description": "Cast Receiver for sonos-web - cast everything to your Sonos device!",
+  "version": "1.0.0",
+  "author": "Denys Vitali",
+  "main": "main.js"
+}

@@ -11,7 +11,7 @@ class Router {
 
     events(page) {
         switch (page) {
-            case 'uidebug':
+            case 'debug':
                 var uidebug = new UIDebugEv(this._ui);
                 uidebug.run();
                 break;

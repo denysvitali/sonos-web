@@ -58,6 +58,22 @@
                     });
                 }
             });
+
+            SonosWeb.app.get('/plugins/soundcloud/play/:element', (req, res) => {
+                if (req.params.element !== null && req.params.element !== '') {
+                    var scUrl = 'https://soundcloud.com/' + req.params.element;
+                    console.log(scUrl);
+                    this.getMp3(scUrl)
+                        .then((mp3Url) => {
+                            request(mp3Url).pipe(res);
+                        })
+                        .catch((error) => {
+                            console.log("[SC] Got a promise error: " + error);
+                            res.end(500);
+                        })
+                }
+            });
+
             SonosWeb.addMenuEntry('fa-soundcloud', 'Soundcloud', 'soundcloud', 4000);
         }
 
@@ -98,6 +114,7 @@
                 return;
             }
             this._clientId = clientId[1];
+            console.log('[SC] Client ID set');
         }
 
         getTopChart(category) {

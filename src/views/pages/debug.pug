@@ -1,7 +1,10 @@
-h1 UI Debug
-div.ui-debug
+h1 Debug
+div.debug
  div.select-room
   select
    each room in ['music', 'bedroom', 'bathroom', 'dining room', 'hall', 'hallway', 'kitchen', 'living room', 'media room', 'patio', 'playroom', 'pool', 'tv room']
     option(value=room) #{room}
-div.button 
+ div.debug-buttons
+   button#getTrack Get Track
+   pre#trackRes
+div.button

@@ -1,7 +1,9 @@
 'use strict';
 /* globals io */
 import UI from './inc/uievents.js';
-var socket = io.connect('http://' + window.location.hostname + ':8888');
+var socket_url = 'http://' + window.location.hostname + (window.location.port !== '' ? ':8888' : '');
+var socket = io.connect(socket_url);
+console.log(socket_url);
 window.ui = new UI({
     socket: socket
 });
@@ -9,9 +11,14 @@ window.ui.prepare();
 
 var ui = window.ui; // linter is now happy
 
+window.SonosWeb = {};
+window.SonosStatus = {};
+window.SonosStatus.playing = {};
+
 
 socket.on('connect', function() {
     socket.emit('newclient', {});
+    /*
     socket.on('data', function(data) {
         if (data.state !== undefined) {
             ui.setVolumeBarSize(data.state.volume);
@@ -46,5 +53,67 @@ socket.on('connect', function() {
             ui.setVolumeBarSize(data.volume);
         }
     });
+    */
+
+    socket.on('config', (data)=>{
+        console.log('Got config', data);
+        SonosWeb._ipaddress = data.ip;
+        SonosWeb._port = data.port;
+    });
+
+    socket.on('volume', (data) => {
+        socket.parse('volume', data);
+        // Master is always passed.
+    });
+
+    socket.on('playState', (data) => {
+        // 1 = Playing, else Stopped / paused
+        socket.parse('playState', data);
+    });
+
+    socket.on('currentSong', (data) => {
+        socket.parse('currentSong', data);
+    });
+
+    socket.on('status', (data) => {
+        SonosStatus = data;
+        socket.parse('currentSong', data.playing);
+        socket.parse('volume', data.volume);
+        socket.parse('playState', data.playState);
+    });
+
+    socket.on('track', (data)=>{
+        ui.setTrackTime(data.position, data.duration);
+    });
+
+
+    socket.parse = (event, data) => {
+        switch (event) {
+            case 'volume':
+                SonosStatus.volume = data;
+                ui.setVolumeBarSize(data.master);
+                break;
+
+            case 'currentSong':
+                if (data !== null) {
+                    SonosStatus.playing = data;
+                    ui.setTrack(data);
+                    ui.setAlbumArt(data);
+                    ui.emit('track', data);
+
+                }
+                break;
+            case 'playState':
+                SonosStatus.playState = data;
+                if (data === 'PLAYING') {
+                    ui.setPlayState(1);
+                    ui.setButtonPlaying();
+                } else {
+                    ui.setPlayState(0);
+                    ui.setButtonPaused();
+                }
+                break;
+        }
+    };
 });
 console.log('ui loaded');

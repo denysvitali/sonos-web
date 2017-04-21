@@ -7,17 +7,25 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const sonos = require('sonos');
+const Listener = require('sonos/lib/events/listener');
+const parseXML = require('xml2js').parseString;
+const crypto = require('crypto');
 const request = require('request');
+
+
+// Providers
+const PTuneIn = require('./inc/tunein');
 
 var SonosWeb = {
     port: 8888,
     app: app
 };
 
-require('dns').lookup(require('os').hostname(), (err, addr) => {
-    SonosWeb._ipaddress = addr;
-    init();
-});
+process.setMaxListeners(50);
+
+
+SonosWeb._ipaddress = require('ip').address();
+init();
 
 const nullf = () => {};
 
@@ -32,6 +40,13 @@ const info = (msg) => {
 
 const err = (msg) => {
     console.log(`[E] ${msg}`.red);
+};
+
+console.inspect = (item) => {
+    console.log(util.inspect(item, {
+        colors: true,
+        depth: 10
+    }));
 };
 
 SonosWeb.addMenuEntry = (icon, title, page, order) => {
@@ -52,7 +67,7 @@ SonosWeb.express = express;
 const menu_default = [
     ['fa-home', 'Home', 'home', 0],
     ['fa-list', 'Queue', 'queue', 1000],
-    ['fa-bug', 'UI Debug', 'uidebug', 8000],
+    ['fa-bug', 'Debug', 'debug', 8000],
     ['fa-gear', 'Settings', 'settings', 9000]
 ];
 
@@ -147,11 +162,37 @@ for (const file of plugindir_content) {
 }
 
 
+var albumArtCache = [];
 
 // Routing
 app.get('/sonos/getaa', (req, res) => {
-    let url = '';
-    if (thePlayer === null) {
+    var url = '';
+    if (thePlayer !== null) {
+        var qry = req._parsedOriginalUrl.query;
+        var hash = crypto.createHash('sha1');
+        hash.setEncoding('hex');
+        hash.write(qry);
+        hash.end();
+        var sum = hash.read();
+
+        if (albumArtCache.indexOf(sum) !== -1) {
+            res.send(fs.readFileSync(__dirname + '/cache/' + sum));
+            return;
+        }
+        try {
+            url = 'http://' + thePlayer.host + ':' + thePlayer.port + '/getaa?' + req._parsedOriginalUrl.query;
+            var x = request(url);
+            if (!fs.existsSync(__dirname + '/cache/')) {
+                fs.mkdirSync(__dirname + '/cache/');
+            }
+            x.pipe(fs.createWriteStream(__dirname + '/cache/' + sum));
+            x.pipe(res);
+            albumArtCache.push(sum);
+            console.log(albumArtCache);
+        } catch (e) {
+            url = '/img/dummy/album-cover.jpg';
+        }
+    } else {
         res.end('{error: 1}');
         return;
     }
@@ -186,13 +227,23 @@ app.get('/pages/home', (req, res) => {
 });
 
 app.get('/pages/queue', (req, res) => {
-    res.render('pages/queue', {
-        menu: SonosWeb.menu
+    thePlayer.getQueue((err, data) => {
+        if (!err) {
+            console.log(data);
+            res.render('pages/queue', {
+                menu: SonosWeb.menu,
+                queue: data
+            });
+            return;
+        }
+        res.render('pages/e/500', {
+            menu: SonosWeb.menu
+        });
     });
 });
 
-app.get('/pages/uidebug', (req, res) => {
-    res.render('pages/uidebug', {
+app.get('/pages/debug', (req, res) => {
+    res.render('pages/debug', {
         menu: SonosWeb.menu
     });
 });
@@ -203,12 +254,43 @@ app.get('/pages/settings', (req, res) => {
     });
 });
 
+var SonosStatus = {
+    playing: null,
+    volume: {
+        master: 0,
+        LF: 0,
+        RF: 0
+    },
+    zones: null
+};
+
 function broadcastState() {
-    if (thePlayer === null) {
-        return;
-    }
-    if (clientsReady <= 0) {
-        return;
+    if (thePlayer !== null && clientsReady > 0) {
+        thePlayer.currentTrack((error, data) => {
+            if (!error) {
+                //console.log(data);
+
+                var track_data = {};
+
+                //console.inspect(data.protocolData);
+
+                track_data.type = 'other';
+
+                /*if (data.protocolData.res[0] !== undefined) {
+                    if (data.protocolData.res[0]['$'].protocolInfo.indexOf('sonos.com') === -1) {
+                        track_data.title = data.title;
+                        track_data.artist = data.artist;
+                        track_data.album = data.album;
+                        track_data.albumArtURI = data.albumArtURI;
+                        track_data.type = 'song';
+                    }
+                }*/
+                track_data.position = data.position;
+                track_data.duration = data.duration;
+
+                io.emit('track', track_data);
+            }
+        });
     }
     thePlayer.getState().then(([status, track, volume, isMuted, zone]) => {
         io.emit('data', {
@@ -225,7 +307,9 @@ function enableio() {
 
     function timingUpdate() {
         broadcastState();
-        setTimeout(timingUpdate, 500);
+        setTimeout(() => {
+            timingUpdate();
+        }, 800);
     }
 
     timingUpdate();
@@ -233,6 +317,15 @@ function enableio() {
     io.on('connection', (client) => {
         info('Got connection');
         clientsReady++;
+        sendCurrentTrack();
+        client.emit('config', {
+            ip: SonosWeb._ipaddress,
+            port: SonosWeb.port
+        });
+        client.emit('status', SonosStatus);
+        client.emit('currentSong', SonosStatus.playing);
+        client.emit('playState', SonosStatus.playState);
+        client.emit('volume', SonosStatus.volume);
         client.on('disconnect', function() {
             clientsReady--;
         });
@@ -244,6 +337,17 @@ function enableio() {
     io.on('disconnection', () => {
         info('Disconnect');
         clientsReady--;
+    });
+}
+
+function sendCurrentTrack() {
+    if (thePlayer === null || io === null) {
+        return;
+    }
+    thePlayer.currentTrack((error, data) => {
+        if (!error) {
+            io.emit('track', data);
+        }
     });
 }
 
@@ -334,15 +438,14 @@ function playerControlEvents(client) {
     }
 
     client.on('playUrl', (obj) => {
-        const scplugin = plugins['sonos-web-soundcloud'];
-        let metadata = '';
-        let type = '';
-        /*if (obj.trackUrl.indexOf('x-rincon-mp3radio://') !== -1) {
-            type = 'radio';
+        var scplugin = plugins['sonos-web-soundcloud'];
+        var metadata = '';
+        var type = '';
+        if (obj.trackUrl.indexOf('x-sonosapi-stream') !== -1) {
+            type = 'sonos-stream';
         } else {
             type = 'song';
-        }*/
-        type = 'song';
+        }
         console.log(obj);
         try {
             metadata = fs.readFileSync(__dirname + '/src/didl/' + type + '.xml').toString();
@@ -358,30 +461,12 @@ function playerControlEvents(client) {
             metadata = '';
         }
 
-        console.log(metadata);
-
-
-        if (obj.trackUrl.match(/http(?:|s):\/\/(?:www\.|)soundcloud\.com\//i) && scplugin !== undefined) {
-            scplugin.getMp3(obj.trackUrl).then((res) => {
-                let trackUrl = '';
-                if (res.length > 255) {
-                    const audioProxy = plugins['sonos-web-audioproxy'];
-                    if (audioProxy === undefined) {
-                        warn('Unable to play track: trackUrl is too big and audioproxy isn\'t available');
-                        return;
-                    }
-                    let theId = audioProxy.addAudioUrl(res);
-                    trackUrl = `http://${SonosWeb._ipaddress}:${SonosWeb.port}${audioProxy.ENDPOINT}/${theId}`;
-                } else {
-                    trackUrl = res;
-                }
-                metadata = metadata.replace(/%uri%/g, trackUrl);
-                //thePlayer.addURIToQueue(res, metadata, true);
-                thePlayer.queue({
-                    'uri': trackUrl,
-                    'metadata': metadata
-                }, nullf);
-            });
+        if (obj.trackUrl.match(/x-sonosapi-stream/i)) {
+            thePlayer.play({
+                'uri': obj.trackUrl,
+                'metadata': metadata
+            }, nullf);
+            console.log('sonos stream');
         } else {
             thePlayer.queue({
                 'uri': obj.trackUrl,
@@ -389,115 +474,262 @@ function playerControlEvents(client) {
             }, nullf);
         }
     });
+
+    client.on('get_zoneInfo', () => {
+        if (thePlayer === null) {
+            return;
+        }
+        thePlayer.getZoneInfo((err, data) => {
+            if (!err) {
+                // Reply to sender only
+                client.emit('zoneInfo', data);
+            }
+        });
+    });
+
+    client.on('get_track', () => {
+        sendCurrentTrack();
+    });
 }
 
 function init() {
-
-    sonos.search((device) => {
-        console.log(device);
+    sonos.search(function(device) {
         thePlayer = device;
+        thePlayer.selectQueue();
 
-        thePlayer.getState = () => Promise.all([
-            new Promise((resolve, reject) => {
-                device.getCurrentState((err, state) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    resolve(state);
-                });
-            }),
+        var listener = new Listener(device);
+        listener.listen((err) => {
+            if (err) {
+                throw err;
+            }
 
-            new Promise((resolve, reject) => {
-                device.currentTrack((err, track) => {
-                    info('Getting current track');
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    resolve(track);
-                });
-            }),
+            info("Listening...");
 
-            new Promise((resolve, reject) => {
-                device.getVolume((err, volume) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    resolve(volume);
-                });
-            }),
+            listener.addService('/MusicServices/Event', (error, sid) => {
+                if (error) {
+                    throw err;
+                }
+                console.log('Successfully subscribed, with subscription id', sid);
+            });
 
-            new Promise((resolve, reject) => {
-                device.getMuted((err, muted) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    resolve(muted);
-                });
-            }),
+            listener.addService('/MediaServer/ContentDirectory/Event', (error, sid) => {
+                if (error) {
+                    throw err;
+                }
+                console.log('Successfully subscribed, with subscription id', sid);
+            });
 
-            new Promise((resolve, reject) => {
-                device.getZoneAttrs((err, data) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    resolve(data);
-                });
-            }),
+            listener.addService('/MediaRenderer/RenderingControl/Event', (error, sid) => {
+                if (error) {
+                    throw err;
+                }
+                console.log('Successfully subscribed, with subscription id', sid);
+            });
 
-            new Promise((resolve, reject) => {
-                device.getTopology((err, data) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    resolve(data);
-                });
-            }),
+            listener.addService('/ZoneGroupTopology/Event', (error, sid) => {
+                if (error) {
+                    throw err;
+                }
+                console.log('Successfully subscribed, with subscription id', sid);
+            });
 
-            new Promise((resolve, reject) => {
-                device.deviceDescription((err, data) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    resolve(data);
+            listener.addService('/MediaRenderer/AVTransport/Event', (error, sid) => {
+                if (error) {
+                    throw err;
+                }
+                console.log('Successfully subscribed, with subscription id', sid);
+            });
+
+            listener.on('serviceEvent', (endpoint, sid, data) => {
+                info("Service Event");
+                if (endpoint === '/MediaRenderer/AVTransport/Event') {
+                    parseXML(data.LastChange, (err, result) => {
+                        if (err) {
+                            error('Unable to parse XML, the error was ' + err);
+                            return;
+                        }
+                        console.inspect(result.Event.InstanceID, {
+                            colors: true,
+                            depth: 5
+                        });
+
+                        if (result.Event.InstanceID[0].hasOwnProperty('TransportStatus')) {
+                            if (result.Event.InstanceID[0].TransportStatus[0].$.val === 'ERROR_NO_RESOURCE') {
+                                error('Sonos couldn\'t find a resource:\n' + result.Event.InstanceID[0].TransportErrorURI[0].$.val);
+                            }
+                            return;
+                        }
+                        var playState = result.Event.InstanceID[0].TransportState[0].$.val;
+                        console.log(playState);
+
+                        SonosStatus.playState = playState;
+                        io.emit('playState', playState);
+
+                        var metadata;
+                        var type;
+                        if (result.Event.InstanceID[0].hasOwnProperty('CurrentTrackMetaData')) {
+                            type = 'song';
+                            metadata = result.Event.InstanceID[0].CurrentTrackMetaData[0].$.val;
+                        } else if (result.Event.InstanceID[0].hasOwnProperty('r:EnqueuedTransportURIMetaData') && result.Event.InstanceID[0]['r:EnqueuedTransportURIMetaData'][0].$.val !== '') {
+                            metadata = result.Event.InstanceID[0]['r:EnqueuedTransportURIMetaData'][0].$.val;
+                            type = 'radio';
+                            console.log('EnqueuedTransportURIMetaData');
+                        } else if (result.Event.InstanceID[0].hasOwnProperty('AVTransportURIMetaData') && result.Event.InstanceID[0].AVTransportURIMetaData[0].$.val !== '') {
+                            metadata = result.Event.InstanceID[0].AVTransportURIMetaData[0].$.val;
+                            type = 'radio';
+                        } else if (result.Event.InstanceID[0].hasOwnProperty('CurrentTrackMetaData') && result.Event.InstanceID[0].hasOwnProperty('CurrentTrackMetaData') !== '') {
+                            metadata = result.Event.InstanceID[0]['CurrentTrackMetaData'][0].$.val;
+                            type = 'song';
+                        }
+
+                        var albumArtURI = null;
+                        var AVTransportURI = null;
+                        if (result.Event.InstanceID[0].AVTransportURI !== undefined) {
+                            AVTransportURI = result.Event.InstanceID[0].AVTransportURI[0].$.val.toString();
+                        } else if (result.Event.InstanceID[0]['r:EnqueuedTransportURI'] !== undefined) {
+                            AVTransportURI = result.Event.InstanceID[0]['r:EnqueuedTransportURI'][0].$.val.toString();
+                        }
+
+                        if (AVTransportURI !== null) {
+                            var matches = AVTransportURI.match(/x-sonosapi-stream:(.*?)\?sid=(\d+)&flags=(\d+)/i);
+                            if (matches) {
+                                // TuneIN
+                                console.log('Okay, TuneIN!');
+                                var radio = new PTuneIn(matches[1]);
+                                console.log(radio.getMetadata);
+
+                                var niu = (el) => {
+                                    return (el !== undefined ? el : null);
+                                };
+
+                                radio.getMetadata().then((data) => {
+                                        console.log('Got result... data!', data);
+                                        var songInfo = {
+                                            title: data.title[0],
+                                            artist: niu(data.streamMetadata[0].currentShow[0]),
+                                            duration: null,
+                                            albumArtURI: 'http://cdn-radiotime-logos.tunein.com/' + matches[1] + 'g.png',
+                                            radio: {
+                                                language: niu(data.language[0]),
+                                                title: niu(data.title),
+                                                country: niu(data.country[0]),
+                                                liveNow: niu(data.liveNow[0]),
+                                                genre: niu(data.genre[0]),
+                                                genreId: niu(data.genreId[0]),
+                                                currentHost: niu(data.streamMetadata[0].currentHost[0]),
+                                                currentShow: niu(data.streamMetadata[0].currentShow[0]),
+                                                stationTitle: niu(data.streamMetadata[0].title[0]),
+                                                stationSubtitle: niu(data.streamMetadata[0].subtitle[0]),
+                                                bitrate: niu(data.streamMetadata[0].bitrate[0]),
+                                                onDemand: niu(data.onDemand[0]),
+                                                twitter: niu(data.twitterId[0]),
+                                            }
+                                        };
+                                        SonosStatus.playing = songInfo;
+                                        io.emit('currentSong', songInfo);
+                                    })
+                                    .catch((error) => {
+                                        console.log(error);
+                                    });
+
+
+                                albumArtURI = 'http://cdn-radiotime-logos.tunein.com/' + matches[1] + 'g.png';
+                                console.log(albumArtURI);
+                            }
+                        } else {
+                            console.log('AVTransportURI is null!');
+                        }
+
+                        console.log(type);
+                        if (metadata !== undefined && metadata !== '') {
+                            console.log(metadata);
+                            parseXML(metadata, (err, result) => {
+                                if (err) {
+                                    error('Unable to parse metadata XML, the error was ' + err);
+                                    return;
+                                }
+                                console.inspect(result);
+
+                                console.log(result['DIDL-Lite'].item[0]['dc:title'][0]);
+                                var aaURI = albumArtURI || (result['DIDL-Lite'].item[0]['upnp:albumArtURI'] !== undefined ? result['DIDL-Lite'].item[0]['upnp:albumArtURI'][0] : null);
+                                if (aaURI.match(/^\/getaa.*/i)) {
+                                    aaURI = "/sonos" + aaURI;
+                                }
+                                var songInfo = {
+                                    title: result['DIDL-Lite'].item[0]['dc:title'][0],
+                                    artist: (result['DIDL-Lite'].item[0]['dc:creator'] !== undefined ? result['DIDL-Lite'].item[0]['dc:creator'][0] : null),
+                                    duration: (result['DIDL-Lite'].item[0].res !== undefined ? result['DIDL-Lite'].item[0].res[0].$.duration : null),
+                                    albumArtURI: aaURI
+                                };
+                                console.inspect(songInfo);
+
+                                SonosStatus.playing = songInfo;
+                                io.emit('currentSong', songInfo);
+                            });
+                        }
+                    });
+                } else if (endpoint === '/MediaRenderer/RenderingControl/Event') {
+                    parseXML(data.LastChange, (err, result) => {
+                        if (!err) {
+                            var volObj = result.Event.InstanceID[0].Volume;
+
+                            var MasterVol = 0;
+                            var LFVol = 0;
+                            var RFVol = 0;
+
+                            for (var i in volObj) {
+                                if (volObj.hasOwnProperty(i)) {
+                                    switch (volObj[i]['$'].channel) {
+                                        case 'Master':
+                                            MasterVol = volObj[i]['$'].val;
+                                            break;
+
+                                        case 'LF':
+                                            LFVol = volObj[i]['$'].val;
+                                            break;
+
+                                        case 'RF':
+                                            RFVol = volObj[i]['$'].val;
+                                            break;
+                                    }
+                                }
+                            }
+
+                            var SVolObj = {
+                                'master': MasterVol,
+                                'LF': LFVol,
+                                'RF': RFVol
+                            };
+
+                            SonosStatus.volume = SVolObj;
+                            io.emit('volume', SVolObj);
+                        }
+                    });
+                } else if (endpoint === '/ZoneGroupTopology/Event') {
+                    console.log('Got ZoneGroupTopology event');
+                    parseXML(data.ZoneGroupState, (err, result) => {
+                        console.inspect(result);
+                        // TODO: Implement zone management
+
+                    });
+                    console.inspect(data);
+                } else if (endpoint === '/MusicServices/Event') {
+                    console.log('=========== MUSIC SERVICES EVENT ============');
+                    console.inspect(data);
+                } else {
+                    console.log('Got a new event with enpoint: ' + endpoint);
+                }
+            });
+        });
+
+        thePlayer.getVolume((err, res) => {
+            if (!err) {
+                SonosStatus.volume.master = res;
+                io.emit('volume', {
+                    'master': res
                 });
-            })
-        ]);
+            }
+        });
         enableio();
     });
 }
-/*var discovery = new SonosDiscovery();
-discovery.on('transport-state', function() {
-    thePlayer = discovery.players[thePlayer.uuid];
-    io.emit('data', {
-        'roomName': thePlayer.roomName,
-        'state': thePlayer.state,
-        'elapsedTime': thePlayer.elapsedTime
-    });
-});
-
-
-discovery.on('topology-change', function(topology) {
-    var player = topology[0];
-    if (thePlayer === null) {
-        thePlayer = discovery.players[player.uuid];
-        enableio();
-    }
-});
-
-discovery.on('volume', function() {
-    if (thePlayer !== null) {
-        if (clientsReady > 0) {
-            io.emit('volume', {
-                'volume': thePlayer.state.volume
-            });
-        }
-    }
-});
-*/
