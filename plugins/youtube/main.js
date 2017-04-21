@@ -12,7 +12,6 @@
             SonosWeb.app.use('/plugins/youtube/search/:q', (req, res)=>{
               if(req.params.q !== '')
               {
-                console.log(req.params.q);
                 youtube.search(req.params.q, 10, (err,result)=>{
                   res.json(result);
                 });
@@ -49,7 +48,6 @@
                         return new Promise((resolve) => {
                             youtube.getPlayListsItemsById(result.items[i].id.playlistId, (err, res) => {
                                 if (!err) {
-                                    console.log(res);
                                     resolve({
                                         name: result.items[i].snippet.title,
                                         thumbnails: result.items[i].snippet.thumbnails,
@@ -80,7 +78,6 @@
             SonosWeb.app.get('/plugins/youtube/resolve/:videoid', (req, res) => {
                 var videoid = req.params.videoid.toString();
                 var matches = videoid.match(/^[0-9A-z\_\-]{11}$/i);
-                console.log(matches, videoid);
                 if (!matches) {
                     res.json({
                         success: false,
@@ -138,7 +135,6 @@
 
             SonosWeb.app.get('/plugins/youtube/play/:videoid', (req, res) => {
                 var videoid = req.params.videoid.toString();
-                console.log('Requested to play ' + videoid);
                 var matches = videoid.match(/^[0-9A-z\_\-]{11}$/i);
                 if (!matches) {
                     res.json({
@@ -150,6 +146,8 @@
                     });
                     return;
                 }
+
+                console.log('Video ID: ' + videoid);
 
                 var video = youtubedl('https://youtube.com/watch?v=' + videoid, ['-f bestaudio']);
                 var filesize = 0;
@@ -182,8 +180,8 @@
                             end: true
                         });
                 });
-                video.on('error', () => {
-                    console.log('error!');
+                video.on('error', (error) => {
+                    console.log('Error while downloading video: ', error);
                 });
                 video.on('end', () => {
                     console.log('Video download finished');
