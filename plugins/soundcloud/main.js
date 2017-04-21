@@ -75,10 +75,9 @@
                 }
                 widgetsrc = widgetsrc[1];
                 console.log(widgetsrc);
-                if (widgetsrc.indexOf('/') === -1) {
-                    // absolute url
-                    console.log('absolute url');
-                    this._request('https://w.soundcloud.com/player/' + widgetsrc, {
+                if (widgetsrc.indexOf('/') === 0) {
+                    // relative url
+                    this._request('https://w.soundcloud.com' + widgetsrc, {
                         headers: {
                             'User-Agent': this._ua
                         }
