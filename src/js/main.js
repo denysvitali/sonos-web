@@ -73,7 +73,6 @@ socket.on('connect', function() {
 
     socket.on('currentSong', (data) => {
         socket.parse('currentSong', data);
-        console.log(data);
     });
 
     socket.on('status', (data) => {
@@ -97,7 +96,7 @@ socket.on('connect', function() {
 
             case 'currentSong':
                 if (data !== null) {
-                    //SonosStatus.playing = data;
+                    SonosStatus.playing = data;
                     ui.setTrack(data);
                     ui.setAlbumArt(data);
                     ui.emit('track', data);
