@@ -292,15 +292,6 @@ function broadcastState() {
             }
         });
     }
-    thePlayer.getState().then(([status, track, volume, isMuted, zone]) => {
-        io.emit('data', {
-            'roomName': zone.CurrentZoneName,
-            'state': status.toUpperCase(),
-            track,
-            volume,
-            isMuted
-        });
-    });
 }
 
 function enableio() {
@@ -652,8 +643,13 @@ function init() {
 
                                 console.log(result['DIDL-Lite'].item[0]['dc:title'][0]);
                                 var aaURI = albumArtURI || (result['DIDL-Lite'].item[0]['upnp:albumArtURI'] !== undefined ? result['DIDL-Lite'].item[0]['upnp:albumArtURI'][0] : null);
-                                if (aaURI.match(/^\/getaa.*/i)) {
-                                    aaURI = "/sonos" + aaURI;
+                                if (aaURI != null) {
+                                    if (aaURI.match(/^\/getaa.*/i)) {
+                                        aaURI = "/sonos" + aaURI;
+                                    }
+                                }
+                                else{
+                                    aaURI = '/img/dummy/album-cover.jpg';
                                 }
                                 var songInfo = {
                                     title: result['DIDL-Lite'].item[0]['dc:title'][0],
