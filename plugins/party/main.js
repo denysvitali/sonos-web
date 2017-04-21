@@ -3,7 +3,6 @@
     class Party {
         constructor(SonosWeb) {
             // Called when plugin is loaded
-            console.log('Plugin ready', SonosWeb);
             var request = require('request');
             this._request = request;
             this._ua = 'Sonos-Web (https://github.com/denysvitali/sonos-web)';
