@@ -4,6 +4,7 @@ logs
 npm-debug.log*
 test
 node_modules2
+notes
 
 # Runtime data
 pids
