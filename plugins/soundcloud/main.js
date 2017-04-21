@@ -74,7 +74,6 @@
                     return;
                 }
                 widgetsrc = widgetsrc[1];
-                console.log(widgetsrc);
                 if (widgetsrc.indexOf('/') === 0) {
                     // relative url
                     this._request('https://w.soundcloud.com' + widgetsrc, {
