@@ -2,7 +2,7 @@
 // Thank you @bloodyowl!
 class EventEmitter {
     constructor() {
-        this._maxListeners = 12;
+        this._maxListeners = 10;
         this._events = {};
     }
     _error(message, ...args) {
