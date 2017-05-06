@@ -176,7 +176,7 @@ app.get('/sonos/getaa', (req, res) => {
         var sum = hash.read();
 
         if (albumArtCache.indexOf(sum) !== -1) {
-            res.send(fs.readFileSync(__dirname + '/cache/' + sum));
+            res.end(fs.readFileSync(__dirname + '/cache/' + sum));
             return;
         }
         try {
@@ -188,7 +188,7 @@ app.get('/sonos/getaa', (req, res) => {
             x.pipe(fs.createWriteStream(__dirname + '/cache/' + sum));
             x.pipe(res);
             albumArtCache.push(sum);
-            console.log(albumArtCache);
+            return;
         } catch (e) {
             url = '/img/dummy/album-cover.jpg';
         }
