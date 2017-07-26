@@ -13,20 +13,7 @@ const crypto = require('crypto');
 const request = require('request');
 
 
-// Providers
-const PTuneIn = require('./inc/tunein');
-
-var SonosWeb = {
-    port: 8888,
-    app: app
-};
-
-process.setMaxListeners(50);
-
-
-SonosWeb._ipaddress = require('ip').address();
-init();
-
+// Debugging and logging
 const nullf = () => {};
 
 // Console functions
@@ -48,6 +35,21 @@ console.inspect = (item) => {
         depth: 10
     }));
 };
+
+// Providers
+const PTuneIn = require('./inc/tunein');
+
+var SonosWeb = {
+    port: 8888,
+    app: app
+};
+
+process.setMaxListeners(50);
+
+
+SonosWeb._ipaddress = require('ip').address();
+info("Searching for a Sonos device...");
+init();
 
 SonosWeb.addMenuEntry = (icon, title, page, order) => {
     SonosWeb.menu.push([icon, title, page, order]);
@@ -485,6 +487,7 @@ function playerControlEvents(client) {
 
 function init() {
     sonos.search(function(device) {
+        info(`Found ZP at ${device.host}:${device.port}`);
         thePlayer = device;
         thePlayer.selectQueue();
 
@@ -498,35 +501,35 @@ function init() {
 
             listener.addService('/MusicServices/Event', (error, sid) => {
                 if (error) {
-                    throw err;
+                    throw error;
                 }
                 console.log('Successfully subscribed, with subscription id', sid);
             });
 
             listener.addService('/MediaServer/ContentDirectory/Event', (error, sid) => {
                 if (error) {
-                    throw err;
+                    throw error;
                 }
                 console.log('Successfully subscribed, with subscription id', sid);
             });
 
             listener.addService('/MediaRenderer/RenderingControl/Event', (error, sid) => {
                 if (error) {
-                    throw err;
+                    throw error;
                 }
                 console.log('Successfully subscribed, with subscription id', sid);
             });
 
             listener.addService('/ZoneGroupTopology/Event', (error, sid) => {
                 if (error) {
-                    throw err;
+                    throw error;
                 }
                 console.log('Successfully subscribed, with subscription id', sid);
             });
 
             listener.addService('/MediaRenderer/AVTransport/Event', (error, sid) => {
                 if (error) {
-                    throw err;
+                    throw error;
                 }
                 console.log('Successfully subscribed, with subscription id', sid);
             });
