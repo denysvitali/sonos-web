@@ -203,7 +203,6 @@ class UI extends EventEmitter {
 
         var menuEntries = document.getElementById('menu').getElementsByClassName('menu-elements')[0].getElementsByClassName('entry');
         Array.prototype.forEach.call(menuEntries, function(el) {
-            console.log(el);
             el.addEventListener('mousedown', () => {
                 for (var i in menuEntries) {
                     if (menuEntries.hasOwnProperty(i)) {

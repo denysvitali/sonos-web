@@ -105,7 +105,7 @@ socket.on('connect', function() {
                 break;
             case 'playState':
                 SonosStatus.playState = data;
-                if (data === 'PLAYING') {
+                if (data === 'PLAYING' || data === 'TRANSITIONING') {
                     ui.setPlayState(1);
                     ui.setButtonPlaying();
                 } else {

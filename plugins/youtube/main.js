@@ -21,6 +21,8 @@
             });
             SonosWeb.app.get('/plugins/youtube/category/music', (req, res) => {
                 youtube.searchByChannel('UC-9-kyTW8ZkZNDHQJ6FgpwQ', 50, (error, result) => {
+                    console.log("Got an answer [YT]");
+
                     // Music
                     if (error || !result.hasOwnProperty('items')) {
                         console.log(error);
