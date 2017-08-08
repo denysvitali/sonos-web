@@ -501,7 +501,7 @@ function init() {
 
             listener.addService('/MusicServices/Event', (error, sid) => {
                 if (error) {
-                    if(error == 'Internal Server Error'){
+                    if(error == 'Internal Server Error' || error == 'Method Not Allowed'){
                       // Feature not supported
                     } else {
                       throw error;
@@ -512,7 +512,7 @@ function init() {
 
             listener.addService('/MediaServer/ContentDirectory/Event', (error, sid) => {
                 if (error) {
-                    if(error == 'Internal Server Error'){
+                    if(error == 'Internal Server Error' || error == 'Method Not Allowed'){
                       // Feature not supported
                     } else {
                       throw error;
@@ -523,7 +523,7 @@ function init() {
 
             listener.addService('/MediaRenderer/RenderingControl/Event', (error, sid) => {
                 if (error) {
-                    if(error == 'Internal Server Error'){
+                    if(error == 'Internal Server Error' || error == 'Method Not Allowed'){
                       // Feature not supported
                     } else {
                       throw error;
@@ -534,7 +534,7 @@ function init() {
 
             listener.addService('/ZoneGroupTopology/Event', (error, sid) => {
                 if (error) {
-                    if(error == 'Internal Server Error'){
+                    if(error == 'Internal Server Error' || error == 'Method Not Allowed'){
                       // Feature not supported
                     } else {
                       throw error;
@@ -545,7 +545,7 @@ function init() {
 
             listener.addService('/MediaRenderer/AVTransport/Event', (error, sid) => {
                 if (error) {
-                    if(error == 'Internal Server Error'){
+                    if(error == 'Internal Server Error' || error == 'Method Not Allowed'){
                       // Feature not supported
                     } else {
                       throw error;
