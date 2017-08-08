@@ -508,7 +508,11 @@ function init() {
 
             listener.addService('/MediaServer/ContentDirectory/Event', (error, sid) => {
                 if (error) {
-                    throw error;
+                    if(error == 'Internal Server Error'){
+                      // Feature not supported
+                    } else {
+                      throw error;
+                    }
                 }
                 console.log('Successfully subscribed, with subscription id', sid);
             });
