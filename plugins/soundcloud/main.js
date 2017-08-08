@@ -108,13 +108,13 @@
         }
 
         _parseWidgetJs(body) {
-            var clientId = body.match(/"([A-z0-9]{32})"/i);
+            var clientId = body.match(/client_id:u\?".*?":"([A-z0-9]{32})"/i);
             if (!clientId) {
                 console.log('[SoundCloud] Client ID not found!');
                 return;
             }
             this._clientId = clientId[1];
-            console.log('[SC] Client ID set');
+            console.log('[SC] Client ID set to '+this._clientId);
         }
 
         getTopChart(category) {
