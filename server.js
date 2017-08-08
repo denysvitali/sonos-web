@@ -519,21 +519,33 @@ function init() {
 
             listener.addService('/MediaRenderer/RenderingControl/Event', (error, sid) => {
                 if (error) {
-                    throw error;
+                    if(error == 'Internal Server Error'){
+                      // Feature not supported
+                    } else {
+                      throw error;
+                    }
                 }
                 console.log('Successfully subscribed, with subscription id', sid);
             });
 
             listener.addService('/ZoneGroupTopology/Event', (error, sid) => {
                 if (error) {
-                    throw error;
+                    if(error == 'Internal Server Error'){
+                      // Feature not supported
+                    } else {
+                      throw error;
+                    }
                 }
                 console.log('Successfully subscribed, with subscription id', sid);
             });
 
             listener.addService('/MediaRenderer/AVTransport/Event', (error, sid) => {
                 if (error) {
-                    throw error;
+                    if(error == 'Internal Server Error'){
+                      // Feature not supported
+                    } else {
+                      throw error;
+                    }
                 }
                 console.log('Successfully subscribed, with subscription id', sid);
             });
