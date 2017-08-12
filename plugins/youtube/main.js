@@ -196,7 +196,6 @@
                           //video.pipe(fs.createWriteStream(__dirname + '/cached/' + videoid + '.mp4'));
                 }
                 else {
-                  res.setHeader('Content-Length', 1024 * 1024 * 1024 * 4); // What a bad workaround! We can stream up to 4GB
                   res.setHeader('Content-Type', 'audio/mpeg');
                   request.get(`https://alltubedownload.net/video?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D${videoid}&audio=on`).pipe(res);
                 }
