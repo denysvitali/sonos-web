@@ -289,13 +289,20 @@ app.get('/pages/settings', (req, res) => {
 });
 
 var SonosStatus = {
+    zoneName: '',
     playing: null,
     volume: {
         master: 0,
         LF: 0,
         RF: 0
     },
-    zones: null,
+    zones: [{
+      coordinator: '',
+      name: 'Default Zone',
+      members: {
+        
+      }
+    }],
     positionInQueue: 0,
     totalQueue: 0
 };
@@ -435,6 +442,14 @@ function playerControlEvents(client) {
         thePlayer.setVolume(data.volume, nullf);
         broadcastState();
     });
+    
+    client.on('do_flushqueue', (data) => {
+      if (thePlayer === null) {
+          return;
+      }
+      
+      thePlayer.flush(nullf);
+    });
 
     // playManager
     function htmlEntities(unsafe) {
@@ -518,7 +533,7 @@ function init() {
     sonos.search(function(device) {
         debug(`Found ZP at ${device.host}:${device.port}`);
         thePlayer = device;
-        thePlayer.selectQueue();
+        //thePlayer.selectQueue();
 
         var listener = new Listener(device);
         listener.listen((err) => {
@@ -526,7 +541,7 @@ function init() {
                 throw err;
             }
 
-            debug("Listening...");
+            debug('Listening...');
 
             listener.addService('/MusicServices/Event', (err, sid) => {
                 if (err) {
@@ -775,6 +790,8 @@ function init() {
                         if(debug_enabled){
                           console.inspect(result);
                         }
+                        
+                        console.inspect(result.ZoneGroups.ZoneGroup[0].ZoneGroupMember[0]['$'].ZoneName);
                         // TODO: Implement zone management
 
                     });
