@@ -107,7 +107,6 @@ gulp.task('bundle', ['less'], function() {
         })
         .pipe(source('./src/js/main.js'))
         .pipe(buffer())
-        //.pipe(uglify())
         .pipe(sourcemaps.init({
             loadMaps: true
         }))

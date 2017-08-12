@@ -295,7 +295,9 @@ var SonosStatus = {
         LF: 0,
         RF: 0
     },
-    zones: null
+    zones: null,
+    positionInQueue: 0,
+    totalQueue: 0
 };
 
 function broadcastState() {
@@ -499,7 +501,7 @@ function playerControlEvents(client) {
         if (thePlayer === null) {
             return;
         }
-        thePlayer.getZonedebug((err, data) => {
+        thePlayer.getZoneInfo((err, data) => {
             if (!err) {
                 // Reply to sender only
                 client.emit('zoneInfo', data);
@@ -603,6 +605,14 @@ function init() {
                             }
                             return;
                         }
+                        
+                        if(result.Event.InstanceID[0].CurrentTrack[0].$.val !== null){
+                            io.emit('queueStatus', {
+                              current: result.Event.InstanceID[0].CurrentTrack[0].$.val*1,
+                              total: result.Event.InstanceID[0].NumberOfTracks[0].$.val*1
+                            });
+                        }
+                        
                         var playState = result.Event.InstanceID[0].TransportState[0].$.val;
                         debug(`PlayState: ${playState}`);
 

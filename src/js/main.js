@@ -1,5 +1,5 @@
 'use strict';
-/* globals io */
+/* globals io, SonosStatus, SonosWeb */
 import UI from './inc/uievents.js';
 var socket_url = '//' + window.location.hostname + (window.location.port === '' ? '' : ':' + window.location.port);
 var socket = io.connect(socket_url);
@@ -81,6 +81,10 @@ socket.on('connect', function() {
         socket.parse('volume', data.volume);
         socket.parse('playState', data.playState);
     });
+    
+    socket.on('queueStatus', (data) => {
+        socket.parse('queueStatus', data);
+    })
 
     socket.on('track', (data)=>{
         ui.setTrackTime(data.position, data.duration);
@@ -100,7 +104,6 @@ socket.on('connect', function() {
                     ui.setTrack(data);
                     ui.setAlbumArt(data);
                     ui.emit('track', data);
-
                 }
                 break;
             case 'playState':
@@ -112,6 +115,11 @@ socket.on('connect', function() {
                     ui.setPlayState(0);
                     ui.setButtonPaused();
                 }
+                break;
+            case 'queueStatus':
+                SonosStatus.positionInQueue = data.current;
+                SonosStatus.totalQueue = data.total;
+                ui.emit('queue');
                 break;
         }
     };
