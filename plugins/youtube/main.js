@@ -5,9 +5,10 @@
     var youtubedl = require('youtube-dl');
     var ffmpeg = require('fluent-ffmpeg');
     var moment = require('moment');
+    var request = require('request');
     youtube.setKey('AIzaSyCEyw0VMAQBNTWZNZmEfb0DJDi0IA2Ew00');
     class YouTube {
-        constructor(SonosWeb) {
+        constructor(SonosWeb, settings) {
             SonosWeb.app.use('/plugins/youtube/', SonosWeb.express.static(__dirname + '/client'));
             SonosWeb.app.use('/plugins/youtube/search/:q', (req, res)=>{
               if(req.params.q !== '')
@@ -19,9 +20,10 @@
               }
               res.end('fail');
             });
+            
             SonosWeb.app.get('/plugins/youtube/category/music', (req, res) => {
                 youtube.searchByChannel('UC-9-kyTW8ZkZNDHQJ6FgpwQ', 50, (error, result) => {
-                    console.log("Got an answer [YT]");
+                    console.log('Got an answer [YT]');
 
                     // Music
                     if (error || !result.hasOwnProperty('items')) {
@@ -148,51 +150,56 @@
                     });
                     return;
                 }
-
+                
                 console.log('Video ID: ' + videoid);
+                
+                if(settings.external_provider !== true){
 
-                var video = youtubedl('https://youtube.com/watch?v=' + videoid, ['-f bestaudio']);
-                var filesize = 0;
-                video.on('info', (info) => {
-                    filesize = info.size;
+                  var video = youtubedl('https://youtube.com/watch?v=' + videoid, ['-f bestaudio']);
+                  var filesize = 0;
+                  video.on('info', (info) => {
+                      filesize = info.size;
 
-                    var logger = {
-                        debug: console.log,
-                        info: console.log,
-                        error: console.log,
-                        warn: console.log
-                    };
-
-
-                    res.setHeader('Content-Length', 1024 * 1024 * 1024 * 4); // What a bad workaround! We can stream up to 4GB
-                    res.setHeader('Content-Type', 'audio/mpeg');
-                    ffmpeg(video, {
-                            logger: logger
-                        })
-                        .videoCodec('libx264')
-                        .outputFormat('mp3')
-                        .withAudioBitrate('320k')
-                        .on('end', function() {
-                            console.log('[ffmpeg] File converted successfully]');
-                        })
-                        .on('error', function(err) {
-                            console.log('[ffmpeg] Error while converting video: ' + err.message);
-                        })
-                        .pipe(res, {
-                            end: true
-                        });
-                });
-                video.on('error', (error) => {
-                    console.log('Error while downloading video: ', error);
-                });
-                video.on('end', () => {
-                    console.log('Video download finished');
-                    //this.serveMp3(videoid, res);
-                });
-                //video.pipe(fs.createWriteStream(__dirname + '/cached/' + videoid + '.mp4'));
+                      var logger = {
+                          debug: console.log,
+                          info: console.log,
+                          error: console.log,
+                          warn: console.log
+                        };
 
 
-
+                        res.setHeader('Content-Length', 1024 * 1024 * 1024 * 4); // What a bad workaround! We can stream up to 4GB
+                        res.setHeader('Content-Type', 'audio/mpeg');
+                        ffmpeg(video, {
+                              logger: logger
+                            })
+                            .videoCodec('libx264')
+                            .outputFormat('mp3')
+                            .withAudioBitrate('320k')
+                            .on('end', function() {
+                              console.log('[ffmpeg] File converted successfully]');
+                            })
+                            .on('error', function(err) {
+                              console.log('[ffmpeg] Error while converting video: ' + err.message);
+                            })
+                            .pipe(res, {
+                              end: true
+                            });
+                          });
+                          video.on('error', (error) => {
+                            console.log('Error while downloading video: ', error);
+                          });
+                          video.on('end', () => {
+                            console.log('Video download finished');
+                            //this.serveMp3(videoid, res);
+                          });
+                          //video.pipe(fs.createWriteStream(__dirname + '/cached/' + videoid + '.mp4'));
+                }
+                else {
+                  res.setHeader('Content-Length', 1024 * 1024 * 1024 * 4); // What a bad workaround! We can stream up to 4GB
+                  res.setHeader('Content-Type', 'audio/mpeg');
+                  request.get(`https://alltubedownload.net/video?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D${videoid}&audio=on`).pipe(res);
+                }
 
             });
 

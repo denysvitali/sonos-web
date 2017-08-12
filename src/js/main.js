@@ -1,7 +1,7 @@
 'use strict';
 /* globals io */
 import UI from './inc/uievents.js';
-var socket_url = 'http://' + window.location.hostname + (window.location.port !== '' ? ':8888' : '');
+var socket_url = '//' + window.location.hostname + (window.location.port === '' ? '' : ':' + window.location.port);
 var socket = io.connect(socket_url);
 console.log(socket_url);
 window.ui = new UI({

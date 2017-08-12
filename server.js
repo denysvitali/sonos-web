@@ -13,6 +13,8 @@ const crypto = require('crypto');
 const request = require('request');
 
 
+let debug_enabled = false;
+
 // Debugging and logging
 const nullf = () => {};
 
@@ -25,7 +27,13 @@ const info = (msg) => {
     console.log(`[I] ${msg}`.blue);
 };
 
-const err = (msg) => {
+const debug = (msg) => {
+    if(debug_enabled) {
+      console.log(`[D] ${msg}`.blue);
+    }
+};
+
+const error = (msg) => {
     console.log(`[E] ${msg}`.red);
 };
 
@@ -36,19 +44,42 @@ console.inspect = (item) => {
     }));
 };
 
+// Load settings
+const SETTINGS_FILE = './settings.json';
+
+var SonosWeb = {
+  port: 8888,
+  debug: debug,
+  info: info,
+  error: error,
+  warn: warn,
+  debug_enabled: debug_enabled
+};
+
+if(!fs.existsSync(SETTINGS_FILE)){
+    warn('Settings file doesn\'t exist');
+} else {
+    SonosWeb.settings = JSON.parse(fs.readFileSync(SETTINGS_FILE));
+    
+    if(SonosWeb.settings.port !== null){
+      SonosWeb.port = SonosWeb.settings.port;
+    }
+    
+    if(SonosWeb.settings.debug !== null){
+      SonosWeb.debug_enabled = SonosWeb.settings.debug;
+    }
+}
+
+debug_enabled = SonosWeb.debug_enabled;
+
 // Providers
 const PTuneIn = require('./inc/tunein');
 
-var SonosWeb = {
-    port: 8888,
-    app: app
-};
-
 process.setMaxListeners(50);
 
-
+SonosWeb.app = app;
 SonosWeb._ipaddress = require('ip').address();
-info("Searching for a Sonos device...");
+debug('Searching for a Sonos device...');
 init();
 
 SonosWeb.addMenuEntry = (icon, title, page, order) => {
@@ -107,7 +138,7 @@ var addPlugin = (plugindir, json) => {
         return;
     }
     const minimalJson = {
-        name: json.name,
+        name: json.name.toLowerCase(),
         description: json.description,
         version: json.version,
         author: json.author,
@@ -116,9 +147,8 @@ var addPlugin = (plugindir, json) => {
     pluginList.push(json);
     const thePath = `./plugins/${plugindir}/${json.main}`;
     const Plugin = require(thePath);
-    plugins[minimalJson.name] = new Plugin(SonosWeb);
-    console.log(plugins[minimalJson.name]);
-    info(`Plugin ${minimalJson.name} was loaded`);
+    plugins[minimalJson.name] = new Plugin(SonosWeb, SonosWeb.settings.plugins[minimalJson.name]);
+    debug(`Plugin ${minimalJson.name} was loaded`);
 };
 
 var parsePluginDir = (plugindir) => {
@@ -213,12 +243,15 @@ app.get('/', (req, res) => {
 });
 
 app.get('/sonosTest', (req, res) => {
-    console.log('========= SONOS - CUT HERE ========');
-    console.log(util.inspect(req.headers, {
-        colors: true,
-        depth: null
-    }));
-    console.log('===================================');
+  
+    if(debug_enabled){
+      console.log('========= SONOS - CUT HERE ========');
+      console.log(util.inspect(req.headers, {
+          colors: true,
+          depth: null
+      }));
+      console.log('===================================');
+    }
     res.end();
 });
 
@@ -231,7 +264,7 @@ app.get('/pages/home', (req, res) => {
 app.get('/pages/queue', (req, res) => {
     thePlayer.getQueue((err, data) => {
         if (!err) {
-            console.log(data);
+            debug(data);
             res.render('pages/queue', {
                 menu: SonosWeb.menu,
                 queue: data
@@ -270,12 +303,7 @@ function broadcastState() {
     if (thePlayer !== null && clientsReady > 0) {
         thePlayer.currentTrack((error, data) => {
             if (!error) {
-                //console.log(data);
-
                 var track_data = {};
-
-                //console.inspect(data.protocolData);
-
                 track_data.type = 'other';
 
                 /*if (data.protocolData.res[0] !== undefined) {
@@ -308,7 +336,7 @@ function enableio() {
     timingUpdate();
 
     io.on('connection', (client) => {
-        info('Got connection');
+        debug('Got connection');
         clientsReady++;
         sendCurrentTrack();
         client.emit('config', {
@@ -323,12 +351,12 @@ function enableio() {
             clientsReady--;
         });
         broadcastState();
-        info(`New client, now we have ${clientsReady} client${clientsReady === 1 ? '' : 's'}`);
+        debug(`New client, now we have ${clientsReady} client${clientsReady === 1 ? '' : 's'}`);
         playerControlEvents(client);
     });
 
     io.on('disconnection', () => {
-        info('Disconnect');
+        debug('Disconnect');
         clientsReady--;
     });
 }
@@ -439,7 +467,7 @@ function playerControlEvents(client) {
         } else {
             type = 'song';
         }
-        console.log(obj);
+        debug(obj);
         try {
             metadata = fs.readFileSync(__dirname + '/src/didl/' + type + '.xml').toString();
             //metadata = metadata.replace(/%id%/g, crypto.createHash('md5').update(obj.trackUrl).digest('hex'));
@@ -450,7 +478,7 @@ function playerControlEvents(client) {
             metadata = metadata.replace(/%albumart%/g, htmlEntities(obj.metadata.albumArt));
             metadata = metadata.replace(/%duration%/g, htmlEntities(obj.metadata.duration));
         } catch (e) {
-            console.log('[METADATA ERROR] ' + e.stack);
+            debug('[METADATA ERROR] ' + e.stack);
             metadata = '';
         }
 
@@ -459,7 +487,7 @@ function playerControlEvents(client) {
                 'uri': obj.trackUrl,
                 'metadata': metadata
             }, nullf);
-            console.log('sonos stream');
+            debug('sonos stream');
         } else {
             thePlayer.queue({
                 'uri': obj.trackUrl,
@@ -472,7 +500,7 @@ function playerControlEvents(client) {
         if (thePlayer === null) {
             return;
         }
-        thePlayer.getZoneInfo((err, data) => {
+        thePlayer.getZonedebug((err, data) => {
             if (!err) {
                 // Reply to sender only
                 client.emit('zoneInfo', data);
@@ -487,7 +515,7 @@ function playerControlEvents(client) {
 
 function init() {
     sonos.search(function(device) {
-        info(`Found ZP at ${device.host}:${device.port}`);
+        debug(`Found ZP at ${device.host}:${device.port}`);
         thePlayer = device;
         thePlayer.selectQueue();
 
@@ -497,75 +525,78 @@ function init() {
                 throw err;
             }
 
-            info("Listening...");
+            debug("Listening...");
 
-            listener.addService('/MusicServices/Event', (error, sid) => {
-                if (error) {
-                    if(error == 'Internal Server Error' || error == 'Method Not Allowed'){
+            listener.addService('/MusicServices/Event', (err, sid) => {
+                if (err) {
+                    if(err === 'Internal Server Error' || err === 'Method Not Allowed'){
                       // Feature not supported
                     } else {
-                      throw error;
+                      throw err;
                     }
                 }
-                console.log('Successfully subscribed, with subscription id', sid);
+                debug('Successfully subscribed, with subscription id', sid);
             });
 
-            listener.addService('/MediaServer/ContentDirectory/Event', (error, sid) => {
-                if (error) {
-                    if(error == 'Internal Server Error' || error == 'Method Not Allowed'){
+            listener.addService('/MediaServer/ContentDirectory/Event', (err, sid) => {
+                if (err) {
+                    if(err === 'Internal Server Error' || err === 'Method Not Allowed'){
                       // Feature not supported
                     } else {
-                      throw error;
+                      throw err;
                     }
                 }
-                console.log('Successfully subscribed, with subscription id', sid);
+                debug('Successfully subscribed, with subscription id', sid);
             });
 
-            listener.addService('/MediaRenderer/RenderingControl/Event', (error, sid) => {
-                if (error) {
-                    if(error == 'Internal Server Error' || error == 'Method Not Allowed'){
+            listener.addService('/MediaRenderer/RenderingControl/Event', (err, sid) => {
+                if (err) {
+                    if(err === 'Internal Server Error' || err === 'Method Not Allowed'){
                       // Feature not supported
                     } else {
-                      throw error;
+                      throw err;
                     }
                 }
-                console.log('Successfully subscribed, with subscription id', sid);
+                debug('Successfully subscribed, with subscription id', sid);
             });
 
-            listener.addService('/ZoneGroupTopology/Event', (error, sid) => {
-                if (error) {
-                    if(error == 'Internal Server Error' || error == 'Method Not Allowed'){
+            listener.addService('/ZoneGroupTopology/Event', (err, sid) => {
+                if (err) {
+                    if(err === 'Internal Server Error' || err === 'Method Not Allowed'){
                       // Feature not supported
                     } else {
-                      throw error;
+                      throw err;
                     }
                 }
-                console.log('Successfully subscribed, with subscription id', sid);
+                debug('Successfully subscribed, with subscription id', sid);
             });
 
-            listener.addService('/MediaRenderer/AVTransport/Event', (error, sid) => {
-                if (error) {
-                    if(error == 'Internal Server Error' || error == 'Method Not Allowed'){
+            listener.addService('/MediaRenderer/AVTransport/Event', (err, sid) => {
+                if (err) {
+                    if(err === 'Internal Server Error' || err === 'Method Not Allowed'){
                       // Feature not supported
                     } else {
-                      throw error;
+                      throw err;
                     }
                 }
-                console.log('Successfully subscribed, with subscription id', sid);
+                debug('Successfully subscribed, with subscription id', sid);
             });
 
             listener.on('serviceEvent', (endpoint, sid, data) => {
-                info("Service Event");
+                debug('Service Event');
                 if (endpoint === '/MediaRenderer/AVTransport/Event') {
                     parseXML(data.LastChange, (err, result) => {
                         if (err) {
                             error('Unable to parse XML, the error was ' + err);
                             return;
                         }
-                        console.inspect(result.Event.InstanceID, {
-                            colors: true,
-                            depth: 5
-                        });
+                        
+                        if(debug_enabled){
+                          console.inspect(result.Event.InstanceID, {
+                              colors: true,
+                              depth: 5
+                            });
+                        }
 
                         if (result.Event.InstanceID[0].hasOwnProperty('TransportStatus')) {
                             if (result.Event.InstanceID[0].TransportStatus[0].$.val === 'ERROR_NO_RESOURCE') {
@@ -574,7 +605,7 @@ function init() {
                             return;
                         }
                         var playState = result.Event.InstanceID[0].TransportState[0].$.val;
-                        console.log(playState);
+                        debug(`PlayState: ${playState}`);
 
                         SonosStatus.playState = playState;
                         io.emit('playState', playState);
@@ -587,7 +618,7 @@ function init() {
                         } else if (result.Event.InstanceID[0].hasOwnProperty('r:EnqueuedTransportURIMetaData') && result.Event.InstanceID[0]['r:EnqueuedTransportURIMetaData'][0].$.val !== '') {
                             metadata = result.Event.InstanceID[0]['r:EnqueuedTransportURIMetaData'][0].$.val;
                             type = 'radio';
-                            console.log('EnqueuedTransportURIMetaData');
+                            debug('EnqueuedTransportURIMetaData');
                         } else if (result.Event.InstanceID[0].hasOwnProperty('AVTransportURIMetaData') && result.Event.InstanceID[0].AVTransportURIMetaData[0].$.val !== '') {
                             metadata = result.Event.InstanceID[0].AVTransportURIMetaData[0].$.val;
                             type = 'radio';
@@ -608,16 +639,16 @@ function init() {
                             var matches = AVTransportURI.match(/x-sonosapi-stream:(.*?)\?sid=(\d+)&flags=(\d+)/i);
                             if (matches) {
                                 // TuneIN
-                                console.log('Okay, TuneIN!');
+                                debug('TuneIn');
                                 var radio = new PTuneIn(matches[1]);
-                                console.log(radio.getMetadata);
+                                debug(radio.getMetadata);
 
                                 var niu = (el) => {
                                     return (el !== undefined ? el : null);
                                 };
 
                                 radio.getMetadata().then((data) => {
-                                        console.log('Got result... data!', data);
+                                        debug('TuneIn: Got result... data!', data);
                                         var songInfo = {
                                             title: data.title[0],
                                             artist: niu(data.streamMetadata[0].currentShow[0]),
@@ -642,33 +673,36 @@ function init() {
                                         SonosStatus.playing = songInfo;
                                         io.emit('currentSong', songInfo);
                                     })
-                                    .catch((error) => {
-                                        console.log(error);
+                                    .catch((err) => {
+                                        error(err);
                                     });
 
 
                                 albumArtURI = 'http://cdn-radiotime-logos.tunein.com/' + matches[1] + 'g.png';
-                                console.log(albumArtURI);
+                                debug(albumArtURI);
                             }
                         } else {
-                            console.log('AVTransportURI is null!');
+                            debug('AVTransportURI is null!');
                         }
 
-                        console.log(type);
+                        debug(type);
                         if (metadata !== undefined && metadata !== '') {
-                            console.log(metadata);
+                            debug(metadata);
                             parseXML(metadata, (err, result) => {
                                 if (err) {
                                     error('Unable to parse metadata XML, the error was ' + err);
                                     return;
                                 }
-                                console.inspect(result);
+                                
+                                if(debug_enabled){
+                                  console.inspect(result);
+                                }
 
-                                console.log(result['DIDL-Lite'].item[0]['dc:title'][0]);
+                                debug(result['DIDL-Lite'].item[0]['dc:title'][0]);
                                 var aaURI = albumArtURI || (result['DIDL-Lite'].item[0]['upnp:albumArtURI'] !== undefined ? result['DIDL-Lite'].item[0]['upnp:albumArtURI'][0] : null);
-                                if (aaURI != null) {
+                                if (aaURI !== null) {
                                     if (aaURI.match(/^\/getaa.*/i)) {
-                                        aaURI = "/sonos" + aaURI;
+                                        aaURI = `/sonos${aaURI}`;
                                     }
                                 }
                                 else{
@@ -680,7 +714,9 @@ function init() {
                                     duration: (result['DIDL-Lite'].item[0].res !== undefined ? result['DIDL-Lite'].item[0].res[0].$.duration : null),
                                     albumArtURI: aaURI
                                 };
-                                console.inspect(songInfo);
+                                if(debug_enabled){
+                                  console.inspect(songInfo);
+                                }
 
                                 SonosStatus.playing = songInfo;
                                 io.emit('currentSong', songInfo);
@@ -725,18 +761,26 @@ function init() {
                         }
                     });
                 } else if (endpoint === '/ZoneGroupTopology/Event') {
-                    console.log('Got ZoneGroupTopology event');
+                    debug('Got ZoneGroupTopology event');
                     parseXML(data.ZoneGroupState, (err, result) => {
-                        console.inspect(result);
+                        if(debug_enabled){
+                          console.inspect(result);
+                        }
                         // TODO: Implement zone management
 
                     });
-                    console.inspect(data);
+                    
+                    if(debug_enabled){
+                      console.inspect(data);
+                    }
                 } else if (endpoint === '/MusicServices/Event') {
-                    console.log('=========== MUSIC SERVICES EVENT ============');
-                    console.inspect(data);
+                    debug('=========== MUSIC SERVICES EVENT ============');
+                    
+                    if(debug_enabled){
+                      console.inspect(data);
+                    }
                 } else {
-                    console.log('Got a new event with enpoint: ' + endpoint);
+                    debug('Got a new event with enpoint: ' + endpoint);
                 }
             });
         });

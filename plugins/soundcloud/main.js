@@ -1,6 +1,9 @@
 'use strict';
 (() => {
     var sprintf = require('sprintf-js').sprintf;
+    
+    let debug,info,error,warn;
+    
     class SoundCloud {
         constructor(SonosWeb) {
             // Called when plugin is loaded
@@ -8,6 +11,12 @@
             this._request = request;
             this._ua = 'Sonos-Web (https://github.com/denysvitali/sonos-web)';
             this._getWidgetJs();
+            
+            debug = SonosWeb.debug;
+            info = SonosWeb.info;
+            error = SonosWeb.error;
+            warn = SonosWeb.warn;
+            
             SonosWeb.app.use('/plugins/soundcloud/', SonosWeb.express.static(__dirname + '/client'));
             SonosWeb.app.get('/pages/soundcloud', (req, res) => {
                 var charts = ['all-music', 'ambient', 'deephouse'];
@@ -28,17 +37,17 @@
                         charts: chartsObj
                     });
                 }).catch((e) => {
-                    console.log('SC page promise error! ' + e);
+                    debug('SC page promise error! ' + e);
                 });
             });
             SonosWeb.app.get('/plugins/soundcloud/suggest/:text', (req, res) => {
-                console.log(req.params.text);
+                debug(req.params.text);
                 this.suggestSong(req.params.text).then((val) => {
                     res.end(JSON.stringify({
                         'results': val
                     }));
                 }).catch((e) => {
-                    console.log('[SC] Got error ' + e);
+                    error('[SC] Got error ' + e);
                     res.end('{results:[]}');
                 });
             });
@@ -62,15 +71,15 @@
             SonosWeb.app.get('/plugins/soundcloud/play/:element', (req, res) => {
                 if (req.params.element !== null && req.params.element !== '') {
                     var scUrl = 'https://soundcloud.com/' + req.params.element;
-                    console.log(scUrl);
+                    debug(scUrl);
                     this.getMp3(scUrl)
                         .then((mp3Url) => {
                             request(mp3Url).pipe(res);
                         })
                         .catch((error) => {
-                            console.log("[SC] Got a promise error: " + error);
+                            debug(`[SC] Got a promise error: ${error}`);
                             res.end(500);
-                        })
+                        });
                 }
             });
 
@@ -84,15 +93,15 @@
                     'User-Agent': this._ua
                 }
             }, (err, res, body) => {
-                var widgetsrc = body.match(/<script src\=\"(.*widget-(?:.*?).js)\"\>/i);
+                var widgetsrc = body.match(/<script (?:[^>]*)src\=\"https:\/\/widget.sndcdn.com(\/widget-(?:.*?).js)\"\>/i);
                 if (!widgetsrc) {
-                    console.log('[Soundcloud] Unable to get widget src!');
+                    debug('[Soundcloud] Unable to get widget src!');
                     return;
                 }
                 widgetsrc = widgetsrc[1];
                 if (widgetsrc.indexOf('/') === 0) {
                     // relative url
-                    this._request('https://w.soundcloud.com' + widgetsrc, {
+                    this._request('https://widget.sndcdn.com' + widgetsrc, {
                         headers: {
                             'User-Agent': this._ua
                         }
@@ -110,11 +119,11 @@
         _parseWidgetJs(body) {
             var clientId = body.match(/client_id:u\?".*?":"([A-z0-9]{32})"/i);
             if (!clientId) {
-                console.log('[SoundCloud] Client ID not found!');
+                debug('[SoundCloud] Client ID not found!');
                 return;
             }
             this._clientId = clientId[1];
-            console.log('[SC] Client ID set to '+this._clientId);
+            debug(`[SC] Client ID set ${this._clientId}`);
         }
 
         getTopChart(category) {
@@ -146,7 +155,7 @@
                             resolve({});
                         }
                     } catch (e) {
-                        console.log('error in getTopChart promise', url);
+                        error('[SC] Error in getTopChart promise', url);
                         reject(e);
                     }
                 });
@@ -220,7 +229,7 @@
                         return;
                     }
                     var json = JSON.parse(body);
-                    console.log(json);
+                    debug(json);
                     var results = [];
                     for (var i in json.results) {
                         if (json.results.hasOwnProperty(i)) {
