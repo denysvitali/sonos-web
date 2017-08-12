@@ -264,7 +264,6 @@ app.get('/pages/home', (req, res) => {
 app.get('/pages/queue', (req, res) => {
     thePlayer.getQueue((err, data) => {
         if (!err) {
-            debug(data);
             res.render('pages/queue', {
                 menu: SonosWeb.menu,
                 queue: data

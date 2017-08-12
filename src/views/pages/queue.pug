@@ -1,3 +1,10 @@
 h1 Queue
 div.queue
-  
+  for i in queue.items
+    div.queue-el
+      -let img = (i.albumArtURL.indexOf('/') === 0 ? `/sonos${i.albumArtURL}` : i.albumArtURL)
+      -let css = 'background-image:url(\''+img+'\')'
+      div.image(style=css)
+      div.title-artist
+        p.title #{i.title}
+        p.artist #{i.artist}

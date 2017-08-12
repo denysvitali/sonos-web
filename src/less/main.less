@@ -551,3 +551,57 @@ div.soundcloud{
 		}
 	}
 }
+
+div.queue{
+	div.queue-el{
+		width: 80%;
+		margin-bottom: 10px;
+		&::after{
+			content: '';
+			display: block;
+			clear: both;
+		}
+		div.image {
+			float: left;
+			@size: 80px;
+			width: @size;
+			height: @size;
+			overflow: hidden;
+			background-size: cover;
+			
+			div.image-inner{
+				position: relative;
+				display: block;
+				width: 500px;
+				height: @size;
+				
+				img.cover {
+					position: absolute;
+					left: 50%;
+					display: block;
+					height: 100%;
+					margin-left: -250px;
+				}
+			}
+		}
+		
+		div.title-artist{
+			display: block;
+			float: left;
+			margin-left: 20px;
+			
+			p.title{
+				display: block;
+				font-size: 1.2em;
+				margin-top: 0.4em;
+				margin-bottom: 0.4em;
+			}
+			p.artist{
+				display: block;
+				font-size: 0.8em;
+				color: #777;
+				margin-top: 0;
+			}
+		}
+	}
+}
