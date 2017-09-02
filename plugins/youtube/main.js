@@ -113,6 +113,15 @@
                                 bestQ = video.snippet.thumbnails[i].url;
                             }
                         }
+                        let videoUrl = '';
+                        if(settings.external_provider !== true || true){
+                            videoUrl = protocol + SonosWeb._ipaddress + ':' + SonosWeb.port + '/plugins/youtube/play/' + videoid;
+                        } else {
+                            // Never reached, this is a better choice, but apparently Sonos doesn't accept redirects (or has an URL limit, I guess)
+                            // We'll use the Node Server as a proxy (less efficient, but better than nothing)
+                            videoUrl = `https://www.youtubeinmp3.com/fetch/?video=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D${videoid}`;
+                        }
+                        
                         res.json({
                             success: true,
                             result: {
@@ -120,7 +129,7 @@
                                 author: video.snippet.channelTitle,
                                 thumbnail: bestQ,
                                 duration: moment.duration(video.contentDetails.duration).asSeconds(),
-                                url: protocol + SonosWeb._ipaddress + ':' + SonosWeb.port + '/plugins/youtube/play/' + videoid
+                                url: videoUrl
                             }
                         });
                     } else {
@@ -138,7 +147,7 @@
             });
 
             SonosWeb.app.get('/plugins/youtube/play/:videoid', (req, res) => {
-                var videoid = req.params.videoid.toString();
+                var videoid = req.params.videoid.toString();y
                 var matches = videoid.match(/^[0-9A-z\_\-]{11}$/i);
                 if (!matches) {
                     res.json({
@@ -197,7 +206,7 @@
                 }
                 else {
                   res.setHeader('Content-Type', 'audio/mpeg');
-                  request.get(`https://alltubedownload.net/video?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D${videoid}&audio=on`).pipe(res);
+                  request.get(`https://www.youtubeinmp3.com/fetch/?video=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D${videoid}`).pipe(res);
                 }
 
             });
