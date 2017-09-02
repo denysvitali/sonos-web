@@ -147,7 +147,7 @@
             });
 
             SonosWeb.app.get('/plugins/youtube/play/:videoid', (req, res) => {
-                var videoid = req.params.videoid.toString();y
+                var videoid = req.params.videoid.toString();
                 var matches = videoid.match(/^[0-9A-z\_\-]{11}$/i);
                 if (!matches) {
                     res.json({
