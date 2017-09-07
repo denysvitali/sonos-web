@@ -98,25 +98,25 @@ class UI extends EventEmitter {
             ctx.elements.heroMenuImage.classList.add(className);
         };
 
-        if (roomName.match(/camera|bedroom/i)) {
+        if (roomName.match(/camera|bedroom|slaapkamer/i)) {
             removeClasses();
             addClass('hero-bedroom');
-        } else if (roomName.match(/bagno|bathroom/i)) {
+        } else if (roomName.match(/bagno|bathroom|badkamer/i)) {
             removeClasses();
             addClass('hero-bathroom');
-        } else if (roomName.match(/sala da pranzo|dining room/i)) {
+        } else if (roomName.match(/sala da pranzo|dining room|eetkamer/i)) {
             removeClasses();
             addClass('hero-diningroom');
-        } else if (roomName.match(/entrata|atrio|foyer|hall(?!way)/i)) {
+        } else if (roomName.match(/entrata|atrio|foyer|hall(?!way)|hal/i)) {
             removeClasses();
             addClass('hero-hall');
-        } else if (roomName.match(/corridoio|hallway/i)) {
+        } else if (roomName.match(/corridoio|hallway|gang/i)) {
             removeClasses();
             addClass('hero-hallway');
-        } else if (roomName.match(/cucina|kitchen/i)) {
+        } else if (roomName.match(/cucina|kitchen|keuken/i)) {
             removeClasses();
             addClass('hero-kitchen');
-        } else if (roomName.match(/salotto|lounge|living room/i)) {
+        } else if (roomName.match(/salotto|lounge|living room|woonkamer/i)) {
             removeClasses();
             addClass('hero-livingroom');
         } else if (roomName.match(/media room/i)) {
