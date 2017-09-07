@@ -31,6 +31,12 @@ To use sonos-web you need:
 Note: It may be required to `cd` into each plugins/ folder and do an `npm install` to make sure everything works.
 YouTube requires ffmpeg to be installed on your system.
 
+## Fedora / firewalld configuration
+Allow upnp/ssdp:
+
+    firewall-cmd --set-default-zone=FedoraWorkstation
+    firewall-cmd --reload
+
 ## Plugins
 This is a list of planned plugins
 
