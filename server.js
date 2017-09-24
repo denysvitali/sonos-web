@@ -474,7 +474,7 @@ function playerControlEvents(client) {
         });
     }
 
-    client.on('playUrl', (obj) => {
+    function playUrl(obj){
         var scplugin = plugins['sonos-web-soundcloud'];
         var metadata = '';
         var type = '';
@@ -510,6 +510,14 @@ function playerControlEvents(client) {
                 'metadata': metadata
             }, nullf);
         }
+    }
+
+    client.on('playUrl', playUrl);
+    client.on('playStreamUrl', (obj) => {
+        // Maybe x-sonosapi-stream ?
+        debug(`Playing Stream Url (${obj.trackUrl})`);
+        obj.trackUrl.replace('http://', 'x-sonosapi-stream://');
+        playUrl(obj);
     });
 
     client.on('get_zoneInfo', () => {
