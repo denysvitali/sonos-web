@@ -2,6 +2,12 @@
  h1 Home
  h2 Your streams
  .streams
+  .stream-el(data-stream="x-rincon-mp3radio://192.168.1.199:8080" data-title="YT LIVE")
+    .image
+      img(src="/img/dummy/mixer.jpg")
+      .overlay
+        .playIcon.fa.fa-play
+    label YT Live
   each i in new Array(6)
    //-.stream-el(data-stream="hls-radio://a.files.bbci.co.uk/media/live/manifesto/audio/simulcast/hls/nonuk/sbr_low/ak/bbc_radio_one.m3u8" data-title="BBC Radio 1")
    .stream-el(data-stream="x-rincon-mp3radio://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio1_mf_p" data-title="BBC Radio 1")
