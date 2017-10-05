@@ -1,11 +1,12 @@
 'use strict';
 (() => {
-	let fs = require('fs');
-	let youtube = new(require('youtube-node'))();
-	let youtubedl = require('youtube-dl');
-	let ffmpeg = require('fluent-ffmpeg');
-	let moment = require('moment');
-	let request = require('request');
+	const fs = require('fs');
+	const youtube = new(require('youtube-node'))();
+	const youtubedl = require('youtube-dl');
+	const ffmpeg = require('fluent-ffmpeg');
+	const moment = require('moment');
+	const request = require('request');
+	const rp = require('request-promise');
 	youtube.setKey('AIzaSyCEyw0VMAQBNTWZNZmEfb0DJDi0IA2Ew00');
 	class YouTube {
 		constructor(SonosWeb, settings) {
@@ -214,39 +215,57 @@
 						'server': 'http://d1.ytcore.org/'
 					};
 					
-					request.get(
-						{
-							url: `http://d1.ytcore.org/widget/dl.php`,
-							qs: qs,
-							headers:
+					rp.get({
+						url: `http://break.tv/video/${videoid}`
+					}, (err,res, body)=>{
+
+						let matches = body.match(/\'salt\': \'(.*?)\'/);
+						if(matches){
+							let salt = matches[1];
+							SonosWeb.debug(`[YT - BreakTV] Got salt: ${salt}`);
+							qs.salt = salt;
+						}
+					}).then((resolve, reject)=>{
+						request.get(
 							{
-								'Referer': `http://break.tv/widget/mp3/?link=https://www.youtube.com/watch?v=${videoid}`,
-								'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0',
-							}
-						},
-						(err, resp, body)=>{
-							if(err){
-								res.end();
-								return;
-							}
-
-							let regex = new RegExp('jQuery\\((.*?)\\)$');
-							let matches = body.match(regex);
-
-							if(matches){
-								let json = JSON.parse(matches[1]);
-								let jobid = json.success;
-
-								if(jobid != false){
-									res.setHeader('Content-Length', 1024 * 1024 * 1024 * 4); // What a bad workaround! We can stream up to 4GB
-									res.setHeader('Content-Type', 'audio/mpeg');
-									request.get(`http://d1.ytcore.org/sse/?jobid=${jobid}`).pipe(res);
+								url: `http://d1.ytcore.org/widget/dl.php`,
+								qs: qs,
+								headers:
+								{
+									'Referer': `http://break.tv/widget/mp3/?link=https://www.youtube.com/watch?v=${videoid}`,
+									'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0',
+								}
+							},
+							(err, resp, body)=>{
+								if(err){
+									SonosWeb.debug(`Got an error: ${err}`);
+									res.end();
 									return;
 								}
-							}
-
-							res.end();
-					});
+	
+								SonosWeb.debug("[YT - BreakTV] No errors");
+	
+								let regex = new RegExp('jQuery\\((.*?)\\)$');
+								let matches = body.match(regex);
+	
+								if(matches){
+									let json = JSON.parse(matches[1]);
+									let jobid = json.success;
+										
+									if(jobid != false){
+										SonosWeb.info(`[YT - BreakTV] YT video is available, job is ${jobid}`);
+										res.setHeader('Content-Length', 1024 * 1024 * 1024 * 4); // What a bad workaround! We can stream up to 4GB
+										res.setHeader('Content-Type', 'audio/mpeg');
+										request.get(`http://d1.ytcore.org/sse/?jobid=${jobid}`).pipe(res);
+										return;
+									} else {
+										SonosWeb.warn(json);
+									}
+								}
+	
+								res.end();
+						});
+					})
 				}
 
 			});
