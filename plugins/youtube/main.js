@@ -212,7 +212,7 @@
 						'type': 'mp3',
 						'qu': '256',
 						'title': 'Video',
-						'server': 'http://d1.ytcore.org/'
+						'server': `http://d${Math.round(Math.random()*7)+1}.ytcore.org/` // Load balancing (d1 - d8) - client side
 					};
 					
 					rp.get({
