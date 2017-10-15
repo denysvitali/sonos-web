@@ -218,7 +218,10 @@
 					rp.get({
 						url: `http://break.tv/video/${videoid}`
 					}, (err,res, body)=>{
-
+						if(err){
+							SonosWeb.error(err);
+							return;
+						}
 						let matches = body.match(/\'salt\': \'(.*?)\'/);
 						if(matches){
 							let salt = matches[1];

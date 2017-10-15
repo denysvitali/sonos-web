@@ -93,6 +93,10 @@
                     'User-Agent': this._ua
                 }
             }, (err, res, body) => {
+                if(err){
+                    SonosWeb.error(err);
+                    return;
+                }
                 var widgetsrc = body.match(/<script (?:[^>]*)src\=\"https:\/\/widget.sndcdn.com(\/widget-(?:.*?).js)\"\>/i);
                 if (!widgetsrc) {
                     debug('[Soundcloud] Unable to get widget src!');
