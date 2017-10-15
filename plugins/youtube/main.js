@@ -205,78 +205,60 @@
 					//video.pipe(fs.createWriteStream(__dirname + '/cached/' + videoid + '.mp4'));
 				} else {
 					res.setHeader('Content-Type', 'audio/mpeg');
-					
+					let lbn = Math.round(Math.random()*7)+1; // Load balancing (d1 - d8) - client side
 					let qs = {
 						'callback': 'jQuery',
 						'idv': videoid,
 						'type': 'mp3',
 						'qu': '256',
 						'title': 'Video',
-						'server': `http://d${Math.round(Math.random()*7)+1}.ytcore.org/` // Load balancing (d1 - d8) - client side
+						'server': `http://d${lbn}.ytcore.org/`
 					};
 					
-					rp.get({
-						url: `http://break.tv/video/${videoid}`
-					}, (err,res, body)=>{
+					rp.get(
+					{
+						url: `http://d${lbn}.ytcore.org/dl/index.php`,
+						qs: qs,
+						headers:
+						{
+							'Referer': `https://break.tv/video/${videoid}`,
+							'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0',
+						}
+					},
+					(err, resp, body)=>{
 						if(err){
-							SonosWeb.error(err);
+							SonosWeb.debug(`Got an error: ${err}`);
+							res.end();
 							return;
 						}
-						let matches = body.match(/\'salt\': \'(.*?)\'/);
+
+						SonosWeb.debug("[YT - BreakTV] No errors");
+
+						let regex = new RegExp('jQuery\\((.*?)\\)$');
+						let matches = body.match(regex);
+
 						if(matches){
-							let salt = matches[1];
-							SonosWeb.debug(`[YT - BreakTV] Got salt: ${salt}`);
-							qs.salt = salt;
+							let json = JSON.parse(matches[1]);
+							let jobid = json.success;
+
+							SonosWeb.debug("[YT - BreakTV] "+json.toString());
+								
+							if(jobid != false){
+								SonosWeb.info(`[YT - BreakTV] YT video is available, job is ${jobid}`);
+								res.setHeader('Content-Length', 1024 * 1024 * 1024 * 4); // What a bad workaround! We can stream up to 4GB
+								res.setHeader('Content-Type', 'audio/mpeg');
+								request.get(`http://d${lbn}.ytcore.org/sse/?jobid=${jobid}`).pipe(res);
+								return;
+							} else {
+								SonosWeb.warn(json);
+							}
 						}
 						else{
-							SonosWeb.warn(`[YT - BreakTV] Salt not found! Ignoring`)
+							SonosWeb.warn("[YT - BreakTV] " + body);
 						}
-					}).then((resolve, reject)=>{
-						request.get(
-							{
-								url: `https://d1.ytcore.org/dl/index.php`,
-								qs: qs,
-								headers:
-								{
-									'Referer': `http://break.tv/widget/mp3/?link=https://www.youtube.com/watch?v=${videoid}`,
-									'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0',
-								}
-							},
-							(err, resp, body)=>{
-								if(err){
-									SonosWeb.debug(`Got an error: ${err}`);
-									res.end();
-									return;
-								}
-	
-								SonosWeb.debug("[YT - BreakTV] No errors");
-	
-								let regex = new RegExp('jQuery\\((.*?)\\)$');
-								let matches = body.match(regex);
-	
-								if(matches){
-									let json = JSON.parse(matches[1]);
-									let jobid = json.success;
 
-									SonosWeb.debug("[YT - BreakTV] "+json.toString());
-										
-									if(jobid != false){
-										SonosWeb.info(`[YT - BreakTV] YT video is available, job is ${jobid}`);
-										res.setHeader('Content-Length', 1024 * 1024 * 1024 * 4); // What a bad workaround! We can stream up to 4GB
-										res.setHeader('Content-Type', 'audio/mpeg');
-										request.get(`http://d1.ytcore.org/sse/?jobid=${jobid}`).pipe(res);
-										return;
-									} else {
-										SonosWeb.warn(json);
-									}
-								}
-								else{
-									SonosWeb.warn("[YT - BreakTV] " + body);
-								}
-	
-								res.end();
-						});
-					})
+						res.end();
+					});
 				}
 
 			});
