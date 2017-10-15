@@ -225,10 +225,13 @@
 							SonosWeb.debug(`[YT - BreakTV] Got salt: ${salt}`);
 							qs.salt = salt;
 						}
+						else{
+							SonosWeb.warn(`[YT - BreakTV] Salt not found! Ignoring`)
+						}
 					}).then((resolve, reject)=>{
 						request.get(
 							{
-								url: `http://d1.ytcore.org/widget/dl.php`,
+								url: `https://d1.ytcore.org/dl/index.php`,
 								qs: qs,
 								headers:
 								{
@@ -251,6 +254,8 @@
 								if(matches){
 									let json = JSON.parse(matches[1]);
 									let jobid = json.success;
+
+									SonosWeb.debug("[YT - BreakTV] "+json.toString());
 										
 									if(jobid != false){
 										SonosWeb.info(`[YT - BreakTV] YT video is available, job is ${jobid}`);
@@ -261,6 +266,9 @@
 									} else {
 										SonosWeb.warn(json);
 									}
+								}
+								else{
+									SonosWeb.warn("[YT - BreakTV] " + body);
 								}
 	
 								res.end();
