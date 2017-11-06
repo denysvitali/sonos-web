@@ -205,40 +205,43 @@
 					//video.pipe(fs.createWriteStream(__dirname + '/cached/' + videoid + '.mp4'));
 				} else {
 					res.setHeader('Content-Type', 'audio/mpeg');
-					let lbn = Math.round(Math.random()*7)+1; // Load balancing (d1 - d8) - client side
-					let qs = {
-						'callback': 'jQuery',
-						'idv': videoid,
-						'type': 'mp3',
-						'qu': '256',
-						'title': 'Video',
-						'server': `http://d${lbn}.ytcore.org/`
-					};
-					
-					rp.get(
-					{
-						url: `http://d${lbn}.ytcore.org/dl/index.php`,
-						qs: qs,
-						headers:
-						{
-							'Referer': `https://break.tv/video/${videoid}`,
-							'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0',
-						}
-					},
-					(err, resp, body)=>{
-						if(err){
-							SonosWeb.debug(`Got an error: ${err}`);
-							res.end();
-							return;
-						}
+					let lbn = 2; //Math.round(Math.random()*7)+1; // Load balancing (d1 - d8) - client side
 
-						SonosWeb.debug("[YT - BreakTV] No errors");
+					request.get('https://break.tv/video/'+videoid, (err,resp,body)=>{
+						let token = body.match(/'i':.*?'(.*?)'/)[1];					
 
-						let regex = new RegExp('jQuery\\((.*?)\\)$');
-						let matches = body.match(regex);
+						request.get('http://d2.ytcore.org/dl/index.php', {
+							qs: {
+								'idv': videoid,
+								'type': 'mp3',
+								'qu': '192 kbps',
+								'title': 'Title',
+								'server': `https://d${lbn}.ytcore.org/`,
+								'i': token
+							},
+							headers:{
+								'Connection': null,
+								'host': null,
+								'Host': 'd2.ytcore.org'
+							},
+							qsStringifyOptions: { format : 'RFC1738' }
+						}, (err, resp, body)=>{
+							if(err){
+								SonosWeb.debug(`Got an error: ${err}`);
+								res.end();
+								return;
+							}
 
-						if(matches){
-							let json = JSON.parse(matches[1]);
+							if(body == 'access denied'){
+								SonosWeb.debug(`[YT - BreakTV] Server: ${lbn}`);
+								SonosWeb.error("[YT - BreakTV] Access denied!");
+								console.log(resp);
+								return;
+							}
+							
+							SonosWeb.debug("[YT - BreakTV] No errors");
+
+							let json = JSON.parse(body.match(/{.*?}/)[0]);
 							let jobid = json.success;
 
 							SonosWeb.debug("[YT - BreakTV] "+json.toString());
@@ -252,12 +255,9 @@
 							} else {
 								SonosWeb.warn(json);
 							}
-						}
-						else{
-							SonosWeb.warn("[YT - BreakTV] " + body);
-						}
 
-						res.end();
+							res.end();
+						});
 					});
 				}
 
