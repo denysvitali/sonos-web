@@ -205,12 +205,12 @@
 					//video.pipe(fs.createWriteStream(__dirname + '/cached/' + videoid + '.mp4'));
 				} else {
 					res.setHeader('Content-Type', 'audio/mpeg');
-					let lbn = 2; //Math.round(Math.random()*7)+1; // Load balancing (d1 - d8) - client side
+					let lbn = Math.round(Math.random()*7)+1; // Load balancing (d1 - d8) - client side
 
 					request.get('https://break.tv/video/'+videoid, (err,resp,body)=>{
 						let token = body.match(/'i':.*?'(.*?)'/)[1];					
 
-						request.get('http://d2.ytcore.org/dl/index.php', {
+						request.get(`http://d${lbn}.ytcore.org/dl/index.php`, {
 							qs: {
 								'idv': videoid,
 								'type': 'mp3',
