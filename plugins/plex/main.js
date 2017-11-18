@@ -12,7 +12,7 @@
 			SonosWeb.addMenuEntry('fa-play-circle', 'Plex', 'plex', 2000);
 			
 			client = new PlexAPI({
-				hostname: '192-168-1-154.71df143c271243deaaca4250a453f537.plex.direct',
+				hostname: settings.hostname,
 				https: true,
 				token: settings.token
 			});
