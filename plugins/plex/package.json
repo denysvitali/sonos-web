@@ -1,0 +1,10 @@
+{
+  "name": "sonos-web-plex",
+  "description": "Plex Plugin for sonos-web",
+  "version": "1.0.0",
+  "author": "Denys Vitali",
+  "main": "main.js",
+  "dependencies": {
+    "plex-api": "^5.2.0"
+  }
+}
