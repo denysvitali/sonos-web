@@ -553,7 +553,7 @@ function init() {
 
             listener.addService('/MusicServices/Event', (err, sid) => {
                 if (err) {
-                    if(err === 'Internal Server Error' || err === 'Method Not Allowed'){
+                    if(err === 'Internal Server Error' || err === 'Method Not Allowed' || err === 'Precondition Failed'){
                       // Feature not supported
                     } else {
                       throw err;
@@ -575,7 +575,7 @@ function init() {
 
             listener.addService('/MediaRenderer/RenderingControl/Event', (err, sid) => {
                 if (err) {
-                    if(err === 'Internal Server Error' || err === 'Method Not Allowed'){
+                    if(err === 'Internal Server Error' || err === 'Method Not Allowed' || err === 'Precondition Failed'){
                       // Feature not supported
                     } else {
                       throw err;
@@ -586,7 +586,7 @@ function init() {
 
             listener.addService('/ZoneGroupTopology/Event', (err, sid) => {
                 if (err) {
-                    if(err === 'Internal Server Error' || err === 'Method Not Allowed'){
+                    if(err === 'Internal Server Error' || err === 'Method Not Allowed' || err === 'Precondition Failed'){
                       // Feature not supported
                     } else {
                       throw err;
