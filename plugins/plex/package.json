@@ -5,6 +5,7 @@
   "author": "Denys Vitali",
   "main": "main.js",
   "dependencies": {
-    "plex-api": "^5.2.0"
+    "plex-api": "^5.2.0",
+    "query-string": "^5.0.1"
   }
 }

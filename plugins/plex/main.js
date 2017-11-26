@@ -1,6 +1,7 @@
 'use strict';
 (() => {
 	const PlexAPI = require('plex-api');
+	const queryString = require('query-string');
 	let client;
 	let libraries = [];
 	class Plex {
@@ -67,8 +68,7 @@
 					});
 					return;
 				}*/
-
-				client.query('/' + req.params[0])
+				client.query('/' + req.params[0] + '?' + queryString.stringify(req.query))
 				.then((result)=>{
 					if(result.MediaContainer !== undefined){
 						res.json(result);
