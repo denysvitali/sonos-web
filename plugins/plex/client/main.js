@@ -61,7 +61,7 @@
                         elements.push(json.MediaContainer.Directory[i]);
                     }
                 }
-                loadSectionElements(json.MediaContainer.title1, elements);
+                loadSectionElements(sectionId, json.MediaContainer.title1, elements);
             }
         });
         oReq.open('GET', `${PLEX_API_ENDPOINT}/library/sections/${sectionId}`);
@@ -117,7 +117,87 @@
         loading.remove();
     }
 
-    function loadSectionElements(title, elements){
+    function loadSectionElement(path){
+        console.log("loadSectionElement");
+        var oReq = new XMLHttpRequest();
+        oReq.addEventListener('load', () => {
+            if (oReq.status === 200) {
+                var json = null;
+                try {
+                    json = JSON.parse(oReq.responseText);
+                } catch (e) {
+                    console.log('Unable to parse JSON: ' + e);
+                    return;
+                }
+                if (json.length === 0) {
+                    return;
+                }
+                
+                console.log(json.MediaContainer.Directory);
+                console.log(json.MediaContainer.Metadata);
+
+                let data;
+                if(json.MediaContainer.Metadata != null){
+                    data = json.MediaContainer.Metadata;
+                } else {
+                    data = json.MediaContainer.Directory;
+                }
+
+                try{
+                    section.getElementsByClassName('plex-result')[0].remove();
+                } catch(e){
+
+                }
+                
+                let result = document.createElement('div');
+                result.classList.add('plex-result');
+                for(let i in data){
+                    if(data.hasOwnProperty(i)){
+                        let el = data[i];
+                        if(el.hasOwnProperty("key") && el.hasOwnProperty("title")){
+                            let divEl = document.createElement("div");
+                            divEl.classList.add('plex-result-entry');
+                            divEl.setAttribute("data-plex-key", el.key);
+
+                            let divText = document.createElement("div");
+                            divText.classList.add("plex-result-title");
+                            divText.innerText = el.title;
+
+                            let img = document.createElement("img");
+                            img.classList.add("plex-result-picture");
+                            img.setAttribute("src", `${PLEX_API_ENDPOINT}${el.thumb}`);
+
+                            divEl.appendChild(img);
+                            divEl.appendChild(divText);
+
+                            divEl.onclick = ()=>{
+                                if(el.type === 'track'){
+                                    let base_url = `http://${SonosWeb._ipaddress}:${SonosWeb._port}${PLEX_API_ENDPOINT}`
+                                    let track_url = `${base_url}${el.Media[0].Part[0].key}`;
+                                    window.ui._playManager.playMp3(track_url, {
+                                        title: el.title,
+                                        artist: el.grandparentTitle,
+                                        album: el.parentTitle,
+                                        albumArt: `${base_url}${el.thumb}`,
+                                        duration: el.Media[0].Part[0].duration/1000
+                                    });
+                                    window.ui.toastMessage(`${el.grandparentTitle} - ${el.title} added to the queue`);
+                                } else {
+                                    loadSectionElement(`${el.key}`);
+                                }
+                            }
+                            result.appendChild(divEl);
+                        }
+                    }
+                }
+                section.appendChild(result);
+            }
+        });
+        oReq.open('GET', `${PLEX_API_ENDPOINT}${path}`);
+        oReq.send();
+    }
+
+    function loadSectionElements(sectionId, title, elements){
         section.getElementsByClassName('plex-section-list')[0].remove();
 
         let result = document.createElement('div');
@@ -128,10 +208,12 @@
                 if(el.hasOwnProperty("key") && el.hasOwnProperty("title")){
                     let divEl = document.createElement("div");
                     divEl.classList.add('plex-result-entry');
+                    divEl.setAttribute("data-plex-key", el.key);
                     divEl.innerText = el.title;
-                    divEl.onClick = ()=>{
-                        console.log(el.key);
-                        console.log("OK");
+                    divEl.onclick = ()=>{
+                        console.log("Clicked");
+                        console.log(`Loading ${sectionId} - ${el.key}`);
+                        loadSectionElement(`/library/sections/${sectionId}/${el.key}`);
                     }
                     result.appendChild(divEl);
                 }

@@ -38,16 +38,15 @@ div.plex{
     @result-background: #ced1d3;
 
     .plex-result{
+      @resultHeight: 40px;
       .plex-result-entry{
         display: block;
         cursor: pointer;
         background-color: @result-background;
-        /*margin-top: 0.4em;*/
-        height: 40px;
-        line-height: 40px;
-        padding: 4px;
+        height: @resultHeight;
+        line-height: @resultHeight;
+        padding: 0.1 * @resultHeight;
         font-weight: bold;
-        padding-left: 1em;
 
         &:nth-child(0n + 1){
           margin-top: 0;
@@ -55,6 +54,25 @@ div.plex{
 
         &:nth-child(2n + 1){
           background-color: darken(@result-background, 10%);
+        }
+
+        .plex-result-picture{
+          display: block;
+          float: left;
+          height: @resultHeight;
+          width: @resultHeight;
+        }
+
+        .plex-result-title{
+          display: block;
+          float: left;
+          margin-left: 1em;
+        }
+
+        &:after{
+          display: block;
+          content: ' ';
+          clear: both;
         }
       }
     }
