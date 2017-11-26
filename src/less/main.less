@@ -25,6 +25,7 @@ body>div.inner>#content{
 	margin-left: @tBmLeft;
 	margin-right: @tBmLeft;
 	overflow-x: hidden;
+	position: relative;
 }
 
 body>div.inner{
@@ -58,6 +59,36 @@ body.menu-open{
 
 	margin-left: @menuWidth + @tBmLeft;
 	.transition(@menuTransition);
+}
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+body>.toast-message{
+	position: absolute;
+	bottom: 20vh;
+	background-color: rgba(0,0,0, 0.67);
+	padding: 7px 20px 7px 20px;
+	color: #FFF;
+	min-width: 20px;
+	@radius: 8px;
+	border-radius: @radius;
+	z-index: 999;
+
+	left: 50%;
+	transform: translateX(-50%);
+	animation: fadein 500ms;
+}
+
+body>.toast-message.fadeout{
+	animation: fadeout 500ms;
 }
 
 #topBar{

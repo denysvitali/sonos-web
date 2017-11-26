@@ -3,6 +3,7 @@ import Utils from './utils.js';
 import Router from './router.js';
 import PlayManager from './playManager.js';
 import EventEmitter from './EventEmitter.js';
+import { setTimeout } from 'timers';
 
 class UI extends EventEmitter {
     constructor(objects) {
@@ -17,6 +18,21 @@ class UI extends EventEmitter {
             roomName: ''
         };
         this._loadedJS = [];
+        this.toastMessage = (message)=>{
+            let body = document.getElementsByTagName("body")[0];
+            let toastMessage = document.createElement('div');
+            toastMessage.classList.add("toast-message");
+            toastMessage.innerText = message;
+
+            body.appendChild(toastMessage);
+
+            setTimeout(()=>{
+                toastMessage.classList.add("fadeout");
+                setTimeout(()=>{
+                    toastMessage.remove();
+                },500);
+            }, 5000);
+        }
     }
 
     prepare() {
