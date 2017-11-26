@@ -163,11 +163,13 @@
                             divText.classList.add("plex-result-title");
                             divText.innerText = el.title;
 
-                            let img = document.createElement("img");
-                            img.classList.add("plex-result-picture");
-                            img.setAttribute("src", `${PLEX_API_ENDPOINT}${el.thumb}`);
+                            if(el.thumb != null){
+                                let img = document.createElement("img");
+                                img.classList.add("plex-result-picture");
+                                img.setAttribute("src", `${PLEX_API_ENDPOINT}${el.thumb}`);
+                                divEl.appendChild(img);
+                            }
 
-                            divEl.appendChild(img);
                             divEl.appendChild(divText);
 
                             divEl.onclick = ()=>{
@@ -183,7 +185,11 @@
                                     });
                                     window.ui.toastMessage(`${el.grandparentTitle} - ${el.title} added to the queue`);
                                 } else {
-                                    loadSectionElement(`${el.key}`);
+                                    if(el.fastKey != null){
+                                        loadSectionElement(el.fastKey);
+                                    } else {
+                                        loadSectionElement(el.key);
+                                    }
                                 }
                             }
                             result.appendChild(divEl);
@@ -209,7 +215,13 @@
                     let divEl = document.createElement("div");
                     divEl.classList.add('plex-result-entry');
                     divEl.setAttribute("data-plex-key", el.key);
-                    divEl.innerText = el.title;
+                    
+                    let divText = document.createElement("div");
+                    divText.classList.add("plex-result-title");
+                    divText.innerText = el.title;
+
+                    divEl.appendChild(divText);
+
                     divEl.onclick = ()=>{
                         console.log("Clicked");
                         console.log(`Loading ${sectionId} - ${el.key}`);
