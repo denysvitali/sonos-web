@@ -44,7 +44,7 @@ Status:
 ✅ Available, ❎ Not available
 - Spotify ❎
 - Google Play Music ❎
-- Plex ❎
+- Plex ✅
 - Soundcloud ✅
 - YouTube ✅
 
