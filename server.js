@@ -451,6 +451,26 @@ function playerControlEvents(client) {
       thePlayer.flush(nullf);
     });
 
+    client.on('do_playqueue', (data) => {
+        if (thePlayer === null) {
+            return;
+        }
+        
+        thePlayer.selectTrack(1, (err, seeked)=>{
+            debug(err, seeked);
+        });
+
+        thePlayer.play(nullf);
+    });
+
+    client.on('do_playqueueelement', (data) =>{
+        if(data.track === null){
+            return;
+        }
+        thePlayer.selectTrack(data.track, nullf);
+        thePlayer.play(nullf);
+    });
+
     // playManager
     function htmlEntities(unsafe) {
         if (unsafe === null) {

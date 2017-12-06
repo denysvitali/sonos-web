@@ -23,8 +23,13 @@ class Queue {
       window.ui._socket.emit('do_flushqueue');
       me.clearUIQueue();
     };
+
+    let playQueue = () => {
+      window.ui._socket.emit('do_playqueue');
+    }
       
     document.getElementById('flushQueue').addEventListener('click', flushQueue);
+    document.getElementById('playQueue').addEventListener('click', playQueue);
   }
   
   updateQueue(){
@@ -32,6 +37,11 @@ class Queue {
     for (let i in elements) {
         if(elements.hasOwnProperty(i)){
           elements[i].classList.remove('playing');
+          elements[i].addEventListener('click', ()=>{
+              console.log(`Play queue element ${i*1+1}`);
+              window.ui._socket.emit('do_playqueueelement', {track: i*1+1});
+              window.ui.toastMessage(`Playing element ${i*1+1} of the queue`);
+          });
         }
     }
     let el = document.querySelector('div#content>div.queue>div.queue-el:nth-child(0n + ' + window.SonosStatus.positionInQueue + ')');
