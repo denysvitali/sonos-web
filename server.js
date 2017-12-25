@@ -11,6 +11,7 @@ const Listener = require('sonos/lib/events/listener');
 const parseXML = require('xml2js').parseString;
 const crypto = require('crypto');
 const request = require('request');
+const mcache = require('memory-cache');
 
 
 let debug_enabled = false;
@@ -183,6 +184,31 @@ var parsePluginDir = (plugindir) => {
     }
 };
 
+
+// Caching
+
+let middleware_caching = (duration) => {
+    return (req, res, next) => {
+      let key = '__express__' + req.originalUrl || req.url;
+      let cachedBody = mcache.get(key);
+      if (cachedBody) {
+        res.send(cachedBody);
+        return;
+      } else {
+        res.sendResponse = res.send;
+        res.send = (body) => {
+          mcache.put(key, body, duration * 1000);
+          res.sendResponse(body);
+        }
+        next();
+      }
+    }
+}
+
+SonosWeb._middlewares = {
+    caching: middleware_caching
+};
+
 // Scan plugins directory for new plugins
 var plugindir_content = fs.readdirSync(`${__dirname}/plugins/`);
 for (const file of plugindir_content) {
@@ -195,6 +221,7 @@ for (const file of plugindir_content) {
 
 
 var albumArtCache = [];
+  
 
 // Routing
 app.get('/sonos/getaa', (req, res) => {
