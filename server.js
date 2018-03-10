@@ -482,12 +482,9 @@ function playerControlEvents(client) {
         if (thePlayer === null) {
             return;
         }
-        
-        thePlayer.selectTrack(1, (err, seeked)=>{
-            debug(err, seeked);
-        });
-
-        thePlayer.play(nullf);
+        thePlayer.selectQueue();
+        thePlayer.play();
+        broadcastState();
     });
 
     client.on('do_playqueueelement', (data) =>{
