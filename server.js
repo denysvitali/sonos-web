@@ -556,7 +556,10 @@ function playerControlEvents(client) {
         }
     }
 
-    client.on('playUrl', playUrl);
+    client.on('playUrl', (obj) => {
+        debug(`Playing Direct File (${obj.trackUrl})`);
+        playUrl(obj);
+    });
     client.on('playStreamUrl', (obj) => {
         // Maybe x-sonosapi-stream ?
         debug(`Playing Stream Url (${obj.trackUrl})`);
