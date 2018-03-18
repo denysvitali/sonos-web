@@ -5,7 +5,9 @@
   "author": "Denys Vitali",
   "main": "main.js",
   "dependencies": {
+    "express-http-proxy": "^1.1.0",
+    "http-proxy-middleware": "^0.18.0",
     "plex-api": "^5.2.0",
-    "query-string": "^5.0.1"
+    "query-string": "^6.0.0"
   }
 }

@@ -8,6 +8,7 @@
 	const request = require('request');
 	const rp = require('request-promise');
 	const util = require('util');
+	const proxy = require('express-http-proxy');
 	youtube.setKey('AIzaSyCEyw0VMAQBNTWZNZmEfb0DJDi0IA2Ew00');
 	class YouTube {
 		constructor(SonosWeb, settings) {

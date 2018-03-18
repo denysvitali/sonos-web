@@ -2,6 +2,8 @@
 (() => {
 	const PlexAPI = require('plex-api');
 	const queryString = require('query-string');
+	const proxy = require('express-http-proxy');
+	const { URL } = require('url');
 	let client;
 	let libraries = [];
 	class Plex {
@@ -19,7 +21,6 @@
 			});
 
 			client.query('/').then((result)=>{
-				console.log(result);
 				return client.query('/library/sections');
 			})
 			.then((result)=>{
@@ -34,12 +35,7 @@
 			})
 			.then(()=>{
 				SonosWeb.debug(`[Plex] Found ${libraries.length} music libraries.`);
-				console.log(libraries[0]);
 				return client.query(`/library/sections/${libraries[0].key}`);
-			})
-			.then((result)=>{
-				console.log(result);
-				console.log(result.MediaContainer.Directory);
 			})
 			.catch((reject)=>{
 				console.log(reject);	
@@ -48,41 +44,19 @@
 			SonosWeb.app.use('/plugins/plex/api/libraries', (req, res) => {
 				res.json(libraries);
 			});
-
-			SonosWeb.app.use(['/plugins/plex/api/*'], (req, res) => {
-				/*let found = false;
-				for(let i in libraries){
-					if(libraries.hasOwnProperty(i)){
-						let el = libraries[i];
-						if(req.params.id == el.key){
-							found = true;
-							break;
-						}
-					}
+			
+			SonosWeb.app.use('/plugins/plex/api/', proxy(`https://${settings.hostname}:32400/`, {
+				proxyReqPathResolver: (req) => {
+					let newUrl = new URL(req.path, `https://${settings.hostname}:32400`);
+					newUrl.searchParams.set('X-Plex-Token', settings.token);
+					console.inspect(newUrl);
+					return `${newUrl.pathname}${newUrl.search}`;
+				},
+				proxyReqOptDecorator: function (proxyReqOpts, srcReq) {
+					proxyReqOpts.headers['Accept'] = 'application/json';
+					return proxyReqOpts;
 				}
-
-				if(!found){
-					res.json({
-						error: true,
-						message: 'This library isn\'t available or is not a Music library'
-					});
-					return;
-				}*/
-				client.query('/' + req.params[0] + '?' + queryString.stringify(req.query))
-				.then((result)=>{
-					if(result.MediaContainer !== undefined){
-						res.json(result);
-					} else {
-						res.end(result);
-					}
-				}).catch((error)=>{
-					console.log(error);
-					res.json({
-						error: true,
-						message: 'Unable to get the requested library',
-					});
-				});
-			});
+			}));
 		}
 	}
 	module.exports = Plex;
