@@ -132,9 +132,6 @@
                 if (json.length === 0) {
                     return;
                 }
-                
-                console.log(json.MediaContainer.Directory);
-                console.log(json.MediaContainer.Metadata);
 
                 let data;
                 if(json.MediaContainer.Metadata != null){
@@ -145,10 +142,17 @@
 
                 try{
                     section.getElementsByClassName('plex-result')[0].remove();
+                    section.getElementsByClassName('plex-add-all-button')[0].remove();
                 } catch(e){
 
                 }
                 
+                let add_all_button = document.createElement('button');
+                add_all_button.classList.add('plex-add-all-button');
+                add_all_button.innerText = 'Add all to queue';
+
+                let elementList = [];
+
                 let result = document.createElement('div');
                 result.classList.add('plex-result');
                 for(let i in data){
@@ -170,19 +174,26 @@
                                 divEl.appendChild(img);
                             }
 
-                            divEl.appendChild(divText);
+                            let base_url, track_url, metadata;
 
+                            if(el.type == 'track'){
+                                base_url = `http://${SonosWeb._ipaddress}:${SonosWeb._port}${PLEX_API_ENDPOINT}`
+                                track_url = `${base_url}${el.Media[0].Part[0].key}`;
+                                metadata = {
+                                    title: el.title,
+                                    artist: el.grandparentTitle,
+                                    album: el.parentTitle,
+                                    albumArt: `${base_url}${el.thumb}`,
+                                    duration: el.Media[0].Part[0].duration / 1000
+                                };
+                                elementList.push({url: track_url, metadata: metadata});
+                            }
+                            
+
+                            divEl.appendChild(divText);
                             divEl.onclick = ()=>{
                                 if(el.type === 'track'){
-                                    let base_url = `http://${SonosWeb._ipaddress}:${SonosWeb._port}${PLEX_API_ENDPOINT}`
-                                    let track_url = `${base_url}${el.Media[0].Part[0].key}`;
-                                    window.ui._playManager.playMp3(track_url, {
-                                        title: el.title,
-                                        artist: el.grandparentTitle,
-                                        album: el.parentTitle,
-                                        albumArt: `${base_url}${el.thumb}`,
-                                        duration: el.Media[0].Part[0].duration/1000
-                                    });
+                                    window.ui._playManager.playMp3(track_url, metadata);
                                     window.ui.toastMessage(`${el.grandparentTitle} - ${el.title} added to the queue`);
                                 } else {
                                     if(el.fastKey != null){
@@ -196,6 +207,32 @@
                         }
                     }
                 }
+
+                add_all_button.onclick = () => {
+                    let prom = [];
+                    if (elementList.length == 0){
+                        return;
+                    }
+                    for(let i in elementList){
+                        prom.push(
+                            window.ui._playManager.playMp3Promise(
+                                elementList[i].url,
+                                elementList[i].metadata,
+                                (answer)=>{
+                                    console.log(`${i} added. Answer: ${answer}`);
+                                }
+                            ));
+                    }
+
+                    for(let i = 0; i<=prom.length-2; i++){
+                        prom[i].then(prom[i+1]);
+                    }
+                    prom[prom.length - 1].then(()=>{
+                        window.ui.toastMessage(`${elementList.length} elements added to the queue.`);
+                    });
+                }
+
+                section.appendChild(add_all_button);
                 section.appendChild(result);
             }
         });

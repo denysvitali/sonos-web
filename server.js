@@ -557,6 +557,7 @@ function playerControlEvents(client) {
     }
 
     client.on('playUrl', (obj) => {
+        client.emit('playUrl-ack', obj.trackUrl)
         debug(`Playing Direct File (${obj.trackUrl})`);
         playUrl(obj);
     });

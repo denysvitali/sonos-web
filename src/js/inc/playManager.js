@@ -5,6 +5,10 @@ class PlayManager {
     }
 
     playMp3(url, metadata) {
+        this.playMp3Promise(url, metadata, ()=>{});
+    }
+
+    playMp3Promise(url, metadata, fn){
         if (metadata === null) {
             metadata = {
                 title: 'Title',
@@ -27,10 +31,17 @@ class PlayManager {
                 metadata.duration = durationString;
             }
         }
+
+        let promise = new Promise(fn);
+
         this._socket.emit('playUrl', {
             trackUrl: url,
             metadata: metadata
+        }, (answer)=>{
+            promise.resolve(answer);   
         });
+
+        return promise;
     }
 
     playMp3Stream(url, metadata){
