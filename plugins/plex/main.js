@@ -49,7 +49,6 @@
 				proxyReqPathResolver: (req) => {
 					let newUrl = new URL(req.path, `https://${settings.hostname}:32400`);
 					newUrl.searchParams.set('X-Plex-Token', settings.token);
-					console.inspect(newUrl);
 					return `${newUrl.pathname}${newUrl.search}`;
 				},
 				proxyReqOptDecorator: function (proxyReqOpts, srcReq) {
