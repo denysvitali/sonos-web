@@ -6,10 +6,10 @@
   "main": "main.js",
   "dependencies": {
     "fluent-ffmpeg": "^2.1.0",
-    "moment": "^2.13.0",
-    "youtube-dl": "^1.11",
-    "youtube-node": "git+https://github.com/denysvitali/youtube-node.git",
-    "request-promise": "^4.2.2"
+    "moment": "^2.21.0",
+    "request-promise": "^4.2.2",
+    "youtube-dl": "^1.12.2",
+    "youtube-node": "git+https://github.com/denysvitali/youtube-node.git"
   },
   "scripts": {
     "update": "node node_modules/youtube-dl/scripts/download.js"
