@@ -199,11 +199,11 @@ let middleware_caching = (duration) => {
         res.send = (body) => {
           mcache.put(key, body, duration * 1000);
           res.sendResponse(body);
-        }
+        };
         next();
       }
-    }
-}
+    };
+};
 
 SonosWeb._middlewares = {
     caching: middleware_caching
@@ -557,7 +557,7 @@ function playerControlEvents(client) {
     }
 
     client.on('playUrl', (obj) => {
-        client.emit('playUrl-ack', obj.trackUrl)
+        client.emit('playUrl-ack', obj.trackUrl);
         debug(`Playing Direct File (${obj.trackUrl})`);
         playUrl(obj);
     });
