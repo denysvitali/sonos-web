@@ -2,11 +2,13 @@ h1 Queue
 button#flushQueue.action Flush Queue
 button#playQueue.action Play Queue
 div.queue
+  -if(queue.items != undefined) {
   for i in queue.items
     div.queue-el
-      -let img = (i.albumArtURL.indexOf('/') === 0 ? `/sonos${i.albumArtURL}` : i.albumArtURL)
+      -let img = (i.albumArtURI.indexOf('/') === 0 ? `/sonos${i.albumArtURI}` : i.albumArtURI)
       -let css = 'background-image:url(\''+img+'\')'
       div.image(style=css)
       div.title-artist
         p.title #{i.title}
         p.artist #{i.artist}
+  -}

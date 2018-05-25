@@ -289,17 +289,12 @@ app.get('/pages/home', (req, res) => {
 });
 
 app.get('/pages/queue', (req, res) => {
-    thePlayer.getQueue((err, data) => {
-        if (!err) {
-            res.render('pages/queue', {
-                menu: SonosWeb.menu,
-                queue: data
-            });
-            return;
-        }
-        res.render('pages/e/500', {
-            menu: SonosWeb.menu
+    thePlayer.getQueue().then((data)=>{
+        res.render('pages/queue', {
+            menu: SonosWeb.menu,
+            queue: data
         });
+        return;
     });
 });
 
@@ -336,25 +331,23 @@ var SonosStatus = {
 
 function broadcastState() {
     if (thePlayer !== null && clientsReady > 0) {
-        thePlayer.currentTrack((error, data) => {
-            if (!error) {
-                var track_data = {};
-                track_data.type = 'other';
+        thePlayer.currentTrack().then((data) => {
+            var track_data = {};
+            track_data.type = 'other';
 
-                /*if (data.protocolData.res[0] !== undefined) {
-                    if (data.protocolData.res[0]['$'].protocolInfo.indexOf('sonos.com') === -1) {
-                        track_data.title = data.title;
-                        track_data.artist = data.artist;
-                        track_data.album = data.album;
-                        track_data.albumArtURI = data.albumArtURI;
-                        track_data.type = 'song';
-                    }
-                }*/
-                track_data.position = data.position;
-                track_data.duration = data.duration;
+            /*if (data.protocolData.res[0] !== undefined) {
+                if (data.protocolData.res[0]['$'].protocolInfo.indexOf('sonos.com') === -1) {
+                    track_data.title = data.title;
+                    track_data.artist = data.artist;
+                    track_data.album = data.album;
+                    track_data.albumArtURI = data.albumArtURI;
+                    track_data.type = 'song';
+                }
+            }*/
+            track_data.position = data.position;
+            track_data.duration = data.duration;
 
-                io.emit('track', track_data);
-            }
+            io.emit('track', track_data);
         });
     }
 }
@@ -400,7 +393,7 @@ function sendCurrentTrack() {
     if (thePlayer === null || io === null) {
         return;
     }
-    thePlayer.currentTrack((error, data) => {
+    thePlayer.currentTrack().then((data)=> {
         if (!error) {
             io.emit('track', data);
         }
@@ -412,7 +405,7 @@ function playerControlEvents(client) {
         if (thePlayer === null) {
             return;
         }
-        thePlayer.play(nullf);
+        thePlayer.play();
         broadcastState();
     });
 
@@ -420,7 +413,7 @@ function playerControlEvents(client) {
         if (thePlayer === null) {
             return;
         }
-        thePlayer.pause(nullf);
+        thePlayer.pause();
         broadcastState();
     });
 
@@ -428,7 +421,7 @@ function playerControlEvents(client) {
         if (thePlayer === null) {
             return;
         }
-        thePlayer.next(nullf);
+        thePlayer.next();
         broadcastState();
     });
 
@@ -436,7 +429,7 @@ function playerControlEvents(client) {
         if (thePlayer === null) {
             return;
         }
-        thePlayer.previous(nullf);
+        thePlayer.previous();
         broadcastState();
     });
 
@@ -444,7 +437,7 @@ function playerControlEvents(client) {
         if (thePlayer === null) {
             return;
         }
-        thePlayer.setMuted(true, nullf);
+        thePlayer.setMuted(true);
         broadcastState();
     });
 
@@ -452,7 +445,7 @@ function playerControlEvents(client) {
         if (thePlayer === null) {
             return;
         }
-        thePlayer.setMuted(false, nullf);
+        thePlayer.setMuted(false);
         broadcastState();
     });
 
@@ -466,7 +459,7 @@ function playerControlEvents(client) {
         if (data.volume > 100) {
             return;
         }
-        thePlayer.setVolume(data.volume, nullf);
+        thePlayer.setVolume(data.volume);
         broadcastState();
     });
     
@@ -475,7 +468,7 @@ function playerControlEvents(client) {
           return;
       }
       
-      thePlayer.flush(nullf);
+      thePlayer.flush();
     });
 
     client.on('do_playqueue', (data) => {
@@ -491,8 +484,8 @@ function playerControlEvents(client) {
         if(data.track === null){
             return;
         }
-        thePlayer.selectTrack(data.track, nullf);
-        thePlayer.play(nullf);
+        thePlayer.selectTrack(data.track);
+        thePlayer.play();
     });
 
     // playManager
@@ -545,13 +538,13 @@ function playerControlEvents(client) {
             thePlayer.play({
                 'uri': obj.trackUrl,
                 'metadata': metadata
-            }, nullf);
+            });
             debug('sonos stream');
         } else {
             thePlayer.queue({
                 'uri': obj.trackUrl,
                 'metadata': metadata
-            }, nullf);
+            });
         }
     }
 
@@ -571,7 +564,7 @@ function playerControlEvents(client) {
         if (thePlayer === null) {
             return;
         }
-        thePlayer.getZoneInfo((err, data) => {
+        thePlayer.getZoneInfo().then((data)=>{
             if (!err) {
                 // Reply to sender only
                 client.emit('zoneInfo', data);
@@ -866,7 +859,7 @@ function init() {
             });
         });
 
-        thePlayer.getVolume((err, res) => {
+        thePlayer.getVolume().then((res) => {
             if (!err) {
                 SonosStatus.volume.master = res;
                 io.emit('volume', {
