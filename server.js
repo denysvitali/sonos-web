@@ -79,7 +79,7 @@ const PTuneIn = require('./inc/tunein');
 process.setMaxListeners(50);
 
 SonosWeb.app = app;
-SonosWeb._ipaddress = require('ip').address();
+SonosWeb._ipaddress = (SonosWeb.settings.ip !== null ? SonosWeb.settings.ip : require('ip').address());
 debug('Searching for a Sonos device...');
 init();
 
@@ -519,9 +519,8 @@ function playerControlEvents(client) {
     }
 
     function playUrl(obj){
-        var scplugin = plugins['sonos-web-soundcloud'];
-        var metadata = '';
-        var type = '';
+        let metadata = '';
+        let type = '';
         if (obj.trackUrl.indexOf('x-sonosapi-stream') !== -1) {
             type = 'sonos-stream';
         } else {
@@ -586,7 +585,7 @@ function playerControlEvents(client) {
 }
 
 function init() {
-    sonos.search(function(device) {
+    sonos.DeviceDiscovery(function(device) {
         debug(`Found ZP at ${device.host}:${device.port}`);
         thePlayer = device;
         //thePlayer.selectQueue();

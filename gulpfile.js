@@ -35,16 +35,17 @@ b.on('log', gutil.log);
 /**
  * This task removes all files inside the 'public' directory.
  */
-gulp.task('clean', function() {
+gulp.task('clean', function(cb) {
     'use strict';
     del.sync('./public/**/*');
+    cb();
 });
 
 /**
  * This task will copy all files from libs into 'public/js/libs'.
  * If you want to process them, just add your code to this task.
  */
-gulp.task('libs', ['clean'], function() {
+gulp.task('libs', gulp.series('clean'), function() {
     'use strict';
     return gulp.src(['./src/js/libs/**'])
         .pipe(plumber())
@@ -55,7 +56,7 @@ gulp.task('libs', ['clean'], function() {
  * This task will copy all files from media into 'public/fonts'.
  * If you want to process them, just add your code to this task.
  */
-gulp.task('media', ['libs'], function() {
+gulp.task('media', gulp.parallel('libs'), function() {
     'use strict';
     return gulp.src(['./src/img/**'])
         .pipe(plumber())
@@ -66,7 +67,7 @@ gulp.task('media', ['libs'], function() {
  * This task will copy all files from media into 'public/fonts'.
  * If you want to process them, just add your code to this task.
  */
-gulp.task('fonts', ['media'], function() {
+gulp.task('fonts', gulp.parallel('media'), function() {
     'use strict';
     return gulp.src(['./src/fonts/**'])
         .pipe(plumber())
@@ -77,14 +78,14 @@ gulp.task('fonts', ['media'], function() {
  * This task will copy css files into 'public/css'
  * If you want to process it, just add your code to this task.
  */
-gulp.task('css', ['fonts'], function() {
+gulp.task('css', gulp.parallel('fonts'), function() {
     'use strict';
     return gulp.src(['./src/css/**'])
         .pipe(plumber())
         .pipe(gulp.dest('./public/css'));
 });
 
-gulp.task('less', ['css'], function() {
+gulp.task('less', gulp.parallel('css'), function() {
     'use strict';
     gulp.src(['./plugins/*/**/*.less'])
       .pipe(less())
@@ -98,7 +99,7 @@ gulp.task('less', ['css'], function() {
  * This task will bundle all other js files and babelify them.
  * If you want to add other processing to the main js files, add your code here.
  */
-gulp.task('bundle', ['less'], function() {
+gulp.task('bundle', gulp.parallel('less'), function() {
     'use strict';
     return b.bundle()
         .on('error', function(err) {
@@ -124,7 +125,7 @@ gulp.task('bundle', ['less'], function() {
  * media from bundling the source. This is especially true if you have large
  * amounts of media.
  */
-gulp.task('watch', ['bundle'], function() {
+gulp.task('watch', gulp.parallel('bundle'), function() {
     'use strict';
     var watcher = gulp.watch(['./src/**/*','./plugins/**/*.less'], []);
     watcher.on('change', function(event) {
@@ -135,4 +136,4 @@ gulp.task('watch', ['bundle'], function() {
 /**
  * This is the default task which chains the rest.
  */
-gulp.task('default', ['watch']);
+gulp.task('default', gulp.series('watch'));
