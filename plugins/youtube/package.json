@@ -6,7 +6,7 @@
   "main": "main.js",
   "dependencies": {
     "fluent-ffmpeg": "^2.1.0",
-    "moment": "^2.21.0",
+    "moment": "^2.22.2",
     "request-promise": "^4.2.2",
     "youtube-dl": "^1.12.2",
     "youtube-node": "git+https://github.com/denysvitali/youtube-node.git"
