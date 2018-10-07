@@ -198,7 +198,12 @@
 
 			});
 
-			SonosWeb.app.get('/plugins/youtube/play/:videoid', SonosWeb._middlewares.caching(60), (req, res) => {
+			SonosWeb.app.get('/plugins/youtube/test/audio.aac', (req, res)=>{
+				res.setHeader("Content-Type", "audio/mpeg");
+				fs.createReadStream("/tmp/audio.aac").pipe(res);
+			});
+
+			SonosWeb.app.get('/plugins/youtube/play/:videoid', (req, res) => {
 				let videoid = req.params.videoid.toString();
 				let matches = videoid.match(/^[0-9A-z\_\-]{11}$/i);
 				if (!matches) {
@@ -215,48 +220,38 @@
 				console.log('Video ID: ' + videoid);
 
 				if (settings.external_provider !== true) {
-
-					let video = youtubedl('https://youtube.com/watch?v=' + videoid, ['-f bestaudio']);
-					let filesize = 0;
-					video.on('info', (info) => {
-						filesize = info.size;
-
-						let logger = {
-							debug: console.log,
-							info: console.log,
-							error: console.log,
-							warn: console.log
+					
+					let mapInfo = (item)=>{
+						'use strict';
+						return {
+							audio_codec: item.acodec,
+							itag: item.format_id,
+							filetype: item.ext,
+							resolution: item.resolution || ((item.width) ? item.width + 'x' + item.height : 'audio only')
 						};
+					};
 
+					let videoUrl = "https://youtube.com/watch?v=" + videoid;
+					youtubedl.getInfo( videoUrl, (err, info)=>{
+						"use strict";
+						if (err) {
+							throw err;
+						}
+						var formats = {
+							id: info.id,
+							formats: info.formats.map(mapInfo)
+						};
+						console.log(formats);
+					});
 
-						res.setHeader('Content-Length', 1024 * 1024 * 1024 * 4); // What a bad workaround! We can stream up to 4GB
-						res.setHeader('Content-Type', 'audio/mpeg');
-						ffmpeg(video, {
-								logger: logger
-							})
-							.videoCodec('libx264')
-							.outputFormat('mp3')
-							.withAudioBitrate('320k')
-							.on('end', function () {
-								console.log('[ffmpeg] File converted successfully]');
-							})
-							.on('error', function (err) {
-								console.log('[ffmpeg] Error while converting video: ' + err.message);
-							})
-							.pipe(res, {
-								end: true
-							});
+					youtubedl.getInfo(videoUrl, ['-f 18'], (err, info)=>{
+						if(err) throw err;
+						res.redirect(info.url); // We can't redirect because the URL is too long, and the ZP won't accept it.
+						//fs.createReadStream("/tmp/video.mp4").pipe(res)
+						//fs.createReadStream("/tmp/audio.aac").pipe(res)
 					});
-					video.on('error', (error) => {
-						console.log('Error while downloading video: ', error);
-					});
-					video.on('end', () => {
-						console.log('Video download finished');
-						//this.serveMp3(videoid, res);
-					});
-					//video.pipe(fs.createWriteStream(__dirname + '/cached/' + videoid + '.mp4'));
 				} else {
-					res.setHeader('Content-Type', 'audio/mpeg');
+					res.setHeader('Content-Type', 'audio/aac');
 					
 					let callback = 'jQuery32101618681714514778';
 
