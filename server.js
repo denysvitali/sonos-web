@@ -859,7 +859,7 @@ function init() {
             });
         });
 
-        thePlayer.getVolume().then((res) => {
+        thePlayer.getVolume().then((err, res) => {
             if (!err) {
                 SonosStatus.volume.master = res;
                 io.emit('volume', {
