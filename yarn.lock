@@ -1650,7 +1650,7 @@ color-support@^1.1.3:
   resolved "https://registry.yarnpkg.com/color-support/-/color-support-1.1.3.tgz#93834379a1cc9a0c61f82f52f0d04322251bd5a2"
   integrity sha512-qiBjkpbMLO/HL68y+lh4q0/O1MZFj2RX6X/KmMa3+gJD3z+WwI1ZzDHysvqHGS3mP6mznPckpXmw1nI9cJjyRg==
 
-colors@^1.1.2:
+colors@^1.3.2:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/colors/-/colors-1.3.2.tgz#2df8ff573dfbf255af562f8ce7181d6b971a359b"
   integrity sha512-rhP0JSBGYvpcNQj4s5AdShMeE5ahMop96cTeDl/v9qQQm2fYClE2QXZRi8wLzc+GmXSxdIqqbOIAhyObEXDbfQ==
@@ -1685,9 +1685,9 @@ combined-stream@^1.0.5, combined-stream@~1.0.5, combined-stream@~1.0.6:
     delayed-stream "~1.0.0"
 
 commander@*:
-  version "2.18.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-2.18.0.tgz#2bf063ddee7c7891176981a2cc798e5754bc6970"
-  integrity sha512-6CYPa+JP2ftfRU2qkDK+UTVeQYosOg/2GbcjIcKPHfinyOLPVGXu/ovN86RP49Re5ndJK1N0kuiidFFuepc4ZQ==
+  version "2.19.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-2.19.0.tgz#f6198aa84e5b83c46054b94ddedbfed5ee9ff12a"
+  integrity sha512-6tvAOO+D6OENvRAh524Dh9jcfKTYDQAqvqezbCW82xj5X0pSrcpxtvRKHLG0yBY6SD7PSDrJaj+0AiOcKVd1Xg==
 
 commander@1.3.x:
   version "1.3.2"
@@ -1937,10 +1937,17 @@ debug@2.6.9, debug@2.X, debug@^2.1.2, debug@^2.2.0, debug@^2.3.3, debug@^2.6.8, 
   dependencies:
     ms "2.0.0"
 
-debug@^3.0.1, debug@^3.1.0:
+debug@^3.0.1:
   version "3.2.5"
   resolved "https://registry.yarnpkg.com/debug/-/debug-3.2.5.tgz#c2418fbfd7a29f4d4f70ff4cea604d4b64c46407"
   integrity sha512-D61LaDQPQkxJ5AUM2mbSJRbPkNs/TmdmOeLAi1hgDkpDfIfetSrjmWhccwtuResSwMbACjx/xXQofvM9CE/aeg==
+  dependencies:
+    ms "^2.1.1"
+
+debug@^4.0.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.1.0.tgz#373687bffa678b38b1cd91f861b63850035ddc87"
+  integrity sha512-heNPJUJIqC+xB6ayLAMHaIrmN9HKa7aQO8MGqKpvCA+uJYVcvR6l5kgdrhRuwPFHU7P5/A1w0BjByPHwpfTDKg==
   dependencies:
     ms "^2.1.1"
 
@@ -2383,7 +2390,7 @@ expand-tilde@^2.0.0, expand-tilde@^2.0.2:
   dependencies:
     homedir-polyfill "^1.0.1"
 
-express-http-proxy@^1.1.0:
+express-http-proxy@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/express-http-proxy/-/express-http-proxy-1.4.0.tgz#36524e22f0b93869ca10119b551b23b2626d1e0e"
   integrity sha512-tFQcdWH7A0SaAraSW7tR2510yoYOaS90s2RGcFeC9Ek+kLBlxsYhDhr6ZhUtw4neTEAuffY1V2AQc3j3lxiNwQ==
@@ -2392,7 +2399,7 @@ express-http-proxy@^1.1.0:
     es6-promise "^4.1.1"
     raw-body "^2.3.0"
 
-express@^4.15.2:
+express@^4.16.3:
   version "4.16.3"
   resolved "https://registry.yarnpkg.com/express/-/express-4.16.3.tgz#6af8a502350db3246ecc4becf6b5a34d22f7ed53"
   integrity sha1-avilAjUNsyRuzEvs9rWjTSL37VM=
@@ -3004,7 +3011,7 @@ gulp-cli@^2.0.0:
     v8flags "^3.0.1"
     yargs "^7.1.0"
 
-gulp-less@^3.1.0:
+gulp-less@^3.5.0:
   version "3.5.0"
   resolved "https://registry.yarnpkg.com/gulp-less/-/gulp-less-3.5.0.tgz#8014f469ddfc6544d7dda50098def0371bbb4f78"
   integrity sha512-FQLY7unaHdTOXG0jlwxeBQcWoPPrTMQZRA7HfYwSNi9IPVx5l7GJEN72mG4ri2yigp/f/VNGUAJnFMJHBmH3iw==
@@ -3017,7 +3024,7 @@ gulp-less@^3.1.0:
     through2 "^2.0.0"
     vinyl-sourcemaps-apply "^0.2.0"
 
-gulp-plumber@^1.1.0:
+gulp-plumber@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/gulp-plumber/-/gulp-plumber-1.2.0.tgz#18ea03912c9ee483f8a5499973b5954cd90f6ad8"
   integrity sha512-L/LJftsbKoHbVj6dN5pvMsyJn9jYI0wT0nMg3G6VZhDac4NesezecYTi8/48rHi+yEic3sUpw6jlSc7qNWh32A==
@@ -3027,12 +3034,12 @@ gulp-plumber@^1.1.0:
     plugin-error "^0.1.2"
     through2 "^2.0.3"
 
-gulp-rename@^1.3.0:
+gulp-rename@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/gulp-rename/-/gulp-rename-1.4.0.tgz#de1c718e7c4095ae861f7296ef4f3248648240bd"
   integrity sha512-swzbIGb/arEoFK89tPY58vg3Ok1bw+d35PfUNwWqdo7KM4jkmuGA78JiDNqR+JeZFaeeHnRg9N7aihX3YPmsyg==
 
-gulp-sourcemaps@^1.12.0:
+gulp-sourcemaps@^1.12.1:
   version "1.12.1"
   resolved "https://registry.yarnpkg.com/gulp-sourcemaps/-/gulp-sourcemaps-1.12.1.tgz#b437d1f3d980cf26e81184823718ce15ae6597b6"
   integrity sha1-tDfR89mAzyboEYSCNxjOFa5ll7Y=
@@ -4562,9 +4569,9 @@ npm-bundled@^1.0.1:
   integrity sha512-m/e6jgWu8/v5niCUKQi9qQl8QdeEduFA96xHDDzFGqly0OOjI7c+60KM/2sppfnUU9JJagf+zs+yGhqSOFj71g==
 
 npm-packlist@^1.1.6:
-  version "1.1.11"
-  resolved "https://registry.yarnpkg.com/npm-packlist/-/npm-packlist-1.1.11.tgz#84e8c683cbe7867d34b1d357d893ce29e28a02de"
-  integrity sha512-CxKlZ24urLkJk+9kCm48RTQ7L4hsmgSVzEk0TLGPzzyuFxD7VNgy5Sl24tOLMzQv773a/NeJ1ce1DKeacqffEA==
+  version "1.1.12"
+  resolved "https://registry.yarnpkg.com/npm-packlist/-/npm-packlist-1.1.12.tgz#22bde2ebc12e72ca482abd67afc51eb49377243a"
+  integrity sha512-WJKFOVMeAlsU/pjXuqVdzU0WfgtIBCupkEVwn+1Y0ERAbUfWw8R4GjgVbaKnUjRoD2FoQbHOCbOyT5Mbs9Lw4g==
   dependencies:
     ignore-walk "^3.0.1"
     npm-bundled "^1.0.1"
@@ -5107,7 +5114,7 @@ pug-walk@^1.1.7:
   resolved "https://registry.yarnpkg.com/pug-walk/-/pug-walk-1.1.7.tgz#c00d5c5128bac5806bec15d2b7e7cdabe42531f3"
   integrity sha1-wA1cUSi6xYBr7BXSt+fNq+QlMfM=
 
-pug@^2.0.0-beta9:
+pug@^2.0.3:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/pug/-/pug-2.0.3.tgz#71cba82537c95a5eab7ed04696e4221f53aa878e"
   integrity sha1-ccuoJTfJWl6rftBGluQiH1Oqh44=
@@ -5307,7 +5314,7 @@ rechoir@^0.6.2:
   dependencies:
     resolve "^1.1.6"
 
-recursive-install@^1.3.0:
+recursive-install@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/recursive-install/-/recursive-install-1.4.0.tgz#f4db1519a1d77f550b11e8553fac809cbaf3e763"
   integrity sha512-pK7bU5PUe5UVHxHJseTQaAmSD7qTtIyhNVhM4u6yru9rkicbxLYhPwXsHhPSxwWLyxmEHx8Fba59BhlHWSGwDA==
@@ -5472,7 +5479,7 @@ request@2.81.0:
     tunnel-agent "^0.6.0"
     uuid "^3.0.0"
 
-request@^2.85.0:
+request@^2.88.0:
   version "2.88.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.88.0.tgz#9c2fca4f7d35b592efe57c7f0a55e81052124fef"
   integrity sha512-NAqBSrijGLZdM0WZNsInLJpkJokL72XYjUpnB0iwsRgxh7dB6COrHnTBNwN0E+lHDAJzu7kLAkDeY08z2/A0hg==
@@ -5813,13 +5820,13 @@ socket.io@^2.1.1:
     socket.io-client "2.1.1"
     socket.io-parser "~3.2.0"
 
-"sonos@git://github.com/denysvitali/node-sonos":
+"sonos@git://github.com/denysvitali/node-sonos.git":
   version "0.0.0-development"
-  resolved "git://github.com/denysvitali/node-sonos#b6d6d9c0ed182e59d4bbadaf61fce19cf57f958b"
+  resolved "git://github.com/denysvitali/node-sonos.git#62dc535e37a0504edfad6c36918f14c04300ec70"
   dependencies:
-    debug "^3.1.0"
+    debug "^4.0.0"
     ip "^1.1.5"
-    request "^2.85.0"
+    request "^2.88.0"
     request-promise-native "^1.0.5"
     underscore "^1.9.0"
     xml2js "^0.4.19"
@@ -6112,9 +6119,9 @@ tar@^4:
     yallist "^3.0.2"
 
 terser@^3.7.5:
-  version "3.9.3"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-3.9.3.tgz#14d13207f58b7a25ba7dd11def76c9e73cca5036"
-  integrity sha512-7CAUcdTRzfxvMUqhSDe95MQ/qVEV3JqiSB8mMGQZSe1CL7AKB1iMpF7Mj6DatC9YfG/4xxE25Egp1kxVNORdGQ==
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-3.10.0.tgz#6ae15dafecbd02c9788d5f36d27fca32196b533a"
+  integrity sha512-hNh2WR3YxtKoY7BNSb3+CJ9Xv9bbUuOU9uriIf2F1tiAYNA4rNy2wWuSDV8iKcag27q65KPJ/sPpMWEh6qttgw==
   dependencies:
     commander "~2.17.1"
     source-map "~0.6.1"
@@ -6522,7 +6529,7 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vinyl-buffer@^1.0.0:
+vinyl-buffer@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/vinyl-buffer/-/vinyl-buffer-1.0.1.tgz#96c1a3479b8c5392542c612029013b5b27f88bbf"
   integrity sha1-lsGjR5uMU5JULGEgKQE7Wyf4i78=
@@ -6553,7 +6560,7 @@ vinyl-fs@^3.0.0:
     vinyl "^2.0.0"
     vinyl-sourcemap "^1.1.0"
 
-vinyl-source-stream@^1.1.0:
+vinyl-source-stream@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vinyl-source-stream/-/vinyl-source-stream-1.1.2.tgz#62b53a135610a896e98ca96bee3a87f008a8e780"
   integrity sha1-YrU6E1YQqJbpjKlr7jqH8Aio54A=

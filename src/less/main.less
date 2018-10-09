@@ -21,6 +21,7 @@ body{
 }
 
 body>div.inner>#content{
+	padding-top: (@tBheight + 20px);
 	padding-bottom: @playBarHeight;
 	margin-left: @tBmLeft;
 	margin-right: @tBmLeft;
@@ -348,8 +349,7 @@ body, #topBar/*, #secondLine, #menu*/{
 
 		div.textBox{
 			@tboxMLeft: 20px;
-			float: left;
-			margin-left: 20px;
+			margin-left: 100px;
 			height: 100%;
 
 			div.songTitle{
@@ -583,6 +583,8 @@ div.soundcloud{
 }
 
 div.queue{
+	padding-top: 1em;
+
 	div.queue-el{
 		cursor: pointer;
 		width: 80%;
