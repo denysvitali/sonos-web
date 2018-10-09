@@ -167,7 +167,7 @@
 						}
 						let videoUrl = '';
 						if (settings.external_provider !== true || true) {
-							videoUrl = protocol + SonosWeb._ipaddress + ':' + SonosWeb.port + '/plugins/youtube/play/' + videoid;
+							videoUrl = protocol + SonosWeb._ipaddress + ':' + SonosWeb.port + '/plugins/youtube/play/' + videoid + '.mp4';
 						} else {
 							// Never reached, this is a better choice, but apparently Sonos doesn't accept redirects (or has an URL limit, I guess)
 							// We'll use the Node Server as a proxy (less efficient, but better than nothing)
@@ -203,7 +203,7 @@
 				fs.createReadStream("/tmp/audio.aac").pipe(res);
 			});
 
-			SonosWeb.app.get('/plugins/youtube/play/:videoid', (req, res) => {
+			SonosWeb.app.get('/plugins/youtube/play/:videoid.mp4', (req, res) => {
 				let videoid = req.params.videoid.toString();
 				let matches = videoid.match(/^[0-9A-z\_\-]{11}$/i);
 				if (!matches) {
@@ -246,9 +246,8 @@
 
 					youtubedl.getInfo(videoUrl, ['-f 18'], (err, info)=>{
 						if(err) throw err;
-						res.redirect(info.url); // We can't redirect because the URL is too long, and the ZP won't accept it.
-						//fs.createReadStream("/tmp/video.mp4").pipe(res)
-						//fs.createReadStream("/tmp/audio.aac").pipe(res)
+						res.setHeader('Content-Type', 'audio/mpeg');
+						res.redirect(info.url);
 					});
 				} else {
 					res.setHeader('Content-Type', 'audio/aac');
