@@ -71,15 +71,15 @@
             SonosWeb.app.get('/plugins/soundcloud/play/:element', (req, res) => {
                 if (req.params.element !== null && req.params.element !== '') {
                     var scUrl = 'https://soundcloud.com/' + req.params.element;
-                    debug(scUrl);
                     this.getMp3(scUrl)
-                        .then((mp3Url) => {
-                            request(mp3Url).pipe(res);
-                        })
-                        .catch((error) => {
-                            debug(`[SC] Got a promise error: ${error}`);
-                            res.end(500);
-                        });
+                    .then((mp3Url) => {
+                        res.setHeader("Content-Type", "audio/mp3");
+                        res.redirect(mp3Url);
+                    })
+                    .catch((error) => {
+                        debug(`[SC] Got a promise error: ${error}`);
+                        res.end(500);
+                    });
                 }
             });
 
