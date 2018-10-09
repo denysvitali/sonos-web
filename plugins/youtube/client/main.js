@@ -176,7 +176,6 @@ function loadAllVideos() {
                 if (json[i].items.length !== 0) {
                     var plitems = document.createElement('div');
                     plitems.classList.add('pl-items');
-                    console.log(json[i].items);
                     for (var i2 = 0; i2 < json[i].items.length; i2++) {
                         if (!json[i].items.hasOwnProperty(i2)) {
                             continue;
