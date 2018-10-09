@@ -4,9 +4,9 @@
   #hero-menu-image.image.hero-music
   .info-box
    label Selected room:
-   label#roomName.room
+   label#roomName.room #{menu.playerName}
  .menu-elements
-   each item in menu
+   each item in menu.items
     .entry(data-page=`${item[2]}`)
      span(class=`icon fa ${item[0]}`)
      label #{item[1]}

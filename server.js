@@ -84,8 +84,8 @@ debug('Searching for a Sonos device...');
 init();
 
 SonosWeb.addMenuEntry = (icon, title, page, order) => {
-    SonosWeb.menu.push([icon, title, page, order]);
-    SonosWeb.menu.sort((a, b) => {
+    SonosWeb.menu.items.push([icon, title, page, order]);
+    SonosWeb.menu.items.sort((a, b) => {
         if (a[3] < b[3]) {
             return -1;
         }
@@ -105,7 +105,10 @@ const menu_default = [
     ['fa-gear', 'Settings', 'settings', 9000]
 ];
 
-SonosWeb.menu = menu_default;
+SonosWeb.menu = {
+    playerName: null,
+    items: menu_default
+};
 
 server.listen(SonosWeb.port);
 info('App listening at 0.0.0.0:' + SonosWeb.port);
@@ -581,6 +584,9 @@ function init() {
     sonos.DeviceDiscovery(function(device) {
         debug(`Found ZP at ${device.host}:${device.port}`);
         thePlayer = device;
+        console.log(thePlayer.getName().then((name)=>{
+            SonosWeb.menu.playerName = name;
+        }));
         //thePlayer.selectQueue();
 
         var listener = new Listener(device);
