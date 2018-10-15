@@ -1,14 +1,24 @@
 const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const glob = require("glob");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: ["./src/index.js"].concat(glob.sync("./plugins/**/sonosweb-plugin.js")),
   output: {
     path: path.resolve(__dirname, "public"),
     filename: "bundle.js"
   },
   module: {
     rules: [
+      {
+      test: /\.m?js$/,
+      exclude: /(node_modules|bower_components)/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: ['@babel/preset-env']
+        }
+      }},
       {
         test: /\.woff(2)?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
         loader: "url-loader?limit=10000&mimetype=application/font-woff"

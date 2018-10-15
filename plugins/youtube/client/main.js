@@ -2,6 +2,7 @@
 var content = document.getElementById('content');
 var youtube = content.getElementsByClassName('youtube')[0];
 
+document.getElementById('topBar').classList.add('youtubeplugin');
 
 var resWindow = null;
 var resWindowShown = false;
@@ -24,6 +25,8 @@ function loadSearchbar() {
         }
         resWindow.innerHTML = '';
     };
+
+	console.log("Loading searchBar...", searchBar, youtube, content);
 
     var addToResultList = (videoid, artwork, title, author) => {
         var resultEntry = document.createElement('div');

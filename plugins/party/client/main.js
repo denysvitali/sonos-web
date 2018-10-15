@@ -1,5 +1,6 @@
 'use strict';
 
+(() => {
 var backgroundImage = document.getElementById('partyBackgroundImage');
 var currentAlbumArt = document.getElementById('partyAlbumArt');
 var currentSongTitle = document.getElementById('partySongTitle');
@@ -50,3 +51,4 @@ if (SonosStatus.playing !== null) {
     setTrackTitle(SonosStatus.playing.title);
     setTrackArtist(SonosStatus.playing.artist);
 }
+})();

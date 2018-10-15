@@ -268,6 +268,17 @@ class UI extends EventEmitter {
             if (oReq.status === 200) {
                 this.mE.content.innerHTML = oReq.responseText;
 
+		var body = document.getElementsByTagName('body')[0];
+		var classList = body.classList;
+		for(i in classList){
+			if(classList.hasOwnProperty(i)){
+				if(i.match(/^page-/g)){
+					classList.remove(i);
+				}
+			}
+		}
+		body.classList.add('page-' + page);
+
                 // XSS ALERT
                 var scripts = this.mE.content.getElementsByTagName('script');
                 var head = document.getElementsByTagName('head')[0];
