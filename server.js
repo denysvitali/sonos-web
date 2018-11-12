@@ -71,6 +71,8 @@ if(!fs.existsSync(SETTINGS_FILE)){
     }
 }
 
+SonosWeb.port = process.env.SONOS_WEB_PORT || SonosWeb.port;
+
 debug_enabled = SonosWeb.debug_enabled;
 
 // Providers
