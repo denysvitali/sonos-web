@@ -423,9 +423,10 @@ mkdirp@0.x.x, mkdirp@^0.5.1:
   dependencies:
     minimist "0.0.8"
 
-moment@^2.13.0:
-  version "2.20.1"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.20.1.tgz#d6eb1a46cbcc14a2b2f9434112c1ff8907f313fd"
+moment@^2.22.2:
+  version "2.22.2"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
+  integrity sha1-PCV/mDn8DpP/UxSWMiOeuQeD/2Y=
 
 mute-stream@~0.0.4:
   version "0.0.7"
@@ -701,9 +702,10 @@ wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
 
-youtube-dl@^1.11:
+youtube-dl@^1.12.2:
   version "1.12.2"
   resolved "https://registry.yarnpkg.com/youtube-dl/-/youtube-dl-1.12.2.tgz#11985268564c92b229f62b43d97374f86a605d1d"
+  integrity sha512-TDGmUxzEsQCp1Ux3IEkEhJ2LfRlUjBo5AaaGmW5Hqm8uX8jd2sB+Rq37S9vy505qnFhpy05uUSQsBtpvBuQBYA==
   dependencies:
     hh-mm-ss "^1.2.0"
     mkdirp "^0.5.1"
