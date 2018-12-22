@@ -81,7 +81,7 @@ const PTuneIn = require('./inc/tunein');
 process.setMaxListeners(50);
 
 SonosWeb.app = app;
-SonosWeb._ipaddress = (SonosWeb.settings.ip !== null ? SonosWeb.settings.ip : require('ip').address());
+SonosWeb._ipaddress = (SonosWeb.settings.ip !== undefined ? SonosWeb.settings.ip : require('ip').address());
 debug('Searching for a Sonos device...');
 init();
 
