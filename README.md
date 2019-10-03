@@ -21,7 +21,7 @@ To use sonos-web you need:
 2. cd to the newly created folder (should be named `sonos-web`)  
 `cd sonos-web/`
 3. Install the dependencies  
-`npm install`
+`yarn install`
 4. Compile the assets  
 `npm run-script build`
 5. Start the server  
