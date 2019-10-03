@@ -7,7 +7,7 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const sonos = require('sonos');
-const Listener = require('sonos/lib/events/listener');
+const Listener = require('sonos/lib/events/adv-listener');
 const parseXML = require('xml2js').parseString;
 const crypto = require('crypto');
 const request = require('request');
@@ -17,7 +17,7 @@ const mcache = require('memory-cache');
 let debug_enabled = false;
 
 // Debugging and logging
-const nullf = () => {};
+const nullf = () => { };
 
 // Console functions
 const warn = (msg) => {
@@ -29,8 +29,8 @@ const info = (msg) => {
 };
 
 const debug = (msg) => {
-    if(debug_enabled) {
-      console.log(`[D] ${msg}`.blue);
+    if (debug_enabled) {
+        console.log(`[D] ${msg}`.blue);
     }
 };
 
@@ -49,25 +49,25 @@ console.inspect = (item) => {
 const SETTINGS_FILE = './settings.json';
 
 var SonosWeb = {
-  port: 8888,
-  debug: debug,
-  info: info,
-  error: error,
-  warn: warn,
-  debug_enabled: debug_enabled
+    port: 8888,
+    debug: debug,
+    info: info,
+    error: error,
+    warn: warn,
+    debug_enabled: debug_enabled
 };
 
-if(!fs.existsSync(SETTINGS_FILE)){
+if (!fs.existsSync(SETTINGS_FILE)) {
     warn('Settings file doesn\'t exist');
 } else {
     SonosWeb.settings = JSON.parse(fs.readFileSync(SETTINGS_FILE));
-    
-    if(SonosWeb.settings.port !== null){
-      SonosWeb.port = SonosWeb.settings.port;
+
+    if (SonosWeb.settings.port !== null) {
+        SonosWeb.port = SonosWeb.settings.port;
     }
-    
-    if(SonosWeb.settings.debug !== null){
-      SonosWeb.debug_enabled = SonosWeb.settings.debug;
+
+    if (SonosWeb.settings.debug !== null) {
+        SonosWeb.debug_enabled = SonosWeb.settings.debug;
     }
 }
 
@@ -194,19 +194,19 @@ var parsePluginDir = (plugindir) => {
 
 let middleware_caching = (duration) => {
     return (req, res, next) => {
-      let key = '__express__' + req.originalUrl || req.url;
-      let cachedBody = mcache.get(key);
-      if (cachedBody) {
-        res.send(cachedBody);
-        return;
-      } else {
-        res.sendResponse = res.send;
-        res.send = (body) => {
-          mcache.put(key, body, duration * 1000);
-          res.sendResponse(body);
-        };
-        next();
-      }
+        let key = '__express__' + req.originalUrl || req.url;
+        let cachedBody = mcache.get(key);
+        if (cachedBody) {
+            res.send(cachedBody);
+            return;
+        } else {
+            res.sendResponse = res.send;
+            res.send = (body) => {
+                mcache.put(key, body, duration * 1000);
+                res.sendResponse(body);
+            };
+            next();
+        }
     };
 };
 
@@ -226,7 +226,7 @@ for (const file of plugindir_content) {
 
 
 var albumArtCache = [];
-  
+
 
 // Routing
 app.get('/sonos/getaa', (req, res) => {
@@ -275,14 +275,14 @@ app.get('/', (req, res) => {
 });
 
 app.get('/sonosTest', (req, res) => {
-  
-    if(debug_enabled){
-      console.log('========= SONOS - CUT HERE ========');
-      console.log(util.inspect(req.headers, {
-          colors: true,
-          depth: null
-      }));
-      console.log('===================================');
+
+    if (debug_enabled) {
+        console.log('========= SONOS - CUT HERE ========');
+        console.log(util.inspect(req.headers, {
+            colors: true,
+            depth: null
+        }));
+        console.log('===================================');
     }
     res.end();
 });
@@ -294,7 +294,7 @@ app.get('/pages/home', (req, res) => {
 });
 
 app.get('/pages/queue', (req, res) => {
-    thePlayer.getQueue().then((data)=>{
+    thePlayer.getQueue().then((data) => {
         res.render('pages/queue', {
             menu: SonosWeb.menu,
             queue: data
@@ -324,11 +324,11 @@ var SonosStatus = {
         RF: 0
     },
     zones: [{
-      coordinator: '',
-      name: 'Default Zone',
-      members: {
-        
-      }
+        coordinator: '',
+        name: 'Default Zone',
+        members: {
+
+        }
     }],
     positionInQueue: 0,
     totalQueue: 0
@@ -380,7 +380,7 @@ function enableio() {
         client.emit('currentSong', SonosStatus.playing);
         client.emit('playState', SonosStatus.playState);
         client.emit('volume', SonosStatus.volume);
-        client.on('disconnect', function() {
+        client.on('disconnect', function () {
             clientsReady--;
         });
         broadcastState();
@@ -398,7 +398,7 @@ function sendCurrentTrack() {
     if (thePlayer === null || io === null) {
         return;
     }
-    thePlayer.currentTrack().then((data)=> {
+    thePlayer.currentTrack().then((data) => {
         if (!error) {
             io.emit('track', data);
         }
@@ -467,13 +467,13 @@ function playerControlEvents(client) {
         thePlayer.setVolume(data.volume);
         broadcastState();
     });
-    
+
     client.on('do_flushqueue', (data) => {
-      if (thePlayer === null) {
-          return;
-      }
-      
-      thePlayer.flush();
+        if (thePlayer === null) {
+            return;
+        }
+
+        thePlayer.flush();
     });
 
     client.on('do_playqueue', (data) => {
@@ -485,8 +485,8 @@ function playerControlEvents(client) {
         broadcastState();
     });
 
-    client.on('do_playqueueelement', (data) =>{
-        if(data.track === null){
+    client.on('do_playqueueelement', (data) => {
+        if (data.track === null) {
             return;
         }
         thePlayer.selectTrack(data.track);
@@ -516,7 +516,7 @@ function playerControlEvents(client) {
         });
     }
 
-    function playUrl(obj){
+    function playUrl(obj) {
         let metadata = '';
         let type = '';
         if (obj.trackUrl.indexOf('x-sonosapi-stream') !== -1) {
@@ -569,7 +569,7 @@ function playerControlEvents(client) {
         if (thePlayer === null) {
             return;
         }
-        thePlayer.getZoneInfo().then((data)=>{
+        thePlayer.getZoneInfo().then((data) => {
             if (!err) {
                 // Reply to sender only
                 client.emit('zoneInfo', data);
@@ -583,289 +583,299 @@ function playerControlEvents(client) {
 }
 
 function init() {
-    sonos.DeviceDiscovery(function(device) {
+    sonos.DeviceDiscovery(function (device) {
         debug(`Found ZP at ${device.host}:${device.port}`);
         thePlayer = device;
-        console.log(thePlayer.getName().then((name)=>{
+        console.log(thePlayer.getName().then((name) => {
             SonosWeb.menu.playerName = name;
         }));
         //thePlayer.selectQueue();
 
-        var listener = new Listener(device);
-        listener.listen((err) => {
+        var listener = Listener;
+        listener.startListener();
+
+        listener.subscribeTo(device).then(result => {
+            console.log('Manually subscribed to sonos events')
+        })
+
+        // Or start listening for events on the sonos itself, will call the listener in the background
+        device.on('CurrentTrack', track => {
+            console.log('Track changed to %s by %s', track.title, track.artist)
+        })
+
+
+        listener.subscribeTo(device).then((a,b,c)=>{
+            console.log(a,b,c);
+        });
+    
+        listener.addListener('/MusicServices/Event', (err, sid) => {
+            console.log(err);
             if (err) {
-                throw err;
+                if (err === 'Internal Server Error' || err === 'Method Not Allowed' || err === 'Precondition Failed') {
+                    // Feature not supported
+                } else {
+                    throw err;
+                }
             }
+            debug('Successfully subscribed, with subscription id', sid);
+        });
 
-            debug('Listening...');
-
-            listener.addService('/MusicServices/Event', (err, sid) => {
-                if (err) {
-                    if(err === 'Internal Server Error' || err === 'Method Not Allowed' || err === 'Precondition Failed'){
-                      // Feature not supported
-                    } else {
-                      throw err;
-                    }
+        listener.addListener('/MediaServer/ContentDirectory/Event', (err, sid) => {
+            if (err) {
+                if (err === 'Internal Server Error' || err === 'Method Not Allowed') {
+                    // Feature not supported
+                } else {
+                    throw err;
                 }
-                debug('Successfully subscribed, with subscription id', sid);
-            });
+            }
+            debug('Successfully subscribed, with subscription id', sid);
+        });
 
-            listener.addService('/MediaServer/ContentDirectory/Event', (err, sid) => {
-                if (err) {
-                    if(err === 'Internal Server Error' || err === 'Method Not Allowed'){
-                      // Feature not supported
-                    } else {
-                      throw err;
-                    }
+        listener.addListener('/MediaRenderer/RenderingControl/Event', (err, sid) => {
+            if (err) {
+                if (err === 'Internal Server Error' || err === 'Method Not Allowed' || err === 'Precondition Failed') {
+                    // Feature not supported
+                } else {
+                    throw err;
                 }
-                debug('Successfully subscribed, with subscription id', sid);
-            });
+            }
+            debug('Successfully subscribed, with subscription id', sid);
+        });
 
-            listener.addService('/MediaRenderer/RenderingControl/Event', (err, sid) => {
-                if (err) {
-                    if(err === 'Internal Server Error' || err === 'Method Not Allowed' || err === 'Precondition Failed'){
-                      // Feature not supported
-                    } else {
-                      throw err;
-                    }
+        listener.addListener('/ZoneGroupTopology/Event', (err, sid) => {
+            if (err) {
+                if (err === 'Internal Server Error' || err === 'Method Not Allowed' || err === 'Precondition Failed') {
+                    // Feature not supported
+                } else {
+                    throw err;
                 }
-                debug('Successfully subscribed, with subscription id', sid);
-            });
+            }
+            debug('Successfully subscribed, with subscription id', sid);
+        });
 
-            listener.addService('/ZoneGroupTopology/Event', (err, sid) => {
-                if (err) {
-                    if(err === 'Internal Server Error' || err === 'Method Not Allowed' || err === 'Precondition Failed'){
-                      // Feature not supported
-                    } else {
-                      throw err;
-                    }
+        listener.addListener('/MediaRenderer/AVTransport/Event', (err, sid) => {
+            if (err) {
+                if (err === 'Internal Server Error' || err === 'Method Not Allowed') {
+                    // Feature not supported
+                } else {
+                    throw err;
                 }
-                debug('Successfully subscribed, with subscription id', sid);
-            });
+            }
+            debug('Successfully subscribed, with subscription id', sid);
+        });
 
-            listener.addService('/MediaRenderer/AVTransport/Event', (err, sid) => {
-                if (err) {
-                    if(err === 'Internal Server Error' || err === 'Method Not Allowed'){
-                      // Feature not supported
-                    } else {
-                      throw err;
+        listener.on('serviceEvent', (endpoint, sid, data) => {
+            debug('Service Event');
+            if (endpoint === '/MediaRenderer/AVTransport/Event') {
+                parseXML(data.LastChange, (err, result) => {
+                    if (err) {
+                        error('Unable to parse XML, the error was ' + err);
+                        return;
                     }
-                }
-                debug('Successfully subscribed, with subscription id', sid);
-            });
 
-            listener.on('serviceEvent', (endpoint, sid, data) => {
-                debug('Service Event');
-                if (endpoint === '/MediaRenderer/AVTransport/Event') {
-                    parseXML(data.LastChange, (err, result) => {
-                        if (err) {
-                            error('Unable to parse XML, the error was ' + err);
-                            return;
+                    if (debug_enabled) {
+                        console.inspect(result.Event.InstanceID, {
+                            colors: true,
+                            depth: 5
+                        });
+                    }
+
+                    if (result.Event.InstanceID[0].hasOwnProperty('TransportStatus')) {
+                        if (result.Event.InstanceID[0].TransportStatus[0].$.val === 'ERROR_NO_RESOURCE') {
+                            error('Sonos couldn\'t find a resource:\n' + result.Event.InstanceID[0].TransportErrorURI[0].$.val);
                         }
-                        
-                        if(debug_enabled){
-                          console.inspect(result.Event.InstanceID, {
-                              colors: true,
-                              depth: 5
-                            });
-                        }
+                        return;
+                    }
 
-                        if (result.Event.InstanceID[0].hasOwnProperty('TransportStatus')) {
-                            if (result.Event.InstanceID[0].TransportStatus[0].$.val === 'ERROR_NO_RESOURCE') {
-                                error('Sonos couldn\'t find a resource:\n' + result.Event.InstanceID[0].TransportErrorURI[0].$.val);
-                            }
-                            return;
-                        }
-                        
-                        if(result.Event.InstanceID[0].CurrentTrack[0].$.val !== null){
-                            io.emit('queueStatus', {
-                              current: result.Event.InstanceID[0].CurrentTrack[0].$.val*1,
-                              total: result.Event.InstanceID[0].NumberOfTracks[0].$.val*1
-                            });
-                        }
-                        
-                        var playState = result.Event.InstanceID[0].TransportState[0].$.val;
-                        debug(`PlayState: ${playState}`);
+                    if (result.Event.InstanceID[0].CurrentTrack[0].$.val !== null) {
+                        io.emit('queueStatus', {
+                            current: result.Event.InstanceID[0].CurrentTrack[0].$.val * 1,
+                            total: result.Event.InstanceID[0].NumberOfTracks[0].$.val * 1
+                        });
+                    }
 
-                        SonosStatus.playState = playState;
-                        io.emit('playState', playState);
+                    var playState = result.Event.InstanceID[0].TransportState[0].$.val;
+                    debug(`PlayState: ${playState}`);
 
-                        var metadata;
-                        var type;
-                        if (result.Event.InstanceID[0].hasOwnProperty('CurrentTrackMetaData')) {
-                            type = 'song';
-                            metadata = result.Event.InstanceID[0].CurrentTrackMetaData[0].$.val;
-                        } else if (result.Event.InstanceID[0].hasOwnProperty('r:EnqueuedTransportURIMetaData') && result.Event.InstanceID[0]['r:EnqueuedTransportURIMetaData'][0].$.val !== '') {
-                            metadata = result.Event.InstanceID[0]['r:EnqueuedTransportURIMetaData'][0].$.val;
-                            type = 'radio';
-                            debug('EnqueuedTransportURIMetaData');
-                        } else if (result.Event.InstanceID[0].hasOwnProperty('AVTransportURIMetaData') && result.Event.InstanceID[0].AVTransportURIMetaData[0].$.val !== '') {
-                            metadata = result.Event.InstanceID[0].AVTransportURIMetaData[0].$.val;
-                            type = 'radio';
-                        } else if (result.Event.InstanceID[0].hasOwnProperty('CurrentTrackMetaData') && result.Event.InstanceID[0].hasOwnProperty('CurrentTrackMetaData') !== '') {
-                            metadata = result.Event.InstanceID[0]['CurrentTrackMetaData'][0].$.val;
-                            type = 'song';
-                        }
+                    SonosStatus.playState = playState;
+                    io.emit('playState', playState);
 
-                        var albumArtURI = null;
-                        var AVTransportURI = null;
-                        if (result.Event.InstanceID[0].AVTransportURI !== undefined) {
-                            AVTransportURI = result.Event.InstanceID[0].AVTransportURI[0].$.val.toString();
-                        } else if (result.Event.InstanceID[0]['r:EnqueuedTransportURI'] !== undefined) {
-                            AVTransportURI = result.Event.InstanceID[0]['r:EnqueuedTransportURI'][0].$.val.toString();
-                        }
+                    var metadata;
+                    var type;
+                    if (result.Event.InstanceID[0].hasOwnProperty('CurrentTrackMetaData')) {
+                        type = 'song';
+                        metadata = result.Event.InstanceID[0].CurrentTrackMetaData[0].$.val;
+                    } else if (result.Event.InstanceID[0].hasOwnProperty('r:EnqueuedTransportURIMetaData') && result.Event.InstanceID[0]['r:EnqueuedTransportURIMetaData'][0].$.val !== '') {
+                        metadata = result.Event.InstanceID[0]['r:EnqueuedTransportURIMetaData'][0].$.val;
+                        type = 'radio';
+                        debug('EnqueuedTransportURIMetaData');
+                    } else if (result.Event.InstanceID[0].hasOwnProperty('AVTransportURIMetaData') && result.Event.InstanceID[0].AVTransportURIMetaData[0].$.val !== '') {
+                        metadata = result.Event.InstanceID[0].AVTransportURIMetaData[0].$.val;
+                        type = 'radio';
+                    } else if (result.Event.InstanceID[0].hasOwnProperty('CurrentTrackMetaData') && result.Event.InstanceID[0].hasOwnProperty('CurrentTrackMetaData') !== '') {
+                        metadata = result.Event.InstanceID[0]['CurrentTrackMetaData'][0].$.val;
+                        type = 'song';
+                    }
 
-                        if (AVTransportURI !== null) {
-                            var matches = AVTransportURI.match(/x-sonosapi-stream:(.*?)\?sid=(\d+)&flags=(\d+)/i);
-                            if (matches) {
-                                // TuneIN
-                                debug('TuneIn');
-                                var radio = new PTuneIn(matches[1]);
-                                debug(radio.getMetadata);
+                    var albumArtURI = null;
+                    var AVTransportURI = null;
+                    if (result.Event.InstanceID[0].AVTransportURI !== undefined) {
+                        AVTransportURI = result.Event.InstanceID[0].AVTransportURI[0].$.val.toString();
+                    } else if (result.Event.InstanceID[0]['r:EnqueuedTransportURI'] !== undefined) {
+                        AVTransportURI = result.Event.InstanceID[0]['r:EnqueuedTransportURI'][0].$.val.toString();
+                    }
 
-                                var niu = (el) => {
-                                    return (el !== undefined ? el : null);
-                                };
+                    if (AVTransportURI !== null) {
+                        var matches = AVTransportURI.match(/x-sonosapi-stream:(.*?)\?sid=(\d+)&flags=(\d+)/i);
+                        if (matches) {
+                            // TuneIN
+                            debug('TuneIn');
+                            var radio = new PTuneIn(matches[1]);
+                            debug(radio.getMetadata);
 
-                                radio.getMetadata().then((data) => {
-                                        debug('TuneIn: Got result... data!', data);
-                                        var songInfo = {
-                                            title: data.title[0],
-                                            artist: niu(data.streamMetadata[0].currentShow[0]),
-                                            duration: null,
-                                            albumArtURI: 'http://cdn-radiotime-logos.tunein.com/' + matches[1] + 'g.png',
-                                            radio: {
-                                                language: niu(data.language[0]),
-                                                title: niu(data.title),
-                                                country: niu(data.country[0]),
-                                                liveNow: niu(data.liveNow[0]),
-                                                genre: niu(data.genre[0]),
-                                                genreId: niu(data.genreId[0]),
-                                                currentHost: niu(data.streamMetadata[0].currentHost[0]),
-                                                currentShow: niu(data.streamMetadata[0].currentShow[0]),
-                                                stationTitle: niu(data.streamMetadata[0].title[0]),
-                                                stationSubtitle: niu(data.streamMetadata[0].subtitle[0]),
-                                                bitrate: niu(data.streamMetadata[0].bitrate[0]),
-                                                onDemand: niu(data.onDemand[0]),
-                                                twitter: niu(data.twitterId[0]),
-                                            }
-                                        };
-                                        SonosStatus.playing = songInfo;
-                                        io.emit('currentSong', songInfo);
-                                    })
-                                    .catch((err) => {
-                                        error(err);
-                                    });
-
-
-                                albumArtURI = 'http://cdn-radiotime-logos.tunein.com/' + matches[1] + 'g.png';
-                                debug(albumArtURI);
-                            }
-                        } else {
-                            debug('AVTransportURI is null!');
-                        }
-
-                        debug(type);
-                        if (metadata !== undefined && metadata !== '') {
-                            debug(metadata);
-                            parseXML(metadata, (err, result) => {
-                                if (err) {
-                                    error('Unable to parse metadata XML, the error was ' + err);
-                                    return;
-                                }
-                                
-                                if(debug_enabled){
-                                  console.inspect(result);
-                                }
-
-                                debug(result['DIDL-Lite'].item[0]['dc:title'][0]);
-                                var aaURI = albumArtURI || (result['DIDL-Lite'].item[0]['upnp:albumArtURI'] !== undefined ? result['DIDL-Lite'].item[0]['upnp:albumArtURI'][0] : null);
-                                if (aaURI !== null) {
-                                    if (aaURI.match(/^\/getaa.*/i)) {
-                                        aaURI = `/sonos${aaURI}`;
-                                    }
-                                }
-                                else{
-                                    aaURI = '/img/dummy/album-cover.jpg';
-                                }
-                                var songInfo = {
-                                    title: result['DIDL-Lite'].item[0]['dc:title'][0],
-                                    artist: (result['DIDL-Lite'].item[0]['dc:creator'] !== undefined ? result['DIDL-Lite'].item[0]['dc:creator'][0] : null),
-                                    duration: (result['DIDL-Lite'].item[0].res !== undefined ? result['DIDL-Lite'].item[0].res[0].$.duration : null),
-                                    albumArtURI: aaURI
-                                };
-                                if(debug_enabled){
-                                  console.inspect(songInfo);
-                                }
-
-                                SonosStatus.playing = songInfo;
-                                io.emit('currentSong', songInfo);
-                            });
-                        }
-                    });
-                } else if (endpoint === '/MediaRenderer/RenderingControl/Event') {
-                    parseXML(data.LastChange, (err, result) => {
-                        if (!err) {
-                            var volObj = result.Event.InstanceID[0].Volume;
-
-                            var MasterVol = 0;
-                            var LFVol = 0;
-                            var RFVol = 0;
-
-                            for (var i in volObj) {
-                                if (volObj.hasOwnProperty(i)) {
-                                    switch (volObj[i]['$'].channel) {
-                                        case 'Master':
-                                            MasterVol = volObj[i]['$'].val;
-                                            break;
-
-                                        case 'LF':
-                                            LFVol = volObj[i]['$'].val;
-                                            break;
-
-                                        case 'RF':
-                                            RFVol = volObj[i]['$'].val;
-                                            break;
-                                    }
-                                }
-                            }
-
-                            var SVolObj = {
-                                'master': MasterVol,
-                                'LF': LFVol,
-                                'RF': RFVol
+                            var niu = (el) => {
+                                return (el !== undefined ? el : null);
                             };
 
-                            SonosStatus.volume = SVolObj;
-                            io.emit('volume', SVolObj);
-                        }
-                    });
-                } else if (endpoint === '/ZoneGroupTopology/Event') {
-                    debug('Got ZoneGroupTopology event');
-                    parseXML(data.ZoneGroupState, (err, result) => {
-                        if(debug_enabled){
-                          console.inspect(result);
-                        }
-                        
-                        console.inspect(result.ZoneGroups.ZoneGroup[0].ZoneGroupMember[0]['$'].ZoneName);
-                        // TODO: Implement zone management
+                            radio.getMetadata().then((data) => {
+                                debug('TuneIn: Got result... data!', data);
+                                var songInfo = {
+                                    title: data.title[0],
+                                    artist: niu(data.streamMetadata[0].currentShow[0]),
+                                    duration: null,
+                                    albumArtURI: 'http://cdn-radiotime-logos.tunein.com/' + matches[1] + 'g.png',
+                                    radio: {
+                                        language: niu(data.language[0]),
+                                        title: niu(data.title),
+                                        country: niu(data.country[0]),
+                                        liveNow: niu(data.liveNow[0]),
+                                        genre: niu(data.genre[0]),
+                                        genreId: niu(data.genreId[0]),
+                                        currentHost: niu(data.streamMetadata[0].currentHost[0]),
+                                        currentShow: niu(data.streamMetadata[0].currentShow[0]),
+                                        stationTitle: niu(data.streamMetadata[0].title[0]),
+                                        stationSubtitle: niu(data.streamMetadata[0].subtitle[0]),
+                                        bitrate: niu(data.streamMetadata[0].bitrate[0]),
+                                        onDemand: niu(data.onDemand[0]),
+                                        twitter: niu(data.twitterId[0]),
+                                    }
+                                };
+                                SonosStatus.playing = songInfo;
+                                io.emit('currentSong', songInfo);
+                            })
+                                .catch((err) => {
+                                    error(err);
+                                });
 
-                    });
-                    
-                    if(debug_enabled){
-                      console.inspect(data);
+
+                            albumArtURI = 'http://cdn-radiotime-logos.tunein.com/' + matches[1] + 'g.png';
+                            debug(albumArtURI);
+                        }
+                    } else {
+                        debug('AVTransportURI is null!');
                     }
-                } else if (endpoint === '/MusicServices/Event') {
-                    debug('=========== MUSIC SERVICES EVENT ============');
-                    
-                    if(debug_enabled){
-                      console.inspect(data);
+
+                    debug(type);
+                    if (metadata !== undefined && metadata !== '') {
+                        debug(metadata);
+                        parseXML(metadata, (err, result) => {
+                            if (err) {
+                                error('Unable to parse metadata XML, the error was ' + err);
+                                return;
+                            }
+
+                            if (debug_enabled) {
+                                console.inspect(result);
+                            }
+
+                            debug(result['DIDL-Lite'].item[0]['dc:title'][0]);
+                            var aaURI = albumArtURI || (result['DIDL-Lite'].item[0]['upnp:albumArtURI'] !== undefined ? result['DIDL-Lite'].item[0]['upnp:albumArtURI'][0] : null);
+                            if (aaURI !== null) {
+                                if (aaURI.match(/^\/getaa.*/i)) {
+                                    aaURI = `/sonos${aaURI}`;
+                                }
+                            }
+                            else {
+                                aaURI = '/img/dummy/album-cover.jpg';
+                            }
+                            var songInfo = {
+                                title: result['DIDL-Lite'].item[0]['dc:title'][0],
+                                artist: (result['DIDL-Lite'].item[0]['dc:creator'] !== undefined ? result['DIDL-Lite'].item[0]['dc:creator'][0] : null),
+                                duration: (result['DIDL-Lite'].item[0].res !== undefined ? result['DIDL-Lite'].item[0].res[0].$.duration : null),
+                                albumArtURI: aaURI
+                            };
+                            if (debug_enabled) {
+                                console.inspect(songInfo);
+                            }
+
+                            SonosStatus.playing = songInfo;
+                            io.emit('currentSong', songInfo);
+                        });
                     }
-                } else {
-                    debug('Got a new event with enpoint: ' + endpoint);
+                });
+            } else if (endpoint === '/MediaRenderer/RenderingControl/Event') {
+                parseXML(data.LastChange, (err, result) => {
+                    if (!err) {
+                        var volObj = result.Event.InstanceID[0].Volume;
+
+                        var MasterVol = 0;
+                        var LFVol = 0;
+                        var RFVol = 0;
+
+                        for (var i in volObj) {
+                            if (volObj.hasOwnProperty(i)) {
+                                switch (volObj[i]['$'].channel) {
+                                    case 'Master':
+                                        MasterVol = volObj[i]['$'].val;
+                                        break;
+
+                                    case 'LF':
+                                        LFVol = volObj[i]['$'].val;
+                                        break;
+
+                                    case 'RF':
+                                        RFVol = volObj[i]['$'].val;
+                                        break;
+                                }
+                            }
+                        }
+
+                        var SVolObj = {
+                            'master': MasterVol,
+                            'LF': LFVol,
+                            'RF': RFVol
+                        };
+
+                        SonosStatus.volume = SVolObj;
+                        io.emit('volume', SVolObj);
+                    }
+                });
+            } else if (endpoint === '/ZoneGroupTopology/Event') {
+                debug('Got ZoneGroupTopology event');
+                parseXML(data.ZoneGroupState, (err, result) => {
+                    if (debug_enabled) {
+                        console.inspect(result);
+                    }
+
+                    console.inspect(result.ZoneGroups.ZoneGroup[0].ZoneGroupMember[0]['$'].ZoneName);
+                    // TODO: Implement zone management
+
+                });
+
+                if (debug_enabled) {
+                    console.inspect(data);
                 }
-            });
+            } else if (endpoint === '/MusicServices/Event') {
+                debug('=========== MUSIC SERVICES EVENT ============');
+
+                if (debug_enabled) {
+                    console.inspect(data);
+                }
+            } else {
+                debug('Got a new event with enpoint: ' + endpoint);
+            }
         });
+
 
         thePlayer.getVolume().then((err, res) => {
             if (!err) {

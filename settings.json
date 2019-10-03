@@ -3,7 +3,7 @@
   "port": 8888,
   "plugins": {
     "sonos-web-youtube": {
-      "external_provider": true
+      "external_provider": false
     }
   }
 }
