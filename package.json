@@ -27,32 +27,32 @@
   },
   "homepage": "https://github.com/denysvitali/sonos-web#readme",
   "dependencies": {
-    "browserify": "^16.2.3",
-    "colors": "^1.3.3",
+    "browserify": "^16.5.0",
+    "colors": "^1.4.0",
     "express": "^4.17.1",
-    "express-http-proxy": "^1.5.1",
+    "express-http-proxy": "^1.6.0",
     "glob": "^7.1.4",
     "ip": "^1.1.5",
     "memory-cache": "^0.2.0",
     "pug": "^2.0.4",
     "recursive-install": "^1.4.0",
-    "socket.io": "^2.2.0",
+    "socket.io": "^2.3.0",
     "sonos": "git://github.com/denysvitali/node-sonos.git",
     "sprintf-js": "^1.1.2",
     "underscore": "^1.9.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.5",
-    "@babel/preset-env": "^7.4.5",
+    "@babel/core": "^7.6.2",
+    "@babel/preset-env": "^7.6.2",
     "babel-loader": "^8.0.6",
     "copy-webpack-plugin": "^4.6.0",
     "css-loader": "^1.0.1",
     "file-loader": "^2.0.0",
-    "less": "^3.9.0",
+    "less": "^3.10.3",
     "less-loader": "^4.1.0",
     "style-loader": "^0.23.1",
     "url-loader": "^1.1.2",
-    "webpack": "^4.35.0",
-    "webpack-cli": "^3.3.5"
+    "webpack": "^4.41.0",
+    "webpack-cli": "^3.3.9"
   }
 }
