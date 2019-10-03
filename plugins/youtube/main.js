@@ -3,12 +3,9 @@
 	const fs = require('fs');
 	const youtube = new(require('youtube-node'))();
 	const youtubedl = require('youtube-dl');
-	const ffmpeg = require('fluent-ffmpeg');
 	const moment = require('moment');
 	const request = require('request');
-	const rp = require('request-promise');
-	const util = require('util');
-	const proxy = require('express-http-proxy');
+
 	youtube.setKey('AIzaSyCEyw0VMAQBNTWZNZmEfb0DJDi0IA2Ew00');
 	class YouTube {
 		constructor(SonosWeb, settings) {
@@ -25,26 +22,20 @@
 
 			SonosWeb.app.get('/plugins/youtube/category/music', (req, res) => {
 				let playlistPromises = [];
-				playlistPromises.push(new Promise((resolve) => {
+				playlistPromises.push(new Promise((resolve, reject) => {
 					youtube.getPlayListsById('PLFgquLnL59alCl_2TQvOiD5Vgm1hCaGSI', (err, r)=>{
+						if(err) {
+							return reject(err);
+						}
 						resolve(r.items);
 					});
 				}));
 
 				playlistPromises.push(new Promise((resolve) => {
-					youtube.searchByChannel('UC-9-kyTW8ZkZNDHQJ6FgpwQ', 50, (error, result) => {		
-						// Music
-						/*if (error || !result.hasOwnProperty('items')) {
-							console.log(error);
-							res.json({
-								success: false,
-								error: {
-									code: 1,
-									text: 'Unable to fetch Music channel'
-								}
-							});
-							return;
-						}*/
+					youtube.searchByChannel('UC-9-kyTW8ZkZNDHQJ6FgpwQ', 50, (err, result) => {		
+						if (err) {
+							return reject(err);
+						}
 						
 						resolve(result.items);
 					});
@@ -104,19 +95,7 @@
 									}
 								}
 							}
-						}/*
-
-						if(result.kind === 'youtube#playlist'){
-							promArr.push(createPLPromise(result));
-						} else {
-							for (let i = 0; i < result.items.length; i++) {
-								if (result.items[i].id.kind === 'youtube#playlist') {
-									//let promise = createPromise(i);
-									promArr.push(createPLPromise(result.items[i]));
-								}
-							}
 						}
-						*/
 					}
 				}
 
