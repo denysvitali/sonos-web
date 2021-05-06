@@ -39,7 +39,7 @@
     "socket.io": "^2.3.0",
     "sonos": "git://github.com/denysvitali/node-sonos.git",
     "sprintf-js": "^1.1.2",
-    "underscore": "^1.9.1"
+    "underscore": "^1.12.1"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
