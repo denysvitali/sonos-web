@@ -36,7 +36,7 @@
     "memory-cache": "^0.2.0",
     "pug": "^2.0.4",
     "recursive-install": "^1.4.0",
-    "socket.io": "^2.3.0",
+    "socket.io": "^2.4.0",
     "sonos": "git://github.com/denysvitali/node-sonos.git",
     "sprintf-js": "^1.1.2",
     "underscore": "^1.12.1"
